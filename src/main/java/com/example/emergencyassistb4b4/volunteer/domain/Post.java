@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.volunteer.domain;
 
 import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.volunteer.enums.PostCateGory;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -35,7 +36,7 @@ public class Post {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private PostCateGory category; // RECRUITMENT, SUPPORT
+    private PostCateGory category;
 
     private String title;
 

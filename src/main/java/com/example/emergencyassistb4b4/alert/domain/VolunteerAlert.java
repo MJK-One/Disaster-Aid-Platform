@@ -23,5 +23,4 @@ public class VolunteerAlert {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
 }

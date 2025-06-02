@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -72,9 +73,9 @@ public class Report extends BaseEntity {
 
     // 위도
     @Column(name = "location_lat", precision = 10, scale = 7, nullable = false)
-    private Double locationLat;
+    private BigDecimal locationLat;
 
     // 경도
     @Column(name = "location_lng", precision = 10, scale = 7, nullable = false)
-    private Double locationLng;
+    private BigDecimal locationLng;
 }
