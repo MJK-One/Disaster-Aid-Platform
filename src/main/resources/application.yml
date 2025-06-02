@@ -1,0 +1,53 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+spring:
+  application:
+    name: disaster-alert-service
+  datasource:
+    url: ${POSTGRE_URL}
+    username: ${POSTGRE_USERNAME}
+    password: ${POSTGRE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  jwt:
+    token:
+      access:
+        minute: 15
+      refresh:
+        minute: 20160
+    secret: ${JWT_SECRET_KEY}
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: alert-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+logging:
+  level:
+    root: INFO
+    org.springframework.data.redis: WARN
+    org.springframework.kafka: INFO
+    com.example.disaster: DEBUG
