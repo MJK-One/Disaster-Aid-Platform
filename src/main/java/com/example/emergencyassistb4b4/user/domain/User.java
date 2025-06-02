@@ -1,8 +1,6 @@
 package com.example.emergencyassistb4b4.user.domain;
 
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
-import com.example.emergencyassistb4b4.user.enums.LoginType;
-import com.example.emergencyassistb4b4.user.enums.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

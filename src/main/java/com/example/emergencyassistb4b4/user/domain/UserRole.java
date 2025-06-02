@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.user.enums;
+package com.example.emergencyassistb4b4.user.domain;
 
 public enum UserRole {
     USER,
