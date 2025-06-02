@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,10 +29,10 @@ public class VolunteerLocation extends BaseEntity {
 
     // 위도
     @Column(name = "location_lat", precision = 10, scale = 7, nullable = false)
-    private Double locationLat;
+    private BigDecimal locationLat;
 
     // 경도
     @Column(name = "location_lng", precision = 10, scale = 7, nullable = false)
-    private Double locationLng;
+    private BigDecimal locationLng;
 
 }
