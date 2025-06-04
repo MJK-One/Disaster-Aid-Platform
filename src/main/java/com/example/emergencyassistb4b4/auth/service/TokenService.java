@@ -3,6 +3,7 @@ package com.example.emergencyassistb4b4.auth.service;
 import com.example.emergencyassistb4b4.auth.jwt.JwtTokenProvider;
 import com.example.emergencyassistb4b4.auth.redis.RefreshTokenService;
 import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.user.dto.UserResponse;
 import com.example.emergencyassistb4b4.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class TokenService {
         String userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
 
         // User 조회
-        User user = userService.findById(Long.parseLong(userId));
+        UserResponse user = userService.findById(Long.parseLong(userId));
 
         // 새로운 액세스 토큰 발급
         return jwtTokenProvider.generateToken(user, Duration.ofHours(2));

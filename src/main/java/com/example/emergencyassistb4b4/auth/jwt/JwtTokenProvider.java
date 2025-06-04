@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.auth.jwt;
 
 import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.user.dto.UserResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
@@ -30,7 +31,7 @@ public class JwtTokenProvider {
      * @param expiredAt  토큰의 만료 기간
      * @return  JWT 문자열
      */
-    public String generateToken(User user, Duration expiredAt) {
+    public String generateToken(UserResponse user, Duration expiredAt) {
         Date now = new Date(); // 현재 시간 기준으로 Date 객체 생성
 
         return makeToken(new Date(now.getTime() + expiredAt.toMillis()), user); // expiredAt 만큼 더한 만료시간 설정
@@ -41,7 +42,7 @@ public class JwtTokenProvider {
      * @param user 사용자 정보
      * @return JWT 문자열
      */
-    public String makeToken(Date expiry, User user) {
+    public String makeToken(Date expiry, UserResponse user) {
         Date now = new Date();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // 헤더 typ : JWT

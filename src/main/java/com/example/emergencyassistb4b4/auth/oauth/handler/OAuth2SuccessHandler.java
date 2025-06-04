@@ -6,6 +6,7 @@ import com.example.emergencyassistb4b4.auth.redis.RefreshToken;
 import com.example.emergencyassistb4b4.auth.redis.RefreshTokenRepository;
 import com.example.emergencyassistb4b4.global.util.CookieUtil;
 import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.user.dto.UserResponse;
 import com.example.emergencyassistb4b4.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,7 +35,7 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         OAuth2User oAuth2User  = (OAuth2User) authentication.getPrincipal();
-        User user = userService.findByEmail(oAuth2User.getAttributes().get("email").toString());
+        UserResponse user = userService.findByEmail(oAuth2User.getAttributes().get("email").toString());
 
         //1. 리프레시 토큰 생성 -> 저장 -> 쿠키에 저장
         String refreshToken = jwtTokenProvider.generateToken(user, REFRESH_TOKEN_DURATION);

@@ -36,18 +36,20 @@ public class User extends BaseEntity{
     @Column(name = "nickname", unique = true)
     private String nickname;
 
+    private String phoneNumber;
+
     @Column(unique = true, nullable = false, length = 100)
-    private String email;
+    private String email; //필수
 
     @Column(nullable = false, length = 255)
-    private String password;
+    private String password; //필수
 
     @Enumerated(EnumType.STRING)
     @Column(name = "login_type", nullable = false)
-    private LoginType loginType;
+    private LoginType loginType; //필수
 
     @Column(name = "provider", length = 255)
-    private String provider;
+    private String provider; //필수
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -68,7 +70,7 @@ public class User extends BaseEntity{
     }
 
     // 이메일을 수정한다? 좀 이상한듯 nickname의 추가가..
-    public User update(String name) {
+    public User update(String nickname) {
         this.nickname = nickname;
         return this;
     }
