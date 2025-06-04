@@ -15,11 +15,10 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 
 @Component
-@RequiredArgsConstructor
-public class IndividualKakaoStrategy implements LoginStrategy {
-    private final UserReadService userReadService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private  final RefreshTokenService refreshTokenService;
+public class IndividualKakaoStrategy extends AbstractLoginStrategy {
+    public IndividualKakaoStrategy(UserReadService userReadService, JwtTokenProvider jwtTokenProvider, RefreshTokenService refreshTokenService) {
+        super(userReadService, jwtTokenProvider, refreshTokenService);
+    }
     @Override
     public boolean supports(UserRole userRole, LoginType loginType) {
         return userRole == UserRole.IND && loginType == LoginType.KAKAO;
@@ -28,11 +27,7 @@ public class IndividualKakaoStrategy implements LoginStrategy {
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
        UserResponse userResponse = userReadService.findByEmail(loginRequest.getEmail());
-        String accessToken = jwtTokenProvider.generateToken(userResponse, Duration.ofHours(1));
-        String refreshToken = jwtTokenProvider.generateToken(userResponse, Duration.ofDays(14));
-
-        refreshTokenService.saveRefreshToken(userResponse.getId(), refreshToken);
-        return LoginResponse.of(accessToken, refreshToken);
+       return issueTokens(userResponse);
 
     }
 }

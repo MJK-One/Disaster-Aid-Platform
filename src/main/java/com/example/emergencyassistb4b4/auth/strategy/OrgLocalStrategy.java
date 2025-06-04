@@ -7,6 +7,7 @@ import com.example.emergencyassistb4b4.auth.redis.RefreshTokenService;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.dto.UserResponse;
+import com.example.emergencyassistb4b4.user.service.UserReadService;
 import com.example.emergencyassistb4b4.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,11 +15,15 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 
 @Component
-@RequiredArgsConstructor
-public class OrgLocalStrategy implements LoginStrategy {
+public class OrgLocalStrategy extends AbstractLoginStrategy {
     private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private  final RefreshTokenService refreshTokenService;
+
+    public OrgLocalStrategy(UserReadService userReadService, JwtTokenProvider jwtTokenProvider, RefreshTokenService refreshTokenService, UserService userService) {
+        super(userReadService, jwtTokenProvider, refreshTokenService);
+        this.userService = userService;
+    }
+
+
     @Override
     public boolean supports(UserRole userRole, LoginType loginType) {
         return (userRole == UserRole.NGO || userRole == UserRole.GOV) && loginType == LoginType.LOCAL;
@@ -27,11 +32,7 @@ public class OrgLocalStrategy implements LoginStrategy {
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
        UserResponse userResponse = userService.validateUserCredentials(loginRequest.getEmail(), loginRequest.getPassword());
-        String accessToken = jwtTokenProvider.generateToken(userResponse, Duration.ofHours(1));
-        String refreshToken = jwtTokenProvider.generateToken(userResponse, Duration.ofDays(14));
-
-        refreshTokenService.saveRefreshToken(userResponse.getId(),refreshToken);
-        return LoginResponse.of(accessToken, refreshToken);
+       return issueTokens(userResponse);
 
     }
 }
