@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,7 +23,9 @@ import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
+@Log4j2
 public class JwtTokenProvider {
+    // 토큰 생성, 파싱, 인증 변환 등을 처리하는 핵심 서비스
     private final JwtProperties jwtProperties; //jwt 비밀키 등의 값을 주입받기 위한 객체
 
     /**
@@ -72,6 +75,8 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token).getBody();
             return true;
         } catch (Exception e) {
+            // 디버깅 용, 추후 삭제 예정
+            log.warn("Invalid JWT token: {}", e.getMessage());
             return false;
         }
     }
@@ -86,13 +91,13 @@ public class JwtTokenProvider {
         Claims claims = getClaims(token); // jwt에서 claims(사용자 정보 등)를 추출
 
         // 권한 정보 생성 ( 기본값은 ROLE_USER )
-        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
-
+        String role = claims.get("role", String.class);
+        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role));
         // 사용자 정보를 기반으로 Spring Security 용 User 객체 생성
         return new UsernamePasswordAuthenticationToken(
                 new org.springframework.security.core.userdetails.User(
                         claims.getSubject(),"", authorities), token,authorities);
-        // subject는 주로 이메일이나 userId로 설정, 비밀번호는 없음 (인증용 객체라 ) , 위에서 생성한 권한 정보
+        // subject 는 주로 이메일이나 userId로 설정, 비밀번호는 없음 (인증용 객체라 ) , 위에서 생성한 권한 정보
         // token :  credentials (여기서는 JWT 토큰 자체)
         // authorities : 권한 정보 다시 주입
 

@@ -7,6 +7,7 @@ import com.example.emergencyassistb4b4.auth.redis.RefreshTokenRepository;
 import com.example.emergencyassistb4b4.global.util.CookieUtil;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.dto.UserResponse;
+import com.example.emergencyassistb4b4.user.service.UserReadService;
 import com.example.emergencyassistb4b4.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,19 +29,20 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final OAuth2AuthorizationRequestBasedOnCookieRepository oauth2AuthorizationRequestBasedOnCookieRepository;
-    private final UserService userService;
+    private final UserReadService userReadService;
 
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         OAuth2User oAuth2User  = (OAuth2User) authentication.getPrincipal();
-        UserResponse user = userService.findByEmail(oAuth2User.getAttributes().get("email").toString());
+        // 이메일로 유저 조회
+        UserResponse user = userReadService.findByEmail(oAuth2User.getAttributes().get("email").toString());
 
         //1. 리프레시 토큰 생성 -> 저장 -> 쿠키에 저장
-        String refreshToken = jwtTokenProvider.generateToken(user, REFRESH_TOKEN_DURATION);
-        saveRefreshToken(user.getId(), refreshToken);
-        addRefreshTokenToCookie(request, response, refreshToken);
+        String refreshToken = jwtTokenProvider.generateToken(user, REFRESH_TOKEN_DURATION); // 발급
+        saveRefreshToken(user.getId(), refreshToken); // Redis 저장
+        addRefreshTokenToCookie(request, response, refreshToken); // redirect uri에 token 포함
         //2. 액세스 토큰 -> path에 액세스 토큰 추가
         String accessToken = jwtTokenProvider.generateToken(user, ACCESS_TOKEN_DURATION);
         String targetUrl = getTargetUrl(accessToken);
@@ -52,7 +54,7 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
 
     // 생성된 리프레시 토큰을 전달받아 DB에 저장
     private void saveRefreshToken(Long userId, String newRefreshToken) {
-        RefreshToken refreshToken = new RefreshToken(String.valueOf(userId), newRefreshToken);
+        RefreshToken refreshToken = new RefreshToken(userId, newRefreshToken);
         refreshTokenRepository.save(refreshToken);
     }
     private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {

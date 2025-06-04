@@ -26,11 +26,11 @@ public class IndividualLocalStrategy implements LoginStrategy {
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-       UserResponse userResponse = userService.validateUserCredentials(loginRequest.getEmail(), loginRequest.getPassword());
+        UserResponse userResponse = userService.validateUserCredentials(loginRequest.getEmail(), loginRequest.getPassword());
         String accessToken = jwtTokenProvider.generateToken(userResponse, Duration.ofHours(1));
         String refreshToken = jwtTokenProvider.generateToken(userResponse, Duration.ofDays(14));
 
-        refreshTokenService.saveRefreshToken(refreshToken, userResponse.getId());
+        refreshTokenService.saveRefreshToken(userResponse.getId(),refreshToken);
         return LoginResponse.of(accessToken, refreshToken);
 
     }

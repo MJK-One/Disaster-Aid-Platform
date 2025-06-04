@@ -30,7 +30,7 @@ public class OrgLocalStrategy implements LoginStrategy {
         String accessToken = jwtTokenProvider.generateToken(userResponse, Duration.ofHours(1));
         String refreshToken = jwtTokenProvider.generateToken(userResponse, Duration.ofDays(14));
 
-        refreshTokenService.saveRefreshToken(refreshToken, userResponse.getId());
+        refreshTokenService.saveRefreshToken(userResponse.getId(),refreshToken);
         return LoginResponse.of(accessToken, refreshToken);
 
     }

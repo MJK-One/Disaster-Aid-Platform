@@ -14,8 +14,8 @@ public class RefreshTokenService {
         return refreshTokenRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new ApiException(ErrorStatus.REFRESH_TOKEN_NOT_FOUND));
     }
-    public void saveRefreshToken(String refreshToken, Long userId) {
-        refreshTokenRepository.save(new RefreshToken(refreshToken, userId));
+    public void saveRefreshToken(Long userId, String refreshToken) {
+        refreshTokenRepository.save(new RefreshToken(userId, refreshToken));
     }
 
     public void deleteRefreshToken(RefreshToken refreshToken) {

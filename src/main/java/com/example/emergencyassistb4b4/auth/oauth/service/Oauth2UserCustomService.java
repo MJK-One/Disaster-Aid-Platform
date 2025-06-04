@@ -1,7 +1,10 @@
 package com.example.emergencyassistb4b4.auth.oauth.service;
 
+import com.example.emergencyassistb4b4.auth.dto.LoginResponse;
 import com.example.emergencyassistb4b4.auth.oauth.dto.OAuth2Attributes;
+import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
@@ -32,19 +35,20 @@ public class Oauth2UserCustomService extends DefaultOAuth2UserService {
         OAuth2Attributes oAuth2Attributes = OAuth2Attributes.of(registrationId, attributes);
         saveOrUpdate(oAuth2Attributes);
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_IND")),
                 oAuth2Attributes.getAttributes(),
-                oAuth2Attributes.getProvider()
+                "email"
         );
     }
 
     private User saveOrUpdate(OAuth2Attributes oAuth2Attributes) {
         return userRepository.findByEmail(oAuth2Attributes.getEmail())
-                .map(user -> user.update(user.getNickname()))
+                .map(user -> user.updateNickname(user.getNickname()))
                 .orElseGet(()-> userRepository.save(
                         User.builder()
                                 .email(oAuth2Attributes.getEmail())
                                 .nickname(oAuth2Attributes.getName())
+                                .userRole(UserRole.IND)
                                 .build()
                 ));
     }

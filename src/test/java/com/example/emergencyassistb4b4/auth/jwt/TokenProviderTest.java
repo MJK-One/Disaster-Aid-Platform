@@ -3,7 +3,9 @@ package com.example.emergencyassistb4b4.auth.jwt;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
+import com.example.emergencyassistb4b4.user.dto.UserResponse;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Duration;
 import java.util.Date;
@@ -31,23 +34,30 @@ public class TokenProviderTest {
     @DisplayName("generateToken() : 유저정보와 만료기간을 전달해 토큰을 만들 수 있다.")
     public void generateToken() {
         // given
-        User testUser = userRepository.save(User.builder()
+        User user = userRepository.save(User.builder()
                 .email("user@gmail.com")
                 .password("test")
-                        .loginType(LoginType.LOCAL)
-                        .userRole(UserRole.USER)
+                .loginType(LoginType.LOCAL)
+                .userRole(UserRole.IND)
                 .build());
+        UserResponse userResponse = new UserResponse(user.getId(), user.getEmail());
+
+        Duration tokenDuration = Duration.ofDays(14);
+
         // when
-        String token = jwtTokenProvider.generateToken(testUser, Duration.ofDays(14));
+        String token = jwtTokenProvider.generateToken(userResponse, tokenDuration);
+
         // then
-        Key key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
-        Long userId = Jwts.parserBuilder()
+        Key key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .get("id", Long.class);
-        assertThat(userId).isEqualTo(testUser.getId());
+                .getBody();
+
+        assertThat(claims.get("id", Long.class)).isEqualTo(user.getId());
+        assertThat(claims.getSubject()).isEqualTo(user.getEmail());
+        assertThat(claims.getExpiration()).isAfter(new Date());
     }
     @DisplayName("validToken(): 만료된 토큰일 때에 유효성 검증에 실패한다.")
     @Test

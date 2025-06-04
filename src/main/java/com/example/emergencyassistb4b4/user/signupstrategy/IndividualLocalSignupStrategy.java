@@ -22,6 +22,7 @@ public class IndividualLocalSignupStrategy  implements SignUpStrategy {
 
     @Override
     public void signUp(SignUpRequest requestDto) {
+
         // 로컬 개인 회원가입 로직
         User user = User.builder()
                 .email(requestDto.getEmail())
@@ -32,5 +33,6 @@ public class IndividualLocalSignupStrategy  implements SignUpStrategy {
                 .userRole(UserRole.IND)
                 .build();
         userRepository.save(user);
+        userRepository.flush();
     }
 }
