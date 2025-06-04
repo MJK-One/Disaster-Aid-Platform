@@ -28,5 +28,4 @@ public class ReportRequestDto {
                 .videoUrl(report.getVideoUrl())
                 .build();
     }
-
 }
