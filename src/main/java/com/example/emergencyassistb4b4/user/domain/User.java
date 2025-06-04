@@ -27,11 +27,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseEntity implements UserDetails {
+public class User extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "nickname", unique = true)
+    private String nickname;
 
     @Column(unique = true, nullable = false, length = 100)
     private String email;
@@ -52,48 +55,21 @@ public class User extends BaseEntity implements UserDetails {
 
     private LocalDateTime lastLoginAt;
 
+
     @Builder
-    public User(String email, String password, LoginType loginType, String provider, UserRole userRole) {
+    public User(String email, String password, String nickname, LoginType loginType, String provider, UserRole userRole) {
         this.email = email;
         this.password = password;
+        this.nickname = nickname;
         this.loginType = loginType;
         this.provider = provider;
         this.userRole = userRole;
         this.lastLoginAt = LocalDateTime.now();
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(userRole.name()));
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+    // 이메일을 수정한다? 좀 이상한듯 nickname의 추가가..
+    public User update(String name) {
+        this.nickname = nickname;
+        return this;
     }
 }
