@@ -43,7 +43,7 @@ public class Oauth2UserCustomService extends DefaultOAuth2UserService {
 
     private User saveOrUpdate(OAuth2Attributes oAuth2Attributes) {
         return userRepository.findByEmail(oAuth2Attributes.getEmail())
-                .map(user -> user.updateNickname(user.getNickname()))
+                .map(user -> user.updateNickname(oAuth2Attributes.getName()))
                 .orElseGet(()-> userRepository.save(
                         User.builder()
                                 .email(oAuth2Attributes.getEmail())

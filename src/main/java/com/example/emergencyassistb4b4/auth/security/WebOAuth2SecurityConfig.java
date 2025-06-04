@@ -56,12 +56,14 @@ public class WebOAuth2SecurityConfig {
                 .addFilterBefore(new JwtTokenAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class) //JWT 필터 등록
 
                 .oauth2Login(oauth2 -> oauth2.loginPage("/login") //oauth 로그인 페이지 경로
+                        .successHandler(oAuth2SuccessHandler())
                         .authorizationEndpoint(endpoint -> endpoint
                                 .baseUri("/oauth2/authorize")
                                 // 쿠키 기반 저장소 사용
                                 .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
                        .userInfoEndpoint(endpoint -> endpoint
-                                .userService(oauth2UserCustomService))) // 로그인 이후 사용자 정보 처리 커스텀 서비스
+                                .userService(oauth2UserCustomService)))// 로그인 이후 사용자 정보 처리 커스텀 서비스
+
                 .build();
     }
 
