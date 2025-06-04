@@ -58,6 +58,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // test
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
     testImplementation 'org.mockito:mockito-core:4.8.0'
@@ -65,8 +66,14 @@ dependencies {
     // dotenv
     implementation 'io.github.cdimascio:dotenv-java:3.2.0'
 
-}
+    // build.gradle
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+
+}
+test {
+    useJUnitPlatform()
+}
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
