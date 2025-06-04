@@ -19,7 +19,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class VolunteerLocation extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,5 +33,4 @@ public class VolunteerLocation extends BaseEntity {
     // 경도
     @Column(name = "location_lng", precision = 10, scale = 7, nullable = false)
     private BigDecimal locationLng;
-
 }

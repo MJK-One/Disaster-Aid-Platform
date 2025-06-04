@@ -21,7 +21,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class VolunteerTeam {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
