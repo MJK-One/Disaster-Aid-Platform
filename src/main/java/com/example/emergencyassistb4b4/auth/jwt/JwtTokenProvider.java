@@ -67,7 +67,7 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(jwtProperties.getSecret())
+                    .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(token).getBody();
             return true;
@@ -104,8 +104,9 @@ public class JwtTokenProvider {
 
     // JWT에서 Claims(페이로드 부분)를 파싱해 가져오는 내부 유틸 메서드
     private Claims getClaims(String token) {
-        return Jwts.parser() //  JWT 파서 생성
-                .setSigningKey(jwtProperties.getSecret()) // 시크릿 키 설정
+        return Jwts.parserBuilder() //  JWT 파서 생성
+                .setSigningKey(getSigningKey()) // 시크릿 키 설정
+                .build()
                 .parseClaimsJws(token) // JWT 문자열을 파싱
                 .getBody(); // 클레임(body) 반환
 

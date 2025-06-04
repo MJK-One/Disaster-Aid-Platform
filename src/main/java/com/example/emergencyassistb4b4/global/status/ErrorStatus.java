@@ -30,6 +30,7 @@ public enum ErrorStatus implements BaseErrorCode {
     OAUTH_LOGIN_ONLY(HttpStatus.BAD_REQUEST, "U005", "소셜 로그인으로 가입된 계정입니다. 자체 로그인 불가합니다."),
     SELF_LOGIN_ONLY(HttpStatus.BAD_REQUEST, "U006", "자체 로그인으로 가입된 계정입니다. 소셜 로그인 불가합니다."),
     SIGNUP_STRATEGY_NOT_FOUND(HttpStatus.BAD_REQUEST, "U007", " 지원하지 않는 회원가입 방식입니다."),
+    LOGIN_STRATEGY_NOT_FOUND(HttpStatus.BAD_REQUEST, "U008", " 지원하지 않는 로그인 방식입니다."),
     // 로그아웃
     LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "U001", "로그아웃 처리에 실패했습니다."),
 

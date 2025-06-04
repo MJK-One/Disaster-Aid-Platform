@@ -21,6 +21,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final List<SignUpStrategy> signUpStrategies;
+    private final BCryptPasswordEncoder passwordEncoder;
+
     public void signUp(SignUpRequest requestDto) {
         validateEmail(requestDto.getEmail());
         signUpStrategies.stream()
@@ -32,10 +34,19 @@ public class UserService {
     }
 
     //이메일 중복 검사
-    private void validateEmail(String email) {
+    public void validateEmail(String email) {
         if(userRepository.existsByEmail(email)) {
             throw new ApiException(ErrorStatus.DUPLICATED_EMAIL);
         }
+    }
+
+    public UserResponse validateUserCredentials(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new ApiException(ErrorStatus.USER_NOT_FOUND));
+        if(!passwordEncoder.matches(password, user.getPassword())) {
+            throw new ApiException(ErrorStatus.INVALID_PASSWORD);
+        }
+        return new UserResponse(user.getId(), user.getPassword());
     }
 
     //리프레시 토큰 유효성 검사할 때 사용함
