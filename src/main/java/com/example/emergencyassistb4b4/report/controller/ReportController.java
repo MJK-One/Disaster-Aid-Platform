@@ -64,6 +64,6 @@ public class ReportController {
 
         UserInfoResponseDto responseDto = UserInfoResponseDto.from(reporter);
 
-        return ApiResponse.onSuccess(SuccessStatus.REPORT_REPORTER_GET_SUCCESS, responseDto)
+        return ApiResponse.onSuccess(SuccessStatus.REPORT_REPORTER_GET_SUCCESS, responseDto);
     }
 }
