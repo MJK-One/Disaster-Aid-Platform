@@ -72,23 +72,4 @@ public class ReportService {
                 })
                 .collect(Collectors.toList());
     }
-
-    // (공공기관) 신고자 정보 조회 기능
-    @Transactional(readOnly = true)
-    public User getReporterInfo(Long reportId, User responder) {
-
-        // 신고 조회
-        Report report = reportRepository.findById(reportId)
-                .orElseThrow(() -> new ApiException(ErrorStatus.REPORT_NOT_FOUND));
-
-        // 권한 확인 (해당 신고가 내가 담당하는 신고인지 확인)
-        boolean isMyReport = reportResponseRepository.existsByReportAndResponder(report, responder);
-
-        if (!isMyReport) {
-           throw new ApiException(ErrorStatus.PEPORT_UNAUTHORIZED_ACCESS);
-        }
-
-        // 신고자 반환
-        return report.getReporter();
-    }
 }

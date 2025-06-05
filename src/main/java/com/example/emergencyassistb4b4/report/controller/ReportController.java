@@ -49,21 +49,4 @@ public class ReportController {
 
         return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS, responseDtos);
     }
-
-    @GetMapping("/{reportId}/reporter")
-    @PreAuthorize("hasRole('Role_PUBLIC')") // 공공기관만 접근 가능
-    public ResponseEntity<ApiResponse<UserInfoResponseDto>> getReporterInfo(
-            @PathVariable Long reportId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-
-        // 현재 공공기관 사용자 정보 가져오기
-        User currentUser = userDetails.getUser();
-
-        User reporter = reportService.getReporterInfo(reportId, currentUser);
-
-        UserInfoResponseDto responseDto = UserInfoResponseDto.from(reporter);
-
-        return ApiResponse.onSuccess(SuccessStatus.REPORT_REPORTER_GET_SUCCESS, responseDto);
-    }
 }
