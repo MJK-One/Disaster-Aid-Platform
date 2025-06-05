@@ -9,7 +9,11 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum SuccessStatus implements BaseCode {
 
-    CUSTOM_SUCCESS_STATUS(HttpStatus.OK, "S1001", "Custom Success");
+    CUSTOM_SUCCESS_STATUS(HttpStatus.OK, "S1001", "Custom Success"),
+
+    LOCATION_SAVE_SUCCESS(HttpStatus.CREATED, "LC002", "Location information save is success"),
+    SHELTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Shelter search completed successfully"),
+    DISASTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Disaster summary search completed successfully");
 
     private final HttpStatus httpStatus;
     private final String code;

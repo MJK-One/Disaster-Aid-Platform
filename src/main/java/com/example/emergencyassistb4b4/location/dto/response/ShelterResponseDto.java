@@ -1,6 +1,6 @@
-package com.example.demo.domain.location.dto.response;
+package com.example.emergencyassistb4b4.location.dto.response;
 
-
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,11 +8,19 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-
 public class ShelterResponseDto {
     private String name;
     private String address;
-    private int capacity; // 예시로 포함 (실제로는 카카오 API에 없으면 0 처리)
     private double latitude;
     private double longitude;
+
+    public static ShelterResponseDto from(JsonNode doc) {
+        return ShelterResponseDto.builder()
+                .name(doc.path("place_name").asText())
+                .address(doc.path("address_name").asText())
+                .latitude(doc.path("y").asDouble())
+                .longitude(doc.path("x").asDouble())
+                .build();
+    }
 }
+

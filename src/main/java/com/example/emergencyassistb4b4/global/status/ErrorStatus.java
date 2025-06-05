@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.global.status;
 
 import com.example.emergencyassistb4b4.global.response.ErrorReasonDto;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,13 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorStatus implements BaseErrorCode {
 
-    CUSTOM_ERROR_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "Custom Error");
+    CUSTOM_ERROR_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "Custom Error"),
+
+    KAKAO_API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 요청 실패"),
+    KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
+    KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답");
+
+
 
     private final HttpStatus httpStatus;
     private final String code;
