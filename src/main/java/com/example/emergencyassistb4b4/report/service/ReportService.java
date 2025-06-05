@@ -54,22 +54,7 @@ public class ReportService {
         List<ReportResponse> reportResponses = reportResponseRepository.findByResponder(responder);
 
         return reportResponses.stream()
-                .map(reportResponse -> {
-                    Report report = reportResponse.getReport();
-
-                    return ReportResponseDto.builder()
-                            .reporter(report.getReporter().getId()) // 신고자 아이디
-                            .disasterType(report.getDisasterType())
-                            .description(report.getDescription())
-                            .imageUrl(report.getImageUrl())
-                            .videoUrl(report.getVideoUrl())
-                            .status(report.getStatus())
-                            .si(report.getSi()) // 예시: 위치 서비스로 가져온 값
-                            .gu(report.getGu())
-                            .locationLat(report.getLocationLat())
-                            .locationLng(report.getLocationLng())
-                            .build();
-                })
+                .map(reportResponse -> ReportResponseDto.from(reportResponse.getReport()))
                 .collect(Collectors.toList());
     }
 }

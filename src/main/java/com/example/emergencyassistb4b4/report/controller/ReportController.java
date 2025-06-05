@@ -4,13 +4,10 @@ import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
 import com.example.emergencyassistb4b4.report.dto.ReportRequestDto;
 import com.example.emergencyassistb4b4.report.dto.ReportResponseDto;
-import com.example.emergencyassistb4b4.report.dto.UserInfoResponseDto;
 import com.example.emergencyassistb4b4.report.service.ReportService;
 import com.example.emergencyassistb4b4.user.domain.User;
-import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 

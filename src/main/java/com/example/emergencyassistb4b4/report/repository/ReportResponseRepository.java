@@ -13,6 +13,4 @@ public interface ReportResponseRepository extends JpaRepository<ReportResponse, 
     List<ReportResponse> findByResponder(User responder);
 
     boolean existsByReportAndResponder(Report report, User responder);
-
-    User responder(User responder);
 }
