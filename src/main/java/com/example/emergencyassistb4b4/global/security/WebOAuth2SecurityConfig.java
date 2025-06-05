@@ -1,5 +1,9 @@
 package com.example.emergencyassistb4b4.global.security;
 
+import com.example.emergencyassistb4b4.auth.oauth.handler.OAuth2SuccessHandler;
+import com.example.emergencyassistb4b4.auth.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
+import com.example.emergencyassistb4b4.auth.oauth.service.OAuth2UserCustomService;
+import com.example.emergencyassistb4b4.auth.service.RefreshTokenService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +20,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebOAuth2SecurityConfig {
 
     private final JwtUtils jwtUtils;
+    private final OAuth2UserCustomService oAuth2UserCustomService;
+    private final RefreshTokenService refreshTokenService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,6 +45,14 @@ public class WebOAuth2SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable) // 로그아웃 비활성화
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //세션 사용안함
                 .addFilterBefore(new JwtTokenAuthenticationFilter(jwtUtils), UsernamePasswordAuthenticationFilter.class) //JWT 필터 등록
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2SuccessHandler())
+                        .authorizationEndpoint(endpoint -> endpoint
+                                .baseUri("/oauth2/authorize")
+                                // 쿠키 기반 저장소 사용
+                                .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
+                        .userInfoEndpoint(endpoint -> endpoint
+                                .userService(oAuth2UserCustomService)))// 로그인 이후 사용자 정보 처리 커스텀 서비스
 
 
                 .exceptionHandling(exception -> exception
@@ -49,6 +63,19 @@ public class WebOAuth2SecurityConfig {
                 .build();
     }
 
+    @Bean
+    public OAuth2SuccessHandler oAuth2SuccessHandler() {
+        return new OAuth2SuccessHandler(jwtUtils,
+                refreshTokenService,
+                oAuth2AuthorizationRequestBasedOnCookieRepository()
+        );
+    }
+
+
+    @Bean
+    public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository() {
+        return new OAuth2AuthorizationRequestBasedOnCookieRepository();
+    }
     @Bean
     public JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter() {
         return new JwtTokenAuthenticationFilter(jwtUtils);
