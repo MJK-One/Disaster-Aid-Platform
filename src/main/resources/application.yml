@@ -18,12 +18,11 @@ spring:
       hibernate:
         format_sql: true
   jwt:
-    token:
-      access:
-        minute: 15
-      refresh:
-        minute: 20160
+    issuer: my-app
     secret: ${JWT_SECRET_KEY}
+    access-token-validity: 900000      # 15분
+    refresh-token-validity: 1209600000 # 14일
+
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
@@ -50,3 +49,36 @@ logging:
     org.springframework.data.redis: WARN
     org.springframework.kafka: INFO
     com.example.disaster: DEBUG
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "http://localhost:8080/api/auth/oauth2/google"
+            scope:
+              - profile
+              - email
+            client-name: Google
+
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            redirect-uri: http://localhost:8080/api/auth/oauth2/kakao
+            client-authentication-method: POST
+            authorization-grant-type: authorization_code
+            scope:
+              - profile_nickname
+              - account_email
+            client-name: Kakao
+            provider: kakao
+        provider:
+          kakao:
+            authorization-uri: ${KAKAO_AUTH_URI}
+            token-uri: ${KAKAO_TOKEN_URI}
+            user-info-uri: ${KAKAO_USER_INFO_URI}
+            user-name-attribute: id
+
+  config:
+    import: classpath:/.env
