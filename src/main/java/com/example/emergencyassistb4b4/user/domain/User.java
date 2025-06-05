@@ -1,8 +1,8 @@
 package com.example.emergencyassistb4b4.user.domain;
 
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
-import com.example.emergencyassistb4b4.user.enums.LoginType;
-import com.example.emergencyassistb4b4.user.enums.UserRole;
+import com.example.emergencyassistb4b4.user.domain.enums.LoginType;
+import com.example.emergencyassistb4b4.user.domain.enums.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,21 +29,27 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseEntity implements UserDetails {
+public class User extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "nickname", unique = true)
+    private String nickname;
+
+    @Column(length = 20)
+    private String phoneNumber;
+
     @Column(unique = true, nullable = false, length = 100)
-    private String email;
+    private String email; //필수
 
     @Column(nullable = false, length = 255)
-    private String password;
+    private String password; //필수
 
     @Enumerated(EnumType.STRING)
     @Column(name = "login_type", nullable = false)
-    private LoginType loginType;
+    private LoginType loginType; //필수
 
     @Column(name = "provider", length = 255)
     private String provider;
@@ -54,48 +60,21 @@ public class User extends BaseEntity implements UserDetails {
 
     private LocalDateTime lastLoginAt;
 
+
     @Builder
-    public User(String email, String password, LoginType loginType, String provider, UserRole userRole) {
+    public User(String email, String password, String nickname, LoginType loginType, String provider, UserRole userRole) {
         this.email = email;
         this.password = password;
+        this.nickname = nickname;
         this.loginType = loginType;
         this.provider = provider;
         this.userRole = userRole;
         this.lastLoginAt = LocalDateTime.now();
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(userRole.name()));
-    }
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+    public User updateNickname(String nickname) {
+        this.nickname = nickname;
+        return this;
     }
 }
