@@ -1,16 +1,15 @@
 package com.example.emergencyassistb4b4.report.service;
 
-import com.example.emergencyassistb4b4.global.exception.ApiException;
-import com.example.emergencyassistb4b4.global.status.ErrorStatus;
+import com.example.emergencyassistb4b4.global.kafka.producer.DisasterAlertProducer;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.domain.ReportResponse;
+import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
 import com.example.emergencyassistb4b4.report.dto.ReportRequestDto;
 import com.example.emergencyassistb4b4.report.dto.ReportResponseDto;
 import com.example.emergencyassistb4b4.report.enums.ReportStatus;
 import com.example.emergencyassistb4b4.report.repository.ReportRepository;
 import com.example.emergencyassistb4b4.report.repository.ReportResponseRepository;
 import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,10 +24,13 @@ public class ReportService {
 
     private final ReportRepository reportRepository;
     private final ReportResponseRepository reportResponseRepository;
+    private final DisasterAlertProducer disasterAlertProducer;
 
     // (사용자) 재난 신고 기능
+    @Transactional
     public ReportResponseDto disasterReport(ReportRequestDto requestDto, User reporter) {
 
+        // 신고 저장
         Report report = Report.builder()
                 .reporter(reporter)
                 .disasterType(requestDto.getDisasterType())
@@ -44,6 +46,12 @@ public class ReportService {
 
         Report savedReport = reportRepository.save(report);
 
+        // kafka 메세지 발행
+        DisasterAlertMessage alertMessage = DisasterAlertMessage.from(savedReport);
+
+        disasterAlertProducer.sendDisasterAlert(alertMessage);
+
+        // Dto 반환
         return ReportResponseDto.from(savedReport);
     }
 
