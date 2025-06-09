@@ -53,10 +53,10 @@ public class OAuth2AuthorizationRequestBasedOnCookieRepository implements Author
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
         // 1. 쿠키에서 객체를 로드
         OAuth2AuthorizationRequest authorizationRequest = this.loadAuthorizationRequest(request);
-        // 2. 쿠키 삭제
-        this.removeAuthorizationRequest(request, response);
-        // 3. 로드한 객체를 반환
-        return this.loadAuthorizationRequest(request);
+        // 2. 쿠키 삭제 후 반환
+        return this.removeAuthorizationRequest(request, response);
+
+
     }
     /**
      * OAuth2 인증 요청 정보를 저장한 쿠키를 삭제합니다.

@@ -29,7 +29,6 @@ public class WebOAuth2SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/static/**").permitAll()
                         .requestMatchers(
                                 "/static/**",
                                 "/api/auth/signup",
@@ -46,11 +45,11 @@ public class WebOAuth2SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable) // 기본 폼 사용 X
                 .logout(AbstractHttpConfigurer::disable) // 로그아웃 비활성화
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //세션 사용안함
-                .addFilterBefore(new JwtTokenAuthenticationFilter(jwtUtils), UsernamePasswordAuthenticationFilter.class) //JWT 필터 등록
+                .addFilterBefore(jwtTokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class) //JWT 필터 등록
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2SuccessHandler())
                         .authorizationEndpoint(endpoint -> endpoint
-                                .baseUri("/oauth2/authorize")
+                                .baseUri("/oauth2/authorization")
                                 // 쿠키 기반 저장소 사용
                                 .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
                         .userInfoEndpoint(endpoint -> endpoint
@@ -60,6 +59,7 @@ public class WebOAuth2SecurityConfig {
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_ACCEPTED);
+                            response.setContentType("application/json");
                             response.getWriter().write("Unauthorized");
                         }))
                 .build();

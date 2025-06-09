@@ -41,14 +41,13 @@ public class JwtUtils {
      * @return  JWT 문자열
      */
     public String generateRefreshToken(UserResponseDto user) {
-        String refreshToken = createToken(user, Duration.ofDays(14));
+        return createToken(user, Duration.ofHours(14));
         // JWT를 만드는 메서드는 순수 생성만 하고, 저장/검증은 외부서비스 AuthService 에서 하는것이 좋다고 하여 리팩토링 예정
         // return createToken(user, Duration.ofDays(14);
-        // AuthService에서는
+        // AuthService 에서는
         // String refreshToken = jwtUtils.generateRefreshToken(user);
         // refreshTokenService.saveToken(user.getId(), refreshToken)
-        refreshTokenService.saveToken(user.getId(), refreshToken);
-        return refreshToken;
+
     }
 
 

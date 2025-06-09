@@ -13,6 +13,7 @@ public class RefreshTokenService {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private static final long REFRESH_TOKEN_EXPIRE = 60 * 60 * 24 * 7;
+    private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
 
     public void saveToken(Long userId, String refreshToken) {
         redisTemplate.opsForValue().set(
@@ -22,7 +23,7 @@ public class RefreshTokenService {
     }
 
     private String getKey(Long userId) {
-        return "refresh_token:" + userId;
+        return REFRESH_TOKEN_PREFIX + userId;
     }
 
     public String getRefreshToken(Long userId) {

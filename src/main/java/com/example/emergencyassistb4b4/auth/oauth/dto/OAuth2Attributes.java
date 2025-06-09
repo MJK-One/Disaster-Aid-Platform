@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.util.Map;
 /**
+ * OAuth2 공급자에서 받은 사용자 정보를 내부 공통 포맷으로 변환
  * Provider별 분기를 위해 정적 팩토리 메서드 of를 사용하고, ofGoogle, ofKakao 메서드를 통해
  * 각 Provider의 응답으로부터 필요한 사용자 정보를 추출하여 OAuth2Attributes 객체로 만듬
  */

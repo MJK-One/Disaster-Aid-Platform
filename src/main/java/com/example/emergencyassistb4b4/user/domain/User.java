@@ -1,5 +1,6 @@
 package com.example.emergencyassistb4b4.user.domain;
 
+import com.example.emergencyassistb4b4.auth.oauth.dto.SocialUserUpdateDto;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -72,6 +73,11 @@ public class User extends BaseEntity{
 
     public User updateNickname(String nickname) {
         this.nickname = nickname;
+        return this;
+    }
+
+    public User updateSocialInfo(SocialUserUpdateDto dto) {
+        this.nickname = dto.getNickname();
         return this;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.auth.oauth.service;
 
 import com.example.emergencyassistb4b4.auth.oauth.dto.OAuth2Attributes;
+import com.example.emergencyassistb4b4.auth.oauth.dto.SocialUserUpdateDto;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
@@ -29,8 +30,8 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // 기본 DefaultOAuth2UserService의 loadUser 메서드를 호출하여
-        // Provider로부터 사용자 정보를 가져와 OAuth2User 객체로 반환받는다.
+        // 기본 DefaultOAuth2UserService 의 loadUser 메서드를 호출하여
+        // Provider 로부터 사용자 정보를 가져와 OAuth2User 객체로 반환받는다.
         OAuth2User oAuth2User = super.loadUser(userRequest);
         // 어떤 Provider (google, kakao 등)에서 왔는지 확인
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
@@ -65,8 +66,9 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
      * @return 저장되거나 업데이트된 User 엔티티 객체
      */
     private User saveOrUpdate(OAuth2Attributes oAuth2Attributes) {
+        SocialUserUpdateDto dto = new SocialUserUpdateDto(oAuth2Attributes.getName(), null);
         return userRepository.findByEmail(oAuth2Attributes.getEmail())
-                .map(user -> user.updateNickname(oAuth2Attributes.getName()))
+                .map(user -> user.updateSocialInfo(dto))
                 .orElseGet(()-> userRepository.save(
                         User.builder()
                                 .email(oAuth2Attributes.getEmail())

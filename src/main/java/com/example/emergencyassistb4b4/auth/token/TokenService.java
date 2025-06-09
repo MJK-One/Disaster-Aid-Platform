@@ -1,7 +1,6 @@
-package com.example.emergencyassistb4b4.auth.service;
+package com.example.emergencyassistb4b4.auth.token;
 
 import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
-import com.example.emergencyassistb4b4.auth.token.RefreshTokenService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.security.JwtUtils;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
@@ -38,6 +37,7 @@ public class TokenService {
         // 5. 새로운 access, refresh 토큰 재발급
         String newAccessToken = jwtUtils.generateAccessToken(UserResponseDto.from(user));
         String newRefreshToken = jwtUtils.generateRefreshToken(UserResponseDto.from(user));
+        refreshTokenService.saveToken(userId, newRefreshToken); // refresh 토큰 저장
 
         // 6. 리프레시 토큰 저장 ( 기존 것을 덮어씀)
         refreshTokenService.saveToken(userId, newRefreshToken);

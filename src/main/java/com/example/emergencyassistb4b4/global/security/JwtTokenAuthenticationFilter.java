@@ -40,7 +40,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = jwtUtils.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {
-            log.info("No JWT token in header : 토큰이 없음!!!! ");
+            log.warn("No JWT token in header : 토큰이 없음!!!! ");
         }
         filterChain.doFilter(request, response);
     }
@@ -51,6 +51,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
+    // 추후에 경로가 많아질 것을 생각해서 Set<String>, PathMatcher 활용한 구성으로 리팩토링 예정
     private boolean isSkipPath(String path) {
         return path.startsWith("/api/auth/signup")
                 || path.startsWith("/api/auth/login")
