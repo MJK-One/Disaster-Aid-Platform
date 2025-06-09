@@ -9,7 +9,12 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorStatus implements BaseErrorCode {
 
-    CUSTOM_ERROR_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "Custom Error");
+    CUSTOM_ERROR_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "Custom Error"),
+    // 유저
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "US004", "존재하지 않는 사용자입니다."),
+
+    // 자원봉사
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "존재하지 않는 게시글입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
