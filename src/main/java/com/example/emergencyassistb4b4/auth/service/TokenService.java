@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.auth.service;
 
 import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
+import com.example.emergencyassistb4b4.auth.token.RefreshTokenService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.security.JwtUtils;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
@@ -9,8 +10,6 @@ import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
 
 @RequiredArgsConstructor
 @Service

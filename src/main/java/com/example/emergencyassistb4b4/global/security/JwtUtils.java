@@ -1,6 +1,6 @@
 package com.example.emergencyassistb4b4.global.security;
 
-import com.example.emergencyassistb4b4.auth.service.RefreshTokenService;
+import com.example.emergencyassistb4b4.auth.token.RefreshTokenService;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
@@ -9,12 +9,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -34,7 +32,7 @@ public class JwtUtils {
     /**
      * Access Token 생성, 1시간 유효
      */
-    public String generateRefreshToken(UserResponseDto user) {
+    public String generateAccessToken(UserResponseDto user) {
         return createToken(user, Duration.ofHours(1));
     }
     /**
@@ -42,8 +40,13 @@ public class JwtUtils {
      * @param user 토큰에 포함될 사용자 정보
      * @return  JWT 문자열
      */
-    public String generateAccessToken(UserResponseDto user) {
+    public String generateRefreshToken(UserResponseDto user) {
         String refreshToken = createToken(user, Duration.ofDays(14));
+        // JWT를 만드는 메서드는 순수 생성만 하고, 저장/검증은 외부서비스 AuthService 에서 하는것이 좋다고 하여 리팩토링 예정
+        // return createToken(user, Duration.ofDays(14);
+        // AuthService에서는
+        // String refreshToken = jwtUtils.generateRefreshToken(user);
+        // refreshTokenService.saveToken(user.getId(), refreshToken)
         refreshTokenService.saveToken(user.getId(), refreshToken);
         return refreshToken;
     }
@@ -88,6 +91,8 @@ public class JwtUtils {
                     .parseClaimsJws(token).getBody();
             return true;
         } catch (Exception e) {
+            // 모든 예외를 이걸로 처리하는게 좋지 않아보여서 추후 리팩토링 예정
+
             // 디버깅 용, 추후 삭제 예정
             log.warn("Invalid JWT token: {}", e.getMessage());
             return false;
@@ -104,9 +109,12 @@ public class JwtUtils {
 
         // 권한 정보 생성 ( 기본값은 ROLE_USER )
         String role = claims.get("role", String.class);
+        if (role == null) {
+            role = "USER"; // 기본값
+        }
         Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role));
-        // 사용자 정보를 기반으로 Spring Security 용 User 객체 생성
-        return new UsernamePasswordAuthenticationToken(
+
+        return new UsernamePasswordAuthenticationToken( // 사용자 정보를 기반으로 Spring Security 용 User 객체 생성
                 new org.springframework.security.core.userdetails.User(
                         claims.getSubject(),"", authorities), token,authorities);
         // subject 는 주로 이메일이나 userId로 설정, 비밀번호는 없음 (인증용 객체라 ) , 위에서 생성한 권한 정보

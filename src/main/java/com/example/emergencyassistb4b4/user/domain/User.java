@@ -1,8 +1,6 @@
 package com.example.emergencyassistb4b4.user.domain;
 
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
-import com.example.emergencyassistb4b4.user.domain.enums.LoginType;
-import com.example.emergencyassistb4b4.user.domain.enums.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,16 +10,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
 @Builder
@@ -53,6 +47,9 @@ public class User extends BaseEntity{
 
     @Column(name = "provider", length = 255)
     private String provider;
+
+    private String businessNumber;
+    private String organizationName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
