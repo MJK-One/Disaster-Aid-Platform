@@ -1,9 +1,11 @@
-package com.example.emergencyassistb4b4.global.security;
+package com.example.emergencyassistb4b4.global.config;
 
 import com.example.emergencyassistb4b4.auth.oauth.handler.OAuth2SuccessHandler;
 import com.example.emergencyassistb4b4.auth.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.emergencyassistb4b4.auth.oauth.service.OAuth2UserCustomService;
-import com.example.emergencyassistb4b4.auth.service.RefreshTokenService;
+import com.example.emergencyassistb4b4.auth.token.RefreshTokenService;
+import com.example.emergencyassistb4b4.global.security.JwtTokenAuthenticationFilter;
+import com.example.emergencyassistb4b4.global.security.JwtUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

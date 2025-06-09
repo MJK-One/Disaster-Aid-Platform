@@ -1,6 +1,5 @@
-package com.example.emergencyassistb4b4.global.security;
+package com.example.emergencyassistb4b4.user.domain;
 
-import com.example.emergencyassistb4b4.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
