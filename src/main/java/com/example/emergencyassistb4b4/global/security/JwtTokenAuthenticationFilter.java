@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -13,7 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
@@ -23,7 +24,6 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
-
         // 필터 예외 경로 처리
         if(isSkipPath(path)) {
             filterChain.doFilter(request, response);
@@ -39,9 +39,12 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && jwtUtils.validateToken(token)) {
             Authentication authentication = jwtUtils.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
         } else {
             log.warn("No JWT token in header : 토큰이 없음!!!! ");
         }
+
+
         filterChain.doFilter(request, response);
     }
     private String getAccessToken(String authorizationHeader) {
@@ -56,6 +59,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         return path.startsWith("/api/auth/signup")
                 || path.startsWith("/api/auth/login")
                 || path.startsWith("/oauth2")
-                || path.startsWith("/api/auth/refresh");
+                || path.startsWith("/api/auth/reissue")
+                || path.startsWith("/api/login/oauth2");
     }
 }

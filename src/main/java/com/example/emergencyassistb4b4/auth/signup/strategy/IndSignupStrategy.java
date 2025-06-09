@@ -8,6 +8,7 @@ import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
+import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -40,7 +41,7 @@ public class IndSignupStrategy implements SignUpStrategy {
                 .userRole(UserRole.IND)
                 .build();
         userRepository.save(user);
-        return tokenService.issueToken(user);
+        return tokenService.issueToken(UserResponseDto.from(user));
 
     }
 }

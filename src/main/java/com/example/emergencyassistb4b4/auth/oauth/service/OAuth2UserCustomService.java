@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,28 +31,32 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // 기본 DefaultOAuth2UserService 의 loadUser 메서드를 호출하여
-        // Provider 로부터 사용자 정보를 가져와 OAuth2User 객체로 반환받는다.
-        OAuth2User oAuth2User = super.loadUser(userRequest);
-        // 어떤 Provider (google, kakao 등)에서 왔는지 확인
+
+
+        // 1. Provider 정보
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        // Provider로부터 받은 원본 사용자 속성(정보) 맵을 가져옴
+        // 2. OAuth2 기본 사용자 정보 가져오기
+        OAuth2User oAuth2User = super.loadUser(userRequest);
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
-        // 가져온 Provider 이름과 속성 맵을 사용하여
-        // 이전에 정의한 OAuth2Attributes 객체로 변환
+        // 3. attributes => OAuth2Attributes 변환
         OAuth2Attributes oAuth2Attributes = OAuth2Attributes.of(registrationId, attributes);
 
+        // 회원 저장 또는 업데이트
+        User user = saveOrUpdate(oAuth2Attributes);
 
-        // (회원가입 또는 로그인 시 기존 사용자 정보 업데이트)
-        saveOrUpdate(oAuth2Attributes);
+        // return 용 attuirbute 구성
+        Map<String, Object> additionalAttributes = new HashMap<>(oAuth2Attributes.getAttributes());
+        additionalAttributes.put("userId", user.getId());
+        additionalAttributes.put("email", user.getEmail());
+        additionalAttributes.put("role", user.getUserRole().name());
 
         // 첫 번째 인자: 사용자에게 부여할 권한 목록 (현재는 "ROLE_IND" 고정)
         // 두 번째 인자: OAuth2 Provider로부터 가져온 원본 속성 맵 (또는 공통화된 정보)
         // 세 번째 인자: 사용자 식별에 사용할 속성의 키 이름 (여기서는 "email"로 설정됨)
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_IND")),
-                oAuth2Attributes.getAttributes(),
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getUserRole().toString())),
+                additionalAttributes,
                 oAuth2Attributes.getProviderId()
 
         );

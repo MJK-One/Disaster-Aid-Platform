@@ -11,6 +11,7 @@ import com.example.emergencyassistb4b4.global.security.CustomUserDetailsService;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
 import com.example.emergencyassistb4b4.user.domain.CustomUserDetails;
 import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import jakarta.servlet.ServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,10 +51,10 @@ public class AuthController {
 
         // 2. 인증된 사용자 정보
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        User user = userDetails.getUser();
+        UserResponseDto userDto = UserResponseDto.from(userDetails.getUser()); // 이미 DTO 타입이면 바로 사용
 
         // 3. 토큰 발급은 TokenService가 함
-        TokenResponseDto tokens = tokenService.issueToken(user);
+        TokenResponseDto tokens = tokenService.issueToken(userDto);
 
         // 4. SecurityContext 설정( 선택사항 , JWT 기반이면 보통 생략)
         SecurityContextHolder.getContext().setAuthentication(authentication);

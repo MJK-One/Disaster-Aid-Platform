@@ -7,6 +7,7 @@ import com.example.emergencyassistb4b4.auth.token.RefreshTokenService;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.security.JwtTokenAuthenticationFilter;
 import com.example.emergencyassistb4b4.global.security.JwtUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Configuration
@@ -34,10 +37,10 @@ public class WebOAuth2SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/static/**",
-                                "/api/auth/signup",
-                                "/api/auth/login",
+                                "/api/auth/**",
                                 "/oauth2/**",
-                                "/api/refresh"
+                                "/api/login/oauth2/code/**",
+                                "/api/auth/reissue"
 
                         ).permitAll()
                         .requestMatchers("/api/**").authenticated()
@@ -55,21 +58,27 @@ public class WebOAuth2SecurityConfig {
                                 .baseUri("/oauth2/authorization")
                                 // 쿠키 기반 저장소 사용
                                 .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
+                        .redirectionEndpoint(endpoint -> endpoint
+                                .baseUri("/api/login/oauth2/code/*"))
                         .userInfoEndpoint(endpoint -> endpoint
                                 .userService(oAuth2UserCustomService)))// 로그인 이후 사용자 정보 처리 커스텀 서비스
 
 
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
+                           // authException.printStackTrace();
                             response.setStatus(HttpServletResponse.SC_ACCEPTED);
                             response.setContentType("application/json");
-                            response.getWriter().write("Unauthorized");
+                           response.getWriter().write(
+                                    new ObjectMapper().writeValueAsString(Map.of("error", "Unauthorized"))
+                            );
                         }))
                 .build();
     }
 
     @Bean
     public OAuth2SuccessHandler oAuth2SuccessHandler(TokenService tokenService) {
+
         return new OAuth2SuccessHandler(
                 tokenService,
                 oAuth2AuthorizationRequestBasedOnCookieRepository()

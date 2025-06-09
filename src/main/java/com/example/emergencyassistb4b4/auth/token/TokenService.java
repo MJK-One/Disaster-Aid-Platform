@@ -8,10 +8,13 @@ import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class TokenService {
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
@@ -46,12 +49,11 @@ public class TokenService {
 
     }
 
-    public TokenResponseDto issueToken(User user) {
-        UserResponseDto userResponseDto = UserResponseDto.from(user);
+    public TokenResponseDto issueToken(UserResponseDto user) {
 
         // 1. Access & Refresh Token 발급
-        String accessToken = jwtUtils.generateAccessToken(UserResponseDto.from(user));
-        String refreshToken = jwtUtils.generateRefreshToken(UserResponseDto.from(user));
+        String accessToken = jwtUtils.generateAccessToken(user);
+        String refreshToken = jwtUtils.generateRefreshToken(user);
 
         // 2. Refresh 토큰 Redis에 저장
         refreshTokenService.saveToken(user.getId(), refreshToken);

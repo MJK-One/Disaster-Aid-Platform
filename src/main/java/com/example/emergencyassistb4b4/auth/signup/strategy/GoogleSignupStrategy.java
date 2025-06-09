@@ -8,6 +8,7 @@ import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
+import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class GoogleSignupStrategy implements SignUpStrategy {
 
     @Override
     public TokenResponseDto signUp(SignUpRequestDto requestDto) {
-        if (!StringUtils.isEmpty(requestDto.getEmail())) {
+        if (StringUtils.isEmpty(requestDto.getEmail())) {
             throw new ApiException(ErrorStatus.INVALID_SIGNUP_REQUEST);
         }
         if (userRepository.existsByEmail(requestDto.getEmail())) {
@@ -41,6 +42,6 @@ public class GoogleSignupStrategy implements SignUpStrategy {
                 .build();
 
         userRepository.save(user);
-        return tokenService.issueToken(user);
+        return tokenService.issueToken(UserResponseDto.from(user));
     }
 }

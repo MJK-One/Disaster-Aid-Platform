@@ -6,6 +6,7 @@ import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
+import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -16,8 +17,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class KakaoIndSignupStrategy implements SignUpStrategy {
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
     private final TokenService tokenService;
+
 
     @Override
     public boolean supports(UserRole userRole, LoginType loginType) {
@@ -34,6 +36,6 @@ public class KakaoIndSignupStrategy implements SignUpStrategy {
                 .build();
         userRepository.save(user);
 
-        return tokenService.issueToken(user);
+        return tokenService.issueToken(UserResponseDto.from(user));
     }
 }

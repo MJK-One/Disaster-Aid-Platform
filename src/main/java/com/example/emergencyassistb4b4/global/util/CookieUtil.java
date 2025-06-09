@@ -5,6 +5,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.SerializationUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Base64;
 
@@ -18,7 +21,10 @@ public class CookieUtil {
         Cookie cookie = new Cookie(name, value);
         cookie.setPath("/");
         cookie.setMaxAge(maxAge);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
         response.addCookie(cookie);
+
     }
 
     //쿠키의 이름을 입력받아 쿠키 삭제
@@ -47,9 +53,15 @@ public class CookieUtil {
     }
     //역직렬화해서 객체로 변환
     public static Object deserialize(Cookie cookie, Class<?> cls) {
-        return cls.cast(
-                SerializationUtils.deserialize(Base64.getUrlDecoder().decode(cookie.getValue()))
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(Base64.getUrlDecoder().decode(cookie.getValue()));
+             ObjectInputStream ois = new ObjectInputStream(bais)) {
 
-        );
+            Object obj = ois.readObject();
+            return cls.cast(obj);
+
+        } catch (IOException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("역직렬화 중 오류 발생", e);
+        }
+
     }
 }
