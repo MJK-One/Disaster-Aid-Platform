@@ -8,6 +8,10 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum ErrorStatus implements BaseErrorCode {
+    //공통
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "서버 오류입니다."),
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "C002", "잘못된 요청입니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "C003", "권한이 없습니다."),
 
     // 인증 및 인가
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "AU001","인증이 필요합니다."),
@@ -27,6 +31,8 @@ public enum ErrorStatus implements BaseErrorCode {
     SELF_LOGIN_ONLY(HttpStatus.BAD_REQUEST, "U006", "자체 로그인으로 가입된 계정입니다. 소셜 로그인 불가합니다."),
     SIGNUP_STRATEGY_NOT_FOUND(HttpStatus.BAD_REQUEST, "U007", " 지원하지 않는 회원가입 방식입니다."),
     LOGIN_STRATEGY_NOT_FOUND(HttpStatus.BAD_REQUEST, "U008", " 지원하지 않는 로그인 방식입니다."),
+    BUSINESS_NUMBER_REQUIRED(HttpStatus.BAD_REQUEST, "U009" ,"이 필드는 필수값입니다."),
+    INVALID_SIGNUP_REQUEST(HttpStatus.BAD_REQUEST, "U010", "유효하지 않은 회원가입 요청입니다."),
     // 로그아웃
     LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "U001", "로그아웃 처리에 실패했습니다."),
 
