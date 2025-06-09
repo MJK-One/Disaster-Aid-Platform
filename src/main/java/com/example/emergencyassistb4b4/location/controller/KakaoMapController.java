@@ -18,7 +18,6 @@ import static com.example.emergencyassistb4b4.global.status.SuccessStatus.DISAST
 import static com.example.emergencyassistb4b4.global.status.SuccessStatus.SHELTER_SEARCH_SUCCESS;
 
 @RestController
-@RequestMapping()
 @RequiredArgsConstructor
 public class KakaoMapController {
 
@@ -45,10 +44,10 @@ public class KakaoMapController {
             @RequestParam(defaultValue = "1000") int radiusMeter,
             @RequestParam(defaultValue = "3600") long secondsAgo) {
 
-        Duration duration = Duration.ofSeconds(secondsAgo);
+
 
         List<DisasterSummaryDto> summary = kakaoMapService.getDisasterSummary(
-                latitude, longitude, radiusMeter, duration
+                latitude, longitude, radiusMeter, secondsAgo
         );
 
         return ApiResponse.onSuccess(DISASTER_SEARCH_SUCCESS, summary);

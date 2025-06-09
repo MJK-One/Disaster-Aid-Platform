@@ -11,39 +11,15 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
-    @Value("${spring.data.redis.host}")
-    private String redisHost;
-
-    @Value("${spring.data.redis.port}")
-    private int redisPort;
+    // redisConnectionFactory() 메서드 삭제 (스프링 부트 자동 구성 사용)
 
     @Bean
-    public LettuceConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(redisHost, redisPort);
-    }
-
-    // Object 타입 RedisTemplate 빈
-    @Bean
-    public RedisTemplate<String, Object> objectRedisTemplate() {
+    public RedisTemplate<String, Object> objectRedisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory());
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setHashKeySerializer(new StringRedisSerializer());
-        // 필요한 경우 ValueSerializer 지정 (예: JdkSerializationRedisSerializer, Jackson2JsonRedisSerializer 등)
-        template.afterPropertiesSet();
-        return template;
-    }
-
-    // String 타입 RedisTemplate 빈
-    @Bean
-    public RedisTemplate<String, String> stringRedisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(new StringRedisSerializer());
-        template.afterPropertiesSet();
         return template;
     }
+
 }

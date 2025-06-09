@@ -71,8 +71,10 @@ public class KakaoMapService {
             double latitude,
             double longitude,
             int radiusMeter,
-            Duration withinTime
+            long secondsAgo
+
     ) {
+        Duration withinTime = Duration.ofSeconds(secondsAgo);
         LocalDateTime fromTime = LocalDateTime.now().minus(withinTime);
 
         // 예시용 mock 데이터. 실제로는 repository 에서 가져올 것

@@ -3,7 +3,7 @@ package com.example.emergencyassistb4b4.location.controller;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.location.dto.request.CoordinateRequestDto;
 import com.example.emergencyassistb4b4.location.dto.request.RegionRequestDto;
-import com.example.emergencyassistb4b4.location.redis.LocationService;
+import com.example.emergencyassistb4b4.location.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +24,9 @@ public class LocationController {
     @PostMapping("/region")
     public ResponseEntity<ApiResponse<String>> saveRegion(@RequestBody RegionRequestDto dto) {
         locationService.saveRegion(dto.getUserId(), dto.getSi(), dto.getGu());
-        return ApiResponse.onSuccess(LOCATION_SAVE_SUCCESS,"시/구 정보 저장 완료");
+
+
+        return ApiResponse.onSuccess(LOCATION_SAVE_SUCCESS,null);
     }
 
     //봉사자만 저장
@@ -34,7 +36,7 @@ public class LocationController {
 //            throw new ForbiddenException(ErrorStatus.USER_NOT_VOLUNTEER);
 //        }
         locationService.saveCoordinates(dto.getUserId(), dto.getLatitude(), dto.getLongitude());
-        return ApiResponse.onSuccess(LOCATION_SAVE_SUCCESS,"위치 좌표 저장 완료");
+        return ApiResponse.onSuccess(LOCATION_SAVE_SUCCESS,null);
     }
 
 
