@@ -2,7 +2,7 @@ package com.example.emergencyassistb4b4.auth.oauth.service;
 
 import com.example.emergencyassistb4b4.auth.oauth.dto.OAuth2Attributes;
 import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.domain.enums.UserRole;
+import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

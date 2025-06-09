@@ -1,12 +1,11 @@
 package com.example.emergencyassistb4b4.auth.oauth.handler;
 
 import com.example.emergencyassistb4b4.auth.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
-import com.example.emergencyassistb4b4.auth.service.RefreshTokenService;
+import com.example.emergencyassistb4b4.auth.token.RefreshTokenService;
 import com.example.emergencyassistb4b4.global.security.JwtUtils;
 import com.example.emergencyassistb4b4.global.util.CookieUtil;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
-import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
