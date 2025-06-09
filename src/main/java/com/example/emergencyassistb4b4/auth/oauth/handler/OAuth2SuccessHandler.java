@@ -1,11 +1,14 @@
 package com.example.emergencyassistb4b4.auth.oauth.handler;
 
+import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
 import com.example.emergencyassistb4b4.auth.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.emergencyassistb4b4.auth.token.RefreshTokenService;
+import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.security.JwtUtils;
 import com.example.emergencyassistb4b4.global.util.CookieUtil;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
+import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +29,11 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
 
     // 하드코딩 된 부분 수정 예정
     public static final String REDIRECT_URI = "http://localhost:5173/oauth2/redirect";
-    private final JwtUtils jwtUtils;
-    private final RefreshTokenService refreshTokenService;
+
+    private final TokenService tokenService;
+
     private final OAuth2AuthorizationRequestBasedOnCookieRepository oauth2AuthorizationRequestBasedOnCookieRepository;
+
 
 
     /**
@@ -41,24 +46,18 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
         Map<String, Object> attributes = oAuth2User.getAttributes();
         User user = (User) attributes.get("user"); // attributes 에서 user 엔티티 추출
 
-        //1. 리프레시 토큰 생성 -> 저장 -> 쿠키에 저장
-        String refreshToken = jwtUtils.generateRefreshToken(new UserResponseDto(user.getId(), user.getEmail())); // 발급
-        saveRefreshToken(user.getId(), refreshToken); // Redis 저장
-        addRefreshTokenToCookie(request, response, refreshToken); // redirect uri에 token 포함
-        //2. 액세스 토큰 -> path에 액세스 토큰 추가
-        String accessToken = jwtUtils.generateAccessToken(new UserResponseDto(user.getId(), user.getEmail()));
+        //1. 토큰 발급 (Access + Refresh + Redis에 저장)
+        TokenResponseDto tokens = tokenService.issueToken(user);
+        //2. 리프레시 토큰 쿠키 저장
+        addRefreshTokenToCookie(request, response, tokens.refreshToken());
 
         //3. 인증 관련 설정값, 쿠키 제거
         clearAuthenticationAttributes(request, response);
         //4. 리다이렉트
-        String targetUrl = getTargetUrl(accessToken);
+        String targetUrl = getTargetUrl(tokens.accessToken());
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
-    // 생성된 리프레시 토큰을 전달받아 DB에 저장
-    private void saveRefreshToken(Long userId, String newRefreshToken) {
-        refreshTokenService.saveToken(userId, newRefreshToken);
-    }
     private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
         int cookieMaxAge = (int) REFRESH_TOKEN_DURATION.toSeconds();
         CookieUtil.deleteCookie(request, response, REFRESH_TOKEN);

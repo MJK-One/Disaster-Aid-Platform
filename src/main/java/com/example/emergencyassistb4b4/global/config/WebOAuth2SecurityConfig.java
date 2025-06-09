@@ -4,6 +4,7 @@ import com.example.emergencyassistb4b4.auth.oauth.handler.OAuth2SuccessHandler;
 import com.example.emergencyassistb4b4.auth.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.emergencyassistb4b4.auth.oauth.service.OAuth2UserCustomService;
 import com.example.emergencyassistb4b4.auth.token.RefreshTokenService;
+import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.security.JwtTokenAuthenticationFilter;
 import com.example.emergencyassistb4b4.global.security.JwtUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,10 +24,10 @@ public class WebOAuth2SecurityConfig {
 
     private final JwtUtils jwtUtils;
     private final OAuth2UserCustomService oAuth2UserCustomService;
-    private final RefreshTokenService refreshTokenService;
+
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, TokenService tokenService) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -47,7 +48,7 @@ public class WebOAuth2SecurityConfig {
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //세션 사용안함
                 .addFilterBefore(jwtTokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class) //JWT 필터 등록
                 .oauth2Login(oauth2 -> oauth2
-                        .successHandler(oAuth2SuccessHandler())
+                        .successHandler(oAuth2SuccessHandler(tokenService))
                         .authorizationEndpoint(endpoint -> endpoint
                                 .baseUri("/oauth2/authorization")
                                 // 쿠키 기반 저장소 사용
@@ -66,9 +67,9 @@ public class WebOAuth2SecurityConfig {
     }
 
     @Bean
-    public OAuth2SuccessHandler oAuth2SuccessHandler() {
-        return new OAuth2SuccessHandler(jwtUtils,
-                refreshTokenService,
+    public OAuth2SuccessHandler oAuth2SuccessHandler(TokenService tokenService) {
+        return new OAuth2SuccessHandler(
+                tokenService,
                 oAuth2AuthorizationRequestBasedOnCookieRepository()
         );
     }

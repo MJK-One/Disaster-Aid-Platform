@@ -44,6 +44,19 @@ public class TokenService {
 
         return new TokenResponseDto(newAccessToken, newRefreshToken);
 
+    }
 
+    public TokenResponseDto issueToken(User user) {
+        UserResponseDto userResponseDto = UserResponseDto.from(user);
+
+        // 1. Access & Refresh Token 발급
+        String accessToken = jwtUtils.generateAccessToken(UserResponseDto.from(user));
+        String refreshToken = jwtUtils.generateRefreshToken(UserResponseDto.from(user));
+
+        // 2. Refresh 토큰 Redis에 저장
+        refreshTokenService.saveToken(user.getId(), refreshToken);
+
+        // 3. Dto 로 변환
+        return new TokenResponseDto(accessToken, refreshToken);
     }
 }
