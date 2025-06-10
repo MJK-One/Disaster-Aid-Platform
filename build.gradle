@@ -53,6 +53,7 @@ dependencies {
     // Jackson
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.core:jackson-annotations'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     // validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -62,9 +63,16 @@ dependencies {
     testImplementation 'org.springframework.kafka:spring-kafka-test'
     testImplementation 'org.mockito:mockito-core:4.8.0'
 
+    // H2 Database for tests
+    implementation 'com.h2database:h2:2.2.224'
+
     // dotenv
     implementation 'io.github.cdimascio:dotenv-java:3.2.0'
 
+}
+
+test {
+    useJUnitPlatform()
 }
 
 tasks.withType(JavaCompile) {

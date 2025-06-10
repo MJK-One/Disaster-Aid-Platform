@@ -30,6 +30,9 @@ spring:
       port: ${REDIS_PORT:6379}
   kafka:
     bootstrap-servers: localhost:9092
+    admin:
+      properties:
+        bootstrap.servers: localhost:9092
     consumer:
       group-id: alert-service-group
       auto-offset-reset: earliest

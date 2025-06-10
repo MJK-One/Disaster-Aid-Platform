@@ -46,7 +46,7 @@ public class ReportService {
 
         Report savedReport = reportRepository.save(report);
 
-        // kafka 메세지 발행
+        // kafka 메세지 발행 (토큰 포함)
         DisasterAlertMessage alertMessage = DisasterAlertMessage.from(savedReport);
 
         disasterAlertProducer.sendDisasterAlert(alertMessage);
