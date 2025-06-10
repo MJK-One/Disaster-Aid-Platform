@@ -1,7 +1,7 @@
 package com.example.emergencyassistb4b4.global.kafka.consumer;
 
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
-import com.example.emergencyassistb4b4.alert.fcm.FcmService;
+import com.example.emergencyassistb4b4.alert.fcm.FcmFailerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ public class DisasterAlertConsumer {
 
     private final ObjectMapper objectMapper;
 
-    private final FcmService fcmService; // FCM 발송 서비스
+    private final FcmFailerService fcmService; // FCM 발송 서비스
 
     // Kafka Listener -> Kafka 메시지를 수신
     @KafkaListener(topics = "disaster-alert", groupId = "disaster-alert-consumer-group")

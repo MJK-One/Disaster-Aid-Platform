@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FcmService {
+public class FcmFailerService {
 
     private final RetryTemplate retryTemplate; // 스프링 RetryTemplate 사용
     private final AlertFailureLogRepository alertFailureLogRepository;
