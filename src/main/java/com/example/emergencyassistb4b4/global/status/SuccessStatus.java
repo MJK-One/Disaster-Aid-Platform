@@ -8,12 +8,21 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum SuccessStatus implements BaseCode {
+
     //인증
     LOGIN_SUCCESS(HttpStatus.OK, "S1000", "로그인에 성공했습니다."),
     LOGOUT_SUCCESS(HttpStatus.OK,"S1002", "로그아웃에 성공했습니다."),
     SIGNUP_SUCCESS(HttpStatus.OK, "S1009" ,"로그인에 성공했습니다"),
     TOKEN_REISSUE_SUCCESS(HttpStatus.CREATED, "S1003", "액세스 토큰 재발급에 성공했습니다."),
     CUSTOM_SUCCESS_STATUS(HttpStatus.OK, "S1001", "Custom Success");
+
+
+    CUSTOM_SUCCESS_STATUS(HttpStatus.OK, "S1001", "Custom Success"),
+
+    REPORT_CREATE_SUCCESS(HttpStatus.CREATED, "RP001", "Report completed"),
+    REPORT_GET_SUCCESS(HttpStatus.OK, "RP002", "Report inquiry completed"),
+    REPORT_REPORTER_GET_SUCCESS(HttpStatus.OK, "RP003", "Reporter inquiry completed");
+
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -40,7 +40,10 @@ public enum ErrorStatus implements BaseErrorCode {
     REDIS_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R001", "Redis 에 토큰 저장 실패"),
     REDIS_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R002", "Redis 에서 토큰 삭제 실패"),
 
-    CUSTOM_ERROR_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "Custom Error");
+    CUSTOM_ERROR_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "Custom Error"),
+
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "RP001", "Do not found."),
+    PEPORT_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "RP002", "No permissions on this report.");
 
     private final HttpStatus httpStatus;
     private final String code;
