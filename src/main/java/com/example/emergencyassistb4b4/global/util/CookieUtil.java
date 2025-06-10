@@ -18,11 +18,12 @@ import java.util.Base64;
 public class CookieUtil {
     //요청 값, 이름 만료기간을 바탕으로 쿠키 추가
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+
         Cookie cookie = new Cookie(name, value);
         cookie.setPath("/");
-        cookie.setMaxAge(maxAge);
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
+        cookie.setMaxAge(maxAge);
         response.addCookie(cookie);
 
     }
@@ -53,13 +54,30 @@ public class CookieUtil {
     }
     //역직렬화해서 객체로 변환
     public static Object deserialize(Cookie cookie, Class<?> cls) {
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(Base64.getUrlDecoder().decode(cookie.getValue()));
-             ObjectInputStream ois = new ObjectInputStream(bais)) {
+        if (cookie == null) {
+            System.out.println("❌ 쿠키가 비어 있음");
+            return null; // 또는 throw new IllegalArgumentException("쿠키가 존재하지 않습니다");
+        }
+        try
+                //(ByteArrayInputStream bais = new ByteArrayInputStream(Base64.getUrlDecoder().decode(cookie.getValue()));
+             //ObjectInputStream ois = new ObjectInputStream(bais))
+        {
+            byte[] decoded = Base64.getUrlDecoder().decode(cookie.getValue());
+            System.out.println("🔍 디코딩된 바이트 길이: " + decoded.length);
 
-            Object obj = ois.readObject();
-            return cls.cast(obj);
+            try(ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded))) {
+                Object obj = ois.readObject();
+                if (!cls.isInstance(obj)) {
+                    throw new IllegalArgumentException("역직렬화된 객체 타입이 일치하지 않음.");
+                }
+                return cls.cast(obj);
+
+            }
+            //obj = ois.readObject();
+            //return cls.cast(obj);
 
         } catch (IOException | ClassNotFoundException e) {
+            System.err.println("❌ 역직렬화 예외: " + e.getMessage());
             throw new IllegalArgumentException("역직렬화 중 오류 발생", e);
         }
 

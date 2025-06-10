@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/disaster
+    username: postgres
+    password: 1111
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # 또는 update (선택)
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+jwt:
+  issuer: "your-issuer"
+  secret: "your-secret-key-must-be-long-enough"
+  access-token-validity: 3600000
+  refresh-token-validity: 1209600000

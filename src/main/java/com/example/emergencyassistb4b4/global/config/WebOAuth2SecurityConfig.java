@@ -18,8 +18,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
@@ -38,6 +40,8 @@ public class WebOAuth2SecurityConfig {
                         .requestMatchers(
                                 "/static/**",
                                 "/api/auth/**",
+                                "/login/oauth2/code/kakao",
+                                "/oauth2/authorization/kakao",
                                 "/oauth2/**",
                                 "/api/login/oauth2/code/**",
                                 "/api/auth/reissue"
@@ -51,24 +55,23 @@ public class WebOAuth2SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable) // 기본 폼 사용 X
                 .logout(AbstractHttpConfigurer::disable) // 로그아웃 비활성화
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //세션 사용안함
-                .addFilterBefore(jwtTokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class) //JWT 필터 등록
+
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2SuccessHandler(tokenService))
                         .authorizationEndpoint(endpoint -> endpoint
                                 .baseUri("/oauth2/authorization")
-                                // 쿠키 기반 저장소 사용
-                                .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
+                                .authorizationRequestRepository(new OAuth2AuthorizationRequestBasedOnCookieRepository()))
                         .redirectionEndpoint(endpoint -> endpoint
-                                .baseUri("/api/login/oauth2/code/*"))
+                                .baseUri("/login/oauth2/code/*"))
                         .userInfoEndpoint(endpoint -> endpoint
                                 .userService(oAuth2UserCustomService)))// 로그인 이후 사용자 정보 처리 커스텀 서비스
-
+                .addFilterAfter(jwtTokenAuthenticationFilter(), OAuth2LoginAuthenticationFilter.class) //JWT 필터 등록
 
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                           // authException.printStackTrace();
-                            response.setStatus(HttpServletResponse.SC_ACCEPTED);
-                            response.setContentType("application/json");
+                            //authException.printStackTrace();
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json; charset=utf-8");
                            response.getWriter().write(
                                     new ObjectMapper().writeValueAsString(Map.of("error", "Unauthorized"))
                             );
@@ -81,15 +84,15 @@ public class WebOAuth2SecurityConfig {
 
         return new OAuth2SuccessHandler(
                 tokenService,
-                oAuth2AuthorizationRequestBasedOnCookieRepository()
+                new OAuth2AuthorizationRequestBasedOnCookieRepository()
         );
     }
 
 
-    @Bean
-    public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository() {
-        return new OAuth2AuthorizationRequestBasedOnCookieRepository();
-    }
+//    @Bean
+//    public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository() {
+//        return new OAuth2AuthorizationRequestBasedOnCookieRepository();
+//    }
     @Bean
     public JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter() {
         return new JwtTokenAuthenticationFilter(jwtUtils);

@@ -39,7 +39,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<TokenResponseDto>> signup(@Valid
                                                          @RequestBody SignUpRequestDto requestDto, ServletRequest servletRequest) {
         TokenResponseDto token = signUpService.signup(requestDto);
-        return ResponseEntity.ok(ApiResponse.onSuccess(SuccessStatus.SIGNUP_SUCCESS, token).getBody());
+        return ApiResponse.onSuccess(SuccessStatus.SIGNUP_SUCCESS, token);
     }
 
     @PostMapping("/login")
@@ -60,7 +60,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // 5. 클라이언트에 응답
-        return ResponseEntity.ok(ApiResponse.onSuccess(SuccessStatus.LOGIN_SUCCESS, tokens).getBody());
+        return ApiResponse.onSuccess(SuccessStatus.LOGIN_SUCCESS, tokens);
 
 
     }

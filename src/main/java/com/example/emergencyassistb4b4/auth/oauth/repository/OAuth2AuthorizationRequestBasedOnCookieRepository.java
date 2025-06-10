@@ -26,6 +26,9 @@ public class OAuth2AuthorizationRequestBasedOnCookieRepository implements Author
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
         Cookie cookie = WebUtils.getCookie(request, COOKIE_NAME);  // 요청에서 지정된 이름(COOKIE_NAME)의 쿠키를 가져옵니다.
+        if (cookie == null) {
+            return null;
+        }
         // 가져온 쿠키가 있다면, CookieUtil을 사용하여 쿠키 값을 역직렬화하여
         // OAuth2AuthorizationRequest 객체로 변환하여 반환합니다.
         return (OAuth2AuthorizationRequest) CookieUtil.deserialize(cookie, OAuth2AuthorizationRequest.class);
@@ -35,6 +38,7 @@ public class OAuth2AuthorizationRequestBasedOnCookieRepository implements Author
      */
     @Override
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
+        System.out.println("✅ 인증 요청 쿠키 저장됨: " + authorizationRequest);
         if(authorizationRequest == null) {// 저장할 authorizationRequest가 null이면 기존 쿠키를 삭제합니다.
             removeAuthorizationRequest(request, response);
             return;
@@ -43,6 +47,8 @@ public class OAuth2AuthorizationRequestBasedOnCookieRepository implements Author
                 CookieUtil.serialize(authorizationRequest), COOKIE_EXPIRE_SECONDS);
         // authorizationRequest 객체를 CookieUtil을 사용하여 직렬화하고,
         // 지정된 쿠키 이름과 만료 시간으로 응답(Response)에 쿠키를 추가합니다.
+        System.out.println("🍪 쿠키 저장 시도: oauth2 = " + CookieUtil.serialize(authorizationRequest));
+
     }
     /**
      * 요청에서 쿠키에 저장된 OAuth2 인증 요청 정보를 로드하고
@@ -52,11 +58,36 @@ public class OAuth2AuthorizationRequestBasedOnCookieRepository implements Author
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
         // 1. 쿠키에서 객체를 로드
-        OAuth2AuthorizationRequest authorizationRequest = this.loadAuthorizationRequest(request);
-        // 2. 쿠키 삭제 후 반환
-        return this.removeAuthorizationRequest(request, response);
+        //OAuth2AuthorizationRequest authorizationRequest = this.loadAuthorizationRequest(request);
+//        Cookie cookie = WebUtils.getCookie(request, COOKIE_NAME);
+//
+//        if(cookie == null) {
+//            System.out.println("🧾 [removeAuthorizationRequest] 쿠키 존재 - 이름: " + cookie.getName() + ", 값 길이: " + cookie.getValue().length());
+//
+//            return null;
+//        }
+//        System.out.println("🧾 [removeAuthorizationRequest] 쿠키 존재 - 이름: " + cookie.getName() + ", 값 길이: " + cookie.getValue().length());
+//
+//        OAuth2AuthorizationRequest authorizationRequest = (OAuth2AuthorizationRequest) CookieUtil.deserialize(cookie, OAuth2AuthorizationRequest.class);
+//
+//        System.out.println("🧹 [removeAuthorizationRequest] 쿠키 삭제 시도");
+//        // 쿠키 제거
 
-
+        Cookie cookie = WebUtils.getCookie(request, COOKIE_NAME);
+        if (cookie == null || cookie.getValue().isBlank()) {
+            removeAuthorizationRequestCookies(request, response);
+            return null;
+        }
+        try {
+            OAuth2AuthorizationRequest authorizationRequest = (OAuth2AuthorizationRequest)
+                    CookieUtil.deserialize(cookie, OAuth2AuthorizationRequest.class);
+            removeAuthorizationRequestCookies(request, response);
+            return authorizationRequest;
+        } catch (Exception e) {
+            System.out.println("❌ 역직렬화 실패, 강제 쿠키 삭제");
+            removeAuthorizationRequestCookies(request, response);
+            return null;
+        }
     }
     /**
      * OAuth2 인증 요청 정보를 저장한 쿠키를 삭제합니다.

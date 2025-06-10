@@ -1,12 +1,12 @@
 package com.example.emergencyassistb4b4.global.security;
 
 import com.example.emergencyassistb4b4.auth.token.RefreshTokenService;
+import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,19 +29,23 @@ public class JwtUtils {
 
     private final JwtProperties jwtProperties; //jwt 비밀키 등의 값을 주입받기 위한 객체
     private final RefreshTokenService refreshTokenService;
+    @PostConstruct
+    public void init() {
+        System.out.println("jwtProperties.getSecret() = " + jwtProperties.getSecret());
+    }
     /**
      * Access Token 생성, 1시간 유효
      */
-    public String generateAccessToken(UserResponseDto user) {
-        return createToken(user, Duration.ofHours(1));
+    public String generateAccessToken(UserResponseDto userResponseDto) {
+        return createToken(userResponseDto, Duration.ofHours(1));
     }
     /**
      * 사용자 정보를 기반으로 Refresh 토큰 생성 및 Redis 에 저장
-     * @param user 토큰에 포함될 사용자 정보
+     * @param userResponseDto 토큰에 포함될 사용자 정보
      * @return  JWT 문자열
      */
-    public String generateRefreshToken(UserResponseDto user) {
-        return createToken(user, Duration.ofHours(14));
+    public String generateRefreshToken(UserResponseDto userResponseDto) {
+        return createToken(userResponseDto, Duration.ofHours(14));
         // JWT를 만드는 메서드는 순수 생성만 하고, 저장/검증은 외부서비스 AuthService 에서 하는것이 좋다고 하여 리팩토링 예정
         // return createToken(user, Duration.ofDays(14);
         // AuthService 에서는
@@ -82,19 +86,32 @@ public class JwtUtils {
      * @param  token 토큰
      * @return boolean 값
      */
+    // 1. 단순 boolean 반환용
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(getSigningKey())
                     .build()
-                    .parseClaimsJws(token).getBody();
+                    .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
-            // 모든 예외를 이걸로 처리하는게 좋지 않아보여서 추후 리팩토링 예정
-
-            // 디버깅 용, 추후 삭제 예정
-            log.warn("Invalid JWT token: {}", e.getMessage());
             return false;
+        }
+    }
+
+    // 2. 예외 던지는 검증용
+    public void validateTokenOrThrow(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token);
+        } catch (ExpiredJwtException e) {
+            throw new ApiException(ErrorStatus.EXPIRED_ACCESS_TOKEN);
+        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            throw new ApiException(ErrorStatus.INVAlID_ACCESS_TOKEN);
+        } catch (Exception e) {
+            throw new ApiException(ErrorStatus.CUSTOM_ERROR_STATUS);
         }
     }
 

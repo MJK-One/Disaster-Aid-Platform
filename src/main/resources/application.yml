@@ -25,7 +25,7 @@ spring:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             redirect-uri: "http://localhost:8080/api/login/oauth2/code/kakao"
-            client-authentication-method: POST
+            client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
             scope:
               - profile_nickname
@@ -40,6 +40,7 @@ spring:
             user-name-attribute: id
 
 
+
   jpa:
     hibernate:
       ddl-auto: create
@@ -47,11 +48,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  jwt:
-    issuer: my-app
-    secret: ${JWT_SECRET_KEY}
-    access-token-validity: 900000      # 15분
-    refresh-token-validity: 1209600000 # 14일
+
 
   data:
     redis:
@@ -78,7 +75,16 @@ logging:
     root: INFO
     org.springframework.data.redis: WARN
     org.springframework.kafka: INFO
-    com.example.disaster: DEBUG
+    org.springframework.security : DEBUG
+    org.springframework.security.oauth2 : DEBUG
+    com.example.emergencyassistb4b4.global.security: DEBUG
+    com.example.emergencyassistb4b4: DEBUG
 
   config:
     import: classpath:/.env
+
+jwt:
+  issuer: my-app
+  secret: MyUltraSecureJwtSecretKeyMustBe32Charsafeweqadb!
+  access-token-validity: 900000      # 15분
+  refresh-token-validity: 1209600000 # 14일

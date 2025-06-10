@@ -39,11 +39,11 @@ public class User extends BaseEntity{
     @Column(unique = true, nullable = false, length = 100)
     private String email; //필수
 
-    @Column(nullable = false, length = 255)
+    @Column(length = 255)
     private String password; //필수
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "login_type", nullable = false)
+    @Column(name = "login_type")
     private LoginType loginType; //필수
 
     @Column(name = "provider", length = 255)
@@ -53,7 +53,7 @@ public class User extends BaseEntity{
     private String organizationName;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "user_role")
     private UserRole userRole;
 
     private LocalDateTime lastLoginAt;

@@ -29,7 +29,7 @@ public enum ErrorStatus implements BaseErrorCode {
     OAUTH_PROVIDER_MISMATCH(HttpStatus.BAD_REQUEST, "U004", "다른 OAuth 제공자로 가입된 계정입니다."),
     OAUTH_LOGIN_ONLY(HttpStatus.BAD_REQUEST, "U005", "소셜 로그인으로 가입된 계정입니다. 자체 로그인 불가합니다."),
     SELF_LOGIN_ONLY(HttpStatus.BAD_REQUEST, "U006", "자체 로그인으로 가입된 계정입니다. 소셜 로그인 불가합니다."),
-    SIGNUP_STRATEGY_NOT_FOUND(HttpStatus.BAD_REQUEST, "U007", " 지원하지 않는 회원가입 방식입니다."),
+    SIGNUP_STRATEGY_NOT_FOUND(HttpStatus.BAD_REQUEST, "U007", "지원하지 않는 회원가입 방식입니다."),
     LOGIN_STRATEGY_NOT_FOUND(HttpStatus.BAD_REQUEST, "U008", " 지원하지 않는 로그인 방식입니다."),
     BUSINESS_NUMBER_REQUIRED(HttpStatus.BAD_REQUEST, "U009" ,"이 필드는 필수값입니다."),
     INVALID_SIGNUP_REQUEST(HttpStatus.BAD_REQUEST, "U010", "유효하지 않은 회원가입 요청입니다."),

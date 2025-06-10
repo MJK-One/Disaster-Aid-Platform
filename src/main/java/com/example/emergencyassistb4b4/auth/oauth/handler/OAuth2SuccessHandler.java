@@ -10,6 +10,7 @@ import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -28,6 +30,7 @@ import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler {
     public static final String REFRESH_TOKEN = "refresh_token";
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
@@ -50,7 +53,17 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
                                         Authentication authentication) throws IOException {
         System.out.println("🔥 Success handler 호출됨");
 
+
+        System.out.println("📦 요청 쿠키 목록:");
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                System.out.println("🧁 " + c.getName() + " = " + c.getValue());
+            }
+        }
+
         OAuth2User oAuth2User  = (OAuth2User) authentication.getPrincipal();   // 인증 성공 객체에서 OAuth2UserPrincipal을 가져옴
+        System.out.println("🎯 사용자 정보: " + oAuth2User.getAttributes());
+
         Map<String, Object> attributes = oAuth2User.getAttributes();
         // 필수 정보 추출
         Long userId = Long.valueOf(attributes.get("userId").toString());
@@ -59,7 +72,7 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
 
         UserResponseDto userResponseDto = new UserResponseDto(userId, email);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+
 
         //1. 토큰 발급 (Access + Refresh + Redis에 저장)
         TokenResponseDto tokens = tokenService.issueToken(userResponseDto);

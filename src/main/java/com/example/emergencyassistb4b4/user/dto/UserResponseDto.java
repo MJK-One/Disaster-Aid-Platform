@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.user.dto;
 
 import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.user.domain.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
