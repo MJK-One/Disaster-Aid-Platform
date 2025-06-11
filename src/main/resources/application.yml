@@ -50,6 +50,7 @@ logging:
     org.springframework.kafka: INFO
     com.example.disaster: DEBUG
 
+
   security:
     oauth2:
       client:
@@ -82,3 +83,7 @@ logging:
 
   config:
     import: classpath:/.env
+
+kakao:
+  api:
+    key: ${KAKAO_API_KEY}

@@ -2,17 +2,7 @@ package com.example.emergencyassistb4b4.volunteer.domain;
 
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.volunteer.enums.PostCateGory;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,5 +34,14 @@ public class Post {
     private String content;
 
     private int totalCapacity;
+
     private int teamSize;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private VolunteerLocation volunteerLocation;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "attendance_policy_id")
+    private AttendancePolicy attendancePolicy;
 }
