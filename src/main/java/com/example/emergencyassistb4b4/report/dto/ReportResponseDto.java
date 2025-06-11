@@ -32,9 +32,9 @@ public class ReportResponseDto {
 
     private final String gu;
 
-    private final BigDecimal locationLat; // 위도
+    private final Double locationLat; // 위도
 
-    private final BigDecimal locationLng; // 경도
+    private final Double locationLng; // 경도
 
     private final LocalDateTime updatedAt;
 

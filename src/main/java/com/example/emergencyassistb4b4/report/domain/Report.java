@@ -42,7 +42,7 @@ public class Report extends BaseEntity {
 
     // 설명
     @Lob
-    @Column(name = "description")
+    @Column(name = "description", nullable = false)
     private String description;
 
     // 이미지 URL
@@ -68,9 +68,9 @@ public class Report extends BaseEntity {
 
     // 위도
     @Column(name = "location_lat", precision = 10, scale = 7, nullable = false)
-    private BigDecimal locationLat;
+    private Double locationLat;
 
     // 경도
     @Column(name = "location_lng", precision = 10, scale = 7, nullable = false)
-    private BigDecimal locationLng;
+    private Double locationLng;
 }

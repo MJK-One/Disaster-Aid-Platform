@@ -2,11 +2,14 @@ package com.example.emergencyassistb4b4.alert.fcm;
 
 import com.example.emergencyassistb4b4.alert.domain.AlertFailureLog;
 import com.example.emergencyassistb4b4.alert.repository.AlertFailureLogRepository;
+import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
+
+import static com.example.emergencyassistb4b4.global.status.ErrorStatus.ALERT_FAILED;
 
 @Slf4j
 @Service
@@ -28,7 +31,7 @@ public class FcmFailerService {
 
                 boolean success = simulateFcmSend(alertMessage);
 
-                if (!success) throw new RuntimeException("FCM 발송 실패");
+                if (!success) throw new ApiException(ALERT_FAILED);
 
                 return null;
 
