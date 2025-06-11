@@ -11,9 +11,14 @@ public enum SuccessStatus implements BaseCode {
 
     CUSTOM_SUCCESS_STATUS(HttpStatus.OK, "S1001", "Custom Success"),
 
+    LOCATION_SAVE_SUCCESS(HttpStatus.CREATED, "LC002", "Location information save is success"),
+    SHELTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Shelter search completed successfully"),
+    DISASTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Disaster summary search completed successfully");
+
     REPORT_CREATE_SUCCESS(HttpStatus.CREATED, "RP001", "Report completed"),
     REPORT_GET_SUCCESS(HttpStatus.OK, "RP002", "Report inquiry completed"),
     REPORT_REPORTER_GET_SUCCESS(HttpStatus.OK, "RP003", "Reporter inquiry completed");
+
 
     private final HttpStatus httpStatus;
     private final String code;
