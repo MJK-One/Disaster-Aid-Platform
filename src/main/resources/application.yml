@@ -75,6 +75,7 @@ logging:
     root: INFO
     org.springframework.data.redis: WARN
     org.springframework.kafka: INFO
+
     org.springframework.security : DEBUG
     org.springframework.security.oauth2 : DEBUG
     com.example.emergencyassistb4b4.global.security: DEBUG
@@ -88,3 +89,10 @@ jwt:
   secret: MyUltraSecureJwtSecretKeyMustBe32Charsafeweqadb!
   access-token-validity: 900000      # 15분
   refresh-token-validity: 1209600000 # 14일
+
+    com.example.disaster: DEBUG
+
+kakao:
+  api:
+    key: ${KAKAO_API_KEY}
+
