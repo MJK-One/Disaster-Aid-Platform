@@ -18,6 +18,10 @@ public enum ErrorStatus implements BaseErrorCode {
 
 
 
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "RP001", "Do not found."),
+    PEPORT_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "RP002", "No permissions on this report.");
+
+
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
