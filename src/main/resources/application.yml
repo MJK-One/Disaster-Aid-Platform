@@ -50,3 +50,7 @@ logging:
     org.springframework.data.redis: WARN
     org.springframework.kafka: INFO
     com.example.disaster: DEBUG
+
+kakao:
+  api:
+    key: ${KAKAO_API_KEY}

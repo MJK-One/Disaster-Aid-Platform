@@ -28,11 +28,11 @@ public class VolunteerLocation extends BaseEntity {
     private String placeName;
 
     // 위도
-    @Column(name = "location_lat", precision = 10, scale = 7, nullable = false)
-    private BigDecimal locationLat;
+    @Column(name = "location_lat")
+    private Double locationLat;
 
     // 경도
-    @Column(name = "location_lng", precision = 10, scale = 7, nullable = false)
-    private BigDecimal locationLng;
+    @Column(name = "location_lng")
+    private Double locationLng;
 
 }
