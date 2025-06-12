@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.alert.domain;
+package com.example.emergencyassistb4b4.alert.domain.volunteer;
 
 import com.example.emergencyassistb4b4.user.domain.User;
 import jakarta.persistence.Column;
@@ -9,7 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,25 +22,37 @@ import org.hibernate.annotations.ColumnDefault;
 @Getter
 @Builder
 @Entity
-@Table(name = "user_report_alert")
+@Table(name = "user_volunteer_alert")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class UserReportAlert {
+@SequenceGenerator(
+    name = "user_volunteer_alert_seq_gen",
+    sequenceName = "user_volunteer_alert_seq",
+    allocationSize = 50
+)
+public class UserVolunteerAlert {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "user_volunteer_alert_seq_gen"
+    )
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reportAlert_id", nullable = false)
-    private ReportAlert reportAlert;
+    @JoinColumn(name = "alert_id", nullable = false)
+    private VolunteerAlert volunteerAlert;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Builder.Default
-    @ColumnDefault("false")
-    @Column(nullable = false)
-    private boolean isRead = false;
+    public static List<UserVolunteerAlert> fromUsers(VolunteerAlert alert, List<User> users) {
+        return users.stream()
+            .map(user -> UserVolunteerAlert.builder()
+                .user(user)
+                .volunteerAlert(alert)
+                .build())
+            .toList();
+    }
 }

@@ -9,7 +9,10 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum SuccessStatus implements BaseCode {
 
-    CUSTOM_SUCCESS_STATUS(HttpStatus.OK, "S1001", "Custom Success");
+    CUSTOM_SUCCESS_STATUS(HttpStatus.OK, "S1001", "Custom Success"),
+
+    GET_ALERTS_SUCCESS(HttpStatus.OK, "AL001", "알림 조회 성공");
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;
