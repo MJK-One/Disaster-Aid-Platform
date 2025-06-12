@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 @ActiveProfiles("test") // 테스트용 application-test.yml 설정 사용
 @SpringBootTest // 통합 테스트로 전체 Spring Context 로딩
 @DirtiesContext // 테스트마다 Context 초기화
-@EmbeddedKafka(partitions = 1, topics = {"disaster-alert", "disaster-alert.DLT"}, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"}) // 임베디드 Kafka 브로커 설정
+@EmbeddedKafka(partitions = 1, topics = {"disaster-alert", "disaster-alert.DLT"}, brokerProperties = {"listeners=PLAINTEXT://localhost:0"}) // 임베디드 Kafka 브로커 설정
 public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (수신, FCM, 실패 처리까지)
 
     @Autowired

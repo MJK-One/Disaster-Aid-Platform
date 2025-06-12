@@ -51,6 +51,9 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    admin:
+      fail-fast: false   # Kafka 미접속 시 에러 발생 방지
+      auto-create: false # 불필요한 토픽 자동 생성 방지
 
 logging:
   level:
