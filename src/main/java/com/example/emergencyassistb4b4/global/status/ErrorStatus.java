@@ -13,16 +13,12 @@ public enum ErrorStatus implements BaseErrorCode {
     REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "Do not found."),
     REPORT_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "RP005", "No permissions on this report."),
 
-    ALERT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AL010", "Failed to send message.");
+    ALERT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AL010", "Failed to send message."),
 
     KAKAO_API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 요청 실패"),
     KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
     KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답");
 
-
-
-    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "RP001", "Do not found."),
-    PEPORT_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "RP002", "No permissions on this report.");
 
 
     private final HttpStatus httpStatus;

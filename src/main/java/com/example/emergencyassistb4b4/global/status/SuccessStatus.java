@@ -11,7 +11,7 @@ public enum SuccessStatus implements BaseCode {
 
     REPORT_CREATE_SUCCESS(HttpStatus.CREATED, "RP002", "Report completed"),
     REPORT_GET_SUCCESS(HttpStatus.OK, "RP001", "Report inquiry completed"),
-    REPORT_REPORTER_GET_SUCCESS(HttpStatus.OK, "RP001", "Reporter inquiry completed");
+    REPORT_REPORTER_GET_SUCCESS(HttpStatus.OK, "RP001", "Reporter inquiry completed"),
 
     LOCATION_SAVE_SUCCESS(HttpStatus.CREATED, "LC002", "Location information save is success"),
     SHELTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Shelter search completed successfully"),
