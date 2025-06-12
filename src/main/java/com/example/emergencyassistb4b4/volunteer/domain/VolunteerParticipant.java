@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class VolunteerParticipant {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,5 +43,12 @@ public class VolunteerParticipant {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private CheckinStatus checkinStatus;
+
+    public void updateStatus(CheckinStatus newStatus) {
+        if (this.checkinStatus == CheckinStatus.BLACKLISTED) {
+            throw new IllegalStateException("블랙리스트는 상태 변경이 불가능합니다.");
+        }
+        this.checkinStatus = newStatus;
+    }
 
 }

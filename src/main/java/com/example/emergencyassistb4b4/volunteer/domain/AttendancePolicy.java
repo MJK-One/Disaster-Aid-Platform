@@ -34,5 +34,6 @@ public class AttendancePolicy extends BaseEntity {
     public void setPost(Post post) {
         this.post = post;
     }
+
 }
 

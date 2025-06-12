@@ -4,15 +4,14 @@ import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
-import com.example.emergencyassistb4b4.volunteer.domain.AttendancePolicy;
 import com.example.emergencyassistb4b4.volunteer.domain.Post;
-import com.example.emergencyassistb4b4.volunteer.domain.VolunteerLocation;
 import com.example.emergencyassistb4b4.volunteer.domain.VolunteerTeam;
+import com.example.emergencyassistb4b4.volunteer.dto.Join.TeamStatusDto;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.PostDetailResponse;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.PostTeamsResponse;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.UpdatePostRequest;
-import com.example.emergencyassistb4b4.volunteer.enums.PostCategory;
+import com.example.emergencyassistb4b4.volunteer.infra.redis.service.RedisService;
 import com.example.emergencyassistb4b4.volunteer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +26,7 @@ public class VolunteerPostService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final RedisService redisService;
 
     // 모집 게시글 생성
     @Transactional
@@ -50,7 +50,7 @@ public class VolunteerPostService {
     @Transactional
     public void updatePost(Long userId, Long postId, UpdatePostRequest request) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
 
         // 위치 수정
         post.setLocation(request.getLocation().toEntity());
@@ -63,14 +63,30 @@ public class VolunteerPostService {
     @Transactional(readOnly = true)
     public PostDetailResponse getPost(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
 
         return PostDetailResponse.from(post);
     }
 
-//    @Transactional(readOnly = true)
-//    public PostTeamsResponse getTeamStatus(Long postId) {
-//    }
+    // 게시글 별 팀 인원 조회
+    @Transactional(readOnly = true)
+    public PostTeamsResponse getTeamStatus(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
+
+        List<TeamStatusDto> teamStatuses = post.getTeams().stream()
+                .map(team -> {
+                    int currentCount = redisService.getCurrentCount(team.getId());
+                    return new TeamStatusDto(
+                            team.getId(),
+                            team.getTeamNumber(),
+                            team.getMaxCapacity(),
+                            currentCount
+                    );
+                }).toList();
+
+        return new PostTeamsResponse(post.getId(), teamStatuses);
+    }
 
     // 팀 생성
     private List<VolunteerTeam> generateTeams(Post post, int totalCapacity, int teamSize) {
@@ -87,4 +103,5 @@ public class VolunteerPostService {
         }
         return volunteerTeams;
     }
+
 }

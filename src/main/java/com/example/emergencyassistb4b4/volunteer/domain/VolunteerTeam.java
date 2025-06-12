@@ -36,4 +36,5 @@ public class VolunteerTeam {
     public void setPost(Post post) {
         this.post = post;
     }
+
 }

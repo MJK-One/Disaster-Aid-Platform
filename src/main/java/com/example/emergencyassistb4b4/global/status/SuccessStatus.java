@@ -12,9 +12,8 @@ public enum SuccessStatus implements BaseCode {
     CUSTOM_SUCCESS_STATUS(HttpStatus.OK, "S1001", "Custom Success"),
 
     //Volunteer
-    POST_CREATE_SUCCESS(HttpStatus.CREATED, "VO001", "자원봉사 모집글이 성공적으로 생성되었습니다."),
-    POST_UPDATE_SUCCESS(HttpStatus.OK, "VO002", "자원봉사 모집글이 성공적으로 수정되었습니다."),
-    POST_READ_SUCCESS(HttpStatus.OK, "VO002", "자원봉사 모집글 상세 내역이 정상적으로 조회되었습니다.");
+    VOLUNTEER_CREATE_SUCCESS(HttpStatus.CREATED, "VO001", "자원봉사 모집글이 성공적으로 생성되었습니다."),
+    VOLUNTEER_SUCCESS(HttpStatus.OK, "VO002", "자원봉사 모집글 상세 내역이 정상적으로 조회되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -37,4 +37,5 @@ public class VolunteerLocation extends BaseEntity {
     public void setPost(Post post) {
         this.post = post;
     }
+
 }

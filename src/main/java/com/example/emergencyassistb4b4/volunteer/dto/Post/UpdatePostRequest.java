@@ -19,4 +19,5 @@ public class UpdatePostRequest {
 
     @Valid
     private PostAttendancePolicyDto attendancePolicy;
+
 }

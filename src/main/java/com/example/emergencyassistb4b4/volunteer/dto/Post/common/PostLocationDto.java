@@ -29,4 +29,5 @@ public class PostLocationDto {
                 .locationLng(longitude)
                 .build();
     }
+
 }

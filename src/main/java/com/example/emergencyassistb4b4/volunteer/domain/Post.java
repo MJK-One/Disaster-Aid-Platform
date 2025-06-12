@@ -36,6 +36,7 @@ public class Post extends BaseEntity {
     private int totalCapacity;
     private int teamSize;
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VolunteerTeam> teams = new ArrayList<>();
 
@@ -61,4 +62,5 @@ public class Post extends BaseEntity {
             team.setPost(this);
         }
     }
+
 }

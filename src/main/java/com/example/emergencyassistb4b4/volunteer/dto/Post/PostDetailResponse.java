@@ -43,4 +43,5 @@ public class PostDetailResponse {
                         .build())
                 .build();
     }
+
 }

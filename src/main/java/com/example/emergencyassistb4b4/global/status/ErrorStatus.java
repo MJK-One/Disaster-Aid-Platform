@@ -12,9 +12,10 @@ public enum ErrorStatus implements BaseErrorCode {
     CUSTOM_ERROR_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "Custom Error"),
     // 유저
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "US004", "존재하지 않는 사용자입니다."),
+    USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "US005", "권한 없음."),
 
     // 자원봉사
-    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "존재하지 않는 게시글입니다.");
+    VOLUNTEER_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "VOLUNTEER_NOT_FOUND");
 
     private final HttpStatus httpStatus;
     private final String code;
