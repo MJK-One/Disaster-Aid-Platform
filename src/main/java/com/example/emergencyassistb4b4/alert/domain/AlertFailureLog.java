@@ -4,6 +4,7 @@ import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.transaction.annotation.Transactional;
 
 @Entity
 @Table(name = "alert_failure_log")
@@ -11,6 +12,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Transactional
 public class AlertFailureLog extends BaseEntity {
 
     @Id

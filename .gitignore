@@ -43,3 +43,10 @@ src/main/resources/postgres-data/
 .DS_Store
 
 .env
+
+application.yml
+application-test.yml
+docker-compose.yml
+
+
+

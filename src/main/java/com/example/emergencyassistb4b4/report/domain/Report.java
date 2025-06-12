@@ -67,10 +67,10 @@ public class Report extends BaseEntity {
     private String gu;
 
     // 위도
-    @Column(name = "location_lat", precision = 10, scale = 7, nullable = false)
+    @Column(name = "location_lat", nullable = false)
     private Double locationLat;
 
     // 경도
-    @Column(name = "location_lng", precision = 10, scale = 7, nullable = false)
+    @Column(name = "location_lng", nullable = false)
     private Double locationLng;
 }

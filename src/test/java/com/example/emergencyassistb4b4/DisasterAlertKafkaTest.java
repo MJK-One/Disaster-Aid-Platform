@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 
 @ActiveProfiles("test")
 @SpringBootTest(properties = "spring.profiles.active=test")
-@EmbeddedKafka(partitions = 1, topics = { "disaster-alert" }, brokerProperties = { "listeners=PLAINTEXT://localhost:0" })
-class DisasterAlertKafkaTest {
+@EmbeddedKafka(partitions = 1, topics = { "disaster-alert" }, brokerProperties = { "listeners=PLAINTEXT://localhost:0" }) // 이걸 톨해 임시 Kafka Broker에 실제 메시지 전송됨
+class DisasterAlertKafkaTest { // Kafka Producer -> Kafka Broker (Kafka Producer 단위 테스트)
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -23,10 +23,13 @@ class DisasterAlertKafkaTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    /*
+    KafkaTemplate이 Kafka 토픽(disaster-alert)으로 메시지를 잘 발행하는지만 확인하는 테스트
+     */
     @Test
     void testKafkaSend() throws Exception {
 
-        // 테스트용 메시지 생성
+        // 테스트용 메시지 생성 (DisasterAlertMessage 객체 수동 생성)
         DisasterAlertMessage message = DisasterAlertMessage.builder()
                 .reportId(123L)
                 .disasterType("EARTHQUAKE")
@@ -35,10 +38,10 @@ class DisasterAlertKafkaTest {
                 .reportedAt(LocalDateTime.now())
                 .build();
 
-        // JSON 직렬화
+        // JSON 직렬화 (ObjectMapper로 Kafka 메시지용 JSON 문자열로 변환)
         String json = objectMapper.writeValueAsString(message);
 
-        // Kafka 발행
+        // Kafka 메시지 발행 (KafkaTemplate.send() 호출로 Kafka 토픽(disaster-alert)에 메시지 발행)
         kafkaTemplate.send("disaster-alert", json);
 
         // 결과 확인용 (일단은 수동 확인 or Consumer에서 로그 확인 가능)
