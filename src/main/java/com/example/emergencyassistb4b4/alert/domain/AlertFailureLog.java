@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Transactional
 public class AlertFailureLog extends BaseEntity {
 
     @Id
