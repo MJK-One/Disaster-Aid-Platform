@@ -40,8 +40,8 @@ public class ReportService {
                 .status(ReportStatus.PENDING)
                 .si("서울시") // 예시: 위치 서비스로 가져온 값
                 .gu("강남구")
-                .locationLat(BigDecimal.valueOf(37.5665))
-                .locationLng(BigDecimal.valueOf(126.9780))
+                .locationLat(Double.valueOf(37.5665))
+                .locationLng(Double.valueOf(126.9780))
                 .build();
 
         Report savedReport = reportRepository.save(report);

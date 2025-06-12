@@ -12,31 +12,41 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    // Spring Boot Web
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
 
-    // Spring Security + OAuth2
+dependencies {
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-    // Kafka
-    implementation 'org.springframework.kafka:spring-kafka'
-
-    // PostgreSQL
+    // DB
     runtimeOnly 'org.postgresql:postgresql'
+    implementation 'com.h2database:h2:2.2.224'
 
-    // Spring Data JPA
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-    // password encode
+    // Password
     implementation 'at.favre.lib:bcrypt:0.10.2'
+
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.30'
@@ -53,35 +63,37 @@ dependencies {
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 
-    // Jackson
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations'
-
-    // validation
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-    // test
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.kafka:spring-kafka-test'
-    testImplementation 'org.mockito:mockito-core:4.8.0'
+    // Firebase
+    implementation 'com.google.firebase:firebase-admin:9.5.0'
 
     // dotenv
     implementation 'io.github.cdimascio:dotenv-java:3.2.0'
 
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'org.mockito:mockito-core:4.8.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+    options.compilerArgs += ["-Xlint:deprecation"]
 }
 
 sourceSets {
     main {
         java {
-            srcDirs = ['src/main/java', 'build/generated']
+            srcDirs = ['src/main/java', 'build/generated/sources/annotationProcessor/java/main']
         }
     }
 }
 
 tasks.named('compileJava') {
-    options.annotationProcessorGeneratedSourcesDirectory = file("build/generated")
+    options.annotationProcessorGeneratedSourcesDirectory = file("build/generated/sources/annotationProcessor/java/main")
+}
+
+test {
+    useJUnitPlatform()
 }
