@@ -10,6 +10,5 @@ public enum DisasterType {
     POWER_OUTAGE,      // 정전
     TERROR_ATTACK,     // 테러
     BUILDING_COLLAPSE  // 건물 붕괴
-
 }
 

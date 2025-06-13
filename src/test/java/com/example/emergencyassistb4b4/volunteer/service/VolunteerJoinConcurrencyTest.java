@@ -1,8 +1,9 @@
 package com.example.emergencyassistb4b4.volunteer.service;
 
+import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.enums.LoginType;
-import com.example.emergencyassistb4b4.user.enums.UserRole;
+
+import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostAttendancePolicyDto;
@@ -39,7 +40,7 @@ class VolunteerJoinConcurrencyTest {
                     .password("1234")
                     .loginType(LoginType.LOCAL)
                     .provider(null)
-                    .userRole(UserRole.USER)
+                    .userRole(UserRole.IND)
                     .build());
         }
 
@@ -48,8 +49,8 @@ class VolunteerJoinConcurrencyTest {
 
         PostLocationDto locationDto = PostLocationDto.builder()
                 .placeName("서울시 강남구")
-                .latitude(new BigDecimal("37.4979"))
-                .longitude(new BigDecimal("127.0276"))
+                .latitude(new Double("37.4979"))
+                .longitude(new Double("127.0276"))
                 .build();
 
         PostAttendancePolicyDto policyDto = PostAttendancePolicyDto.builder()

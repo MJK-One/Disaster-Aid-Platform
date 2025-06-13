@@ -8,12 +8,26 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum SuccessStatus implements BaseCode {
-
+    //인증
+    LOGIN_SUCCESS(HttpStatus.OK, "S1000", "로그인에 성공했습니다."),
+    LOGOUT_SUCCESS(HttpStatus.OK,"S1002", "로그아웃에 성공했습니다."),
+    SIGNUP_SUCCESS(HttpStatus.OK, "S1009" ,"회원가입에 성공했습니다"),
+    TOKEN_REISSUE_SUCCESS(HttpStatus.CREATED, "S1003", "액세스 토큰 재발급에 성공했습니다."),
     CUSTOM_SUCCESS_STATUS(HttpStatus.OK, "S1001", "Custom Success"),
+
+    REPORT_CREATE_SUCCESS(HttpStatus.CREATED, "RP002", "Report completed"),
+    REPORT_GET_SUCCESS(HttpStatus.OK, "RP001", "Report inquiry completed"),
+    REPORT_REPORTER_GET_SUCCESS(HttpStatus.OK, "RP001", "Reporter inquiry completed"),
 
     //Volunteer
     VOLUNTEER_CREATE_SUCCESS(HttpStatus.CREATED, "VO001", "자원봉사 모집글이 성공적으로 생성되었습니다."),
-    VOLUNTEER_SUCCESS(HttpStatus.OK, "VO002", "자원봉사 모집글 상세 내역이 정상적으로 조회되었습니다.");
+    VOLUNTEER_SUCCESS(HttpStatus.OK, "VO002", "자원봉사 모집글 상세 내역이 정상적으로 조회되었습니다."),
+    LOCATION_SAVE_SUCCESS(HttpStatus.CREATED, "LC002", "Location information save is success"),
+
+    SHELTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Shelter search completed successfully"),
+    DISASTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Disaster summary search completed successfully");
+
+
 
     private final HttpStatus httpStatus;
     private final String code;

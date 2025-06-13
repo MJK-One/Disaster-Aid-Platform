@@ -44,7 +44,7 @@ public class VolunteerJoinService {
 
         // 본인 확인
         if (!participant.getUser().equals(userId)) {
-            throw new ApiException(ErrorStatus.USER_UNAUTHORIZED);
+            throw new ApiException(ErrorStatus.USER_NOT_FOUND);
         }
 
         // 현재 인원 -

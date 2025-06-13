@@ -3,7 +3,6 @@ package com.example.emergencyassistb4b4.volunteer.domain;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import jakarta.persistence.*;
 
-import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,11 +23,13 @@ public class VolunteerLocation extends BaseEntity {
     @Column(name = "place_name", nullable = false)
     private String placeName;
 
-    @Column(name = "location_lat", precision = 10, scale = 7, nullable = false)
-    private BigDecimal locationLat;
+    // 위도
+    @Column(name = "location_lat")
+    private Double locationLat;
 
-    @Column(name = "location_lng", precision = 10, scale = 7, nullable = false)
-    private BigDecimal locationLng;
+    // 경도
+    @Column(name = "location_lng")
+    private Double locationLng;
 
     @OneToOne
     @JoinColumn(name = "post_id", nullable = false)
@@ -37,5 +38,4 @@ public class VolunteerLocation extends BaseEntity {
     public void setPost(Post post) {
         this.post = post;
     }
-
 }

@@ -27,6 +27,9 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+# PostgreSQL data directory
+src/main/resources/postgres-data/
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -41,3 +44,10 @@ out/
 .DS_Store
 
 .env
+
+application.yml
+application-test.yml
+docker-compose.yml
+
+
+
