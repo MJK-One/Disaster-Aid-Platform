@@ -3,6 +3,7 @@ package com.example.emergencyassistb4b4.attendance.socket.controller;
 import com.example.emergencyassistb4b4.attendance.socket.dto.LocationUpdateMessage;
 import com.example.emergencyassistb4b4.attendance.socket.notifier.TrackingNotifier;
 import com.example.emergencyassistb4b4.attendance.socket.service.LocationWebSocketService;
+import com.example.emergencyassistb4b4.global.security.JwtUtils;
 import com.example.emergencyassistb4b4.location.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,19 +20,21 @@ public class LocationWebSocketController {
     private final LocationService locationService;
     private final LocationWebSocketService locationWebSocketService;// 출석 체크 로직 담당
     private final TrackingNotifier trackingNotifier; // 실시간 알림 담당
-
+    private final JwtUtils jwtUtils;
     /**
      * 클라이언트로부터 위치 업데이트 메시지 수신
      */
 
     @MessageMapping("/location.update")
     public void handleLocationUpdate(LocationUpdateMessage message,
-                                     @Header("Authorization") String token) {
-        Long volunteerId = message.getVolunteerId();
+                                     @Header("Authorization")  String authorizationHeader) {
+        String token = authorizationHeader.replace("Bearer ", "");
+        Long volunteerId = jwtUtils.getUserId(token);
+
         double lat = message.getLatitude();
         double lon = message.getLongitude();
 
-        log.info("Received location update from volunteerId={} lat={} lon={}", volunteerId, lat, lon);
+        log.debug("Received location update from volunteerId={} lat={} lon={}", volunteerId, lat, lon);
 
         // 1. Redis GEO 저장
         locationService.saveCoordinates(volunteerId, lat, lon);
