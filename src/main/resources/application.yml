@@ -1,15 +1,20 @@
 server:
   port: 8080
+
   servlet:
     context-path: /api
+
 spring:
+
   application:
     name: disaster-alert-service
+
   datasource:
     url: ${POSTGRE_URL}
     username: ${POSTGRE_USERNAME}
     password: ${POSTGRE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: create
@@ -17,6 +22,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
   jwt:
     token:
       access:
@@ -24,10 +30,12 @@ spring:
       refresh:
         minute: 20160
     secret: ${JWT_SECRET_KEY}
+
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
       port: ${REDIS_PORT:6379}
+
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -43,6 +51,9 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    admin:
+      fail-fast: false   # Kafka 미접속 시 에러 발생 방지
+      auto-create: false # 불필요한 토픽 자동 생성 방지
 
 logging:
   level:
