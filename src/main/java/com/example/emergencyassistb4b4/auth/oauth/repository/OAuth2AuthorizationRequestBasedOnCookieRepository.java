@@ -38,7 +38,6 @@ public class OAuth2AuthorizationRequestBasedOnCookieRepository implements Author
      */
     @Override
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
-        System.out.println("✅ 인증 요청 쿠키 저장됨: " + authorizationRequest);
         if(authorizationRequest == null) {// 저장할 authorizationRequest가 null이면 기존 쿠키를 삭제합니다.
             removeAuthorizationRequest(request, response);
             return;
@@ -47,7 +46,7 @@ public class OAuth2AuthorizationRequestBasedOnCookieRepository implements Author
                 CookieUtil.serialize(authorizationRequest), COOKIE_EXPIRE_SECONDS);
         // authorizationRequest 객체를 CookieUtil을 사용하여 직렬화하고,
         // 지정된 쿠키 이름과 만료 시간으로 응답(Response)에 쿠키를 추가합니다.
-        System.out.println("🍪 쿠키 저장 시도: oauth2 = " + CookieUtil.serialize(authorizationRequest));
+
 
     }
     /**
@@ -58,20 +57,6 @@ public class OAuth2AuthorizationRequestBasedOnCookieRepository implements Author
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
         // 1. 쿠키에서 객체를 로드
-        //OAuth2AuthorizationRequest authorizationRequest = this.loadAuthorizationRequest(request);
-//        Cookie cookie = WebUtils.getCookie(request, COOKIE_NAME);
-//
-//        if(cookie == null) {
-//            System.out.println("🧾 [removeAuthorizationRequest] 쿠키 존재 - 이름: " + cookie.getName() + ", 값 길이: " + cookie.getValue().length());
-//
-//            return null;
-//        }
-//        System.out.println("🧾 [removeAuthorizationRequest] 쿠키 존재 - 이름: " + cookie.getName() + ", 값 길이: " + cookie.getValue().length());
-//
-//        OAuth2AuthorizationRequest authorizationRequest = (OAuth2AuthorizationRequest) CookieUtil.deserialize(cookie, OAuth2AuthorizationRequest.class);
-//
-//        System.out.println("🧹 [removeAuthorizationRequest] 쿠키 삭제 시도");
-//        // 쿠키 제거
 
         Cookie cookie = WebUtils.getCookie(request, COOKIE_NAME);
         if (cookie == null || cookie.getValue().isBlank()) {
@@ -84,7 +69,7 @@ public class OAuth2AuthorizationRequestBasedOnCookieRepository implements Author
             removeAuthorizationRequestCookies(request, response);
             return authorizationRequest;
         } catch (Exception e) {
-            System.out.println("❌ 역직렬화 실패, 강제 쿠키 삭제");
+
             removeAuthorizationRequestCookies(request, response);
             return null;
         }

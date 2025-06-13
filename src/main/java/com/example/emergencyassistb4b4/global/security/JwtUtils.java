@@ -7,6 +7,8 @@ import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,18 +23,17 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
-// 토큰 생성, 파싱, 인증 변환 등을 처리하는 핵심
+// 1. 토큰 생성 generateAccessToken(), generateRefreshToken(), createToken()
+// 2. 인증 객체 반환 getAuthentication()
+// 3. 유효성 검증 validateToken()
+// 4. 클레임 조회 getClaims(), getUserId()
 @RequiredArgsConstructor
 @Component
-@Log4j2
 public class JwtUtils {
 
     private final JwtProperties jwtProperties; //jwt 비밀키 등의 값을 주입받기 위한 객체
     private final RefreshTokenService refreshTokenService;
-    @PostConstruct
-    public void init() {
-        System.out.println("jwtProperties.getSecret() = " + jwtProperties.getSecret());
-    }
+
     /**
      * Access Token 생성, 1시간 유효
      */
@@ -46,12 +47,6 @@ public class JwtUtils {
      */
     public String generateRefreshToken(UserResponseDto userResponseDto) {
         return createToken(userResponseDto, Duration.ofHours(14));
-        // JWT를 만드는 메서드는 순수 생성만 하고, 저장/검증은 외부서비스 AuthService 에서 하는것이 좋다고 하여 리팩토링 예정
-        // return createToken(user, Duration.ofDays(14);
-        // AuthService 에서는
-        // String refreshToken = jwtUtils.generateRefreshToken(user);
-        // refreshTokenService.saveToken(user.getId(), refreshToken)
-
     }
 
 
@@ -150,6 +145,22 @@ public class JwtUtils {
                 .build()
                 .parseClaimsJws(token) // JWT 문자열을 파싱
                 .getBody(); // 클레임(body) 반환
+    }
 
+    public String getEmailFromToken(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    public long getRemainingExpiration(String token) {
+        Date expiration = getClaims(token).getExpiration();
+        return expiration.getTime() - System.currentTimeMillis();
+    }
+    public String resolveToken(ServletRequest request) {
+        HttpServletRequest req = (HttpServletRequest) request;
+        String bearerToken = req.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 }

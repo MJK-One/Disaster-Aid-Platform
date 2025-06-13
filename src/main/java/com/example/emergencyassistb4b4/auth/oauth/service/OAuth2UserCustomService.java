@@ -32,7 +32,6 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
-
         // 1. Provider 정보
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         // 2. OAuth2 기본 사용자 정보 가져오기

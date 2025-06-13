@@ -55,7 +55,7 @@ public class CookieUtil {
     //역직렬화해서 객체로 변환
     public static Object deserialize(Cookie cookie, Class<?> cls) {
         if (cookie == null) {
-            System.out.println("❌ 쿠키가 비어 있음");
+
             return null; // 또는 throw new IllegalArgumentException("쿠키가 존재하지 않습니다");
         }
         try
@@ -63,7 +63,7 @@ public class CookieUtil {
              //ObjectInputStream ois = new ObjectInputStream(bais))
         {
             byte[] decoded = Base64.getUrlDecoder().decode(cookie.getValue());
-            System.out.println("🔍 디코딩된 바이트 길이: " + decoded.length);
+
 
             try(ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded))) {
                 Object obj = ois.readObject();
@@ -77,7 +77,7 @@ public class CookieUtil {
             //return cls.cast(obj);
 
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("❌ 역직렬화 예외: " + e.getMessage());
+
             throw new IllegalArgumentException("역직렬화 중 오류 발생", e);
         }
 

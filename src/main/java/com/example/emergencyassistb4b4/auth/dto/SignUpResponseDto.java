@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.auth.signup;
+package com.example.emergencyassistb4b4.auth.dto;
 
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.domain.UserRole;

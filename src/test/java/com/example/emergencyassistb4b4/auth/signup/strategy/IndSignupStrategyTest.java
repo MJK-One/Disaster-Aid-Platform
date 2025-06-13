@@ -1,9 +1,8 @@
 package com.example.emergencyassistb4b4.auth.signup.strategy;
 
 import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
-import com.example.emergencyassistb4b4.auth.signup.SignUpRequestDto;
+import com.example.emergencyassistb4b4.auth.dto.SignUpRequestDto;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
-import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
@@ -18,7 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 

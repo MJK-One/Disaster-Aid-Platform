@@ -1,11 +1,10 @@
 package com.example.emergencyassistb4b4.auth.signup;
 
+import com.example.emergencyassistb4b4.auth.dto.SignUpRequestDto;
 import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
 import com.example.emergencyassistb4b4.auth.signup.strategy.SignUpStrategy;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
-import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

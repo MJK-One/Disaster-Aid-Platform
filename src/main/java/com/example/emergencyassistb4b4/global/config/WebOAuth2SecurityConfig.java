@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,11 +23,14 @@ import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationF
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Map;
 
 @RequiredArgsConstructor
 @Configuration
+@EnableMethodSecurity
 public class WebOAuth2SecurityConfig {
 
     private final JwtUtils jwtUtils;
@@ -39,7 +43,8 @@ public class WebOAuth2SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/static/**",
-                                "/api/auth/**",
+                                "/auth/signup",
+                                "/auth/login",
                                 "/login/oauth2/code/kakao",
                                 "/oauth2/authorization/kakao",
                                 "/oauth2/**",
@@ -47,7 +52,7 @@ public class WebOAuth2SecurityConfig {
                                 "/api/auth/reissue"
 
                         ).permitAll()
-                        .requestMatchers("/api/**").authenticated()
+                        //.requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화 (JWT 기반에선 불필요)
@@ -57,6 +62,7 @@ public class WebOAuth2SecurityConfig {
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //세션 사용안함
 
                 .oauth2Login(oauth2 -> oauth2
+                        //oauth 인증 성공 후 사용자 정보를 가져오고 성공 핸들러를 통해 jwt 토큰 발급
                         .successHandler(oAuth2SuccessHandler(tokenService))
                         .authorizationEndpoint(endpoint -> endpoint
                                 .baseUri("/oauth2/authorization")
@@ -65,11 +71,12 @@ public class WebOAuth2SecurityConfig {
                                 .baseUri("/login/oauth2/code/*"))
                         .userInfoEndpoint(endpoint -> endpoint
                                 .userService(oAuth2UserCustomService)))// 로그인 이후 사용자 정보 처리 커스텀 서비스
+                // OAuth2 필터 이후 JWT 필터를 등록해 모든 요청에 대해 JWT 인증 수행.
                 .addFilterAfter(jwtTokenAuthenticationFilter(), OAuth2LoginAuthenticationFilter.class) //JWT 필터 등록
 
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                            //authException.printStackTrace();
+                            authException.printStackTrace();
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json; charset=utf-8");
                            response.getWriter().write(
@@ -93,6 +100,7 @@ public class WebOAuth2SecurityConfig {
 //    public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository() {
 //        return new OAuth2AuthorizationRequestBasedOnCookieRepository();
 //    }
+
     @Bean
     public JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter() {
         return new JwtTokenAuthenticationFilter(jwtUtils);
@@ -105,5 +113,20 @@ public class WebOAuth2SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class).build();
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:5173")
+                        .allowedMethods("*")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
+
+            }
+        };
     }
 }

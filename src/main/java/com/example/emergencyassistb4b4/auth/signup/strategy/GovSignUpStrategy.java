@@ -1,7 +1,7 @@
 package com.example.emergencyassistb4b4.auth.signup.strategy;
 
 import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
-import com.example.emergencyassistb4b4.auth.signup.SignUpRequestDto;
+import com.example.emergencyassistb4b4.auth.dto.SignUpRequestDto;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;

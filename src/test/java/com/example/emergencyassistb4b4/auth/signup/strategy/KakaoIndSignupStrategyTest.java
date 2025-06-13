@@ -1,7 +1,7 @@
 package com.example.emergencyassistb4b4.auth.signup.strategy;
 
 import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
-import com.example.emergencyassistb4b4.auth.signup.SignUpRequestDto;
+import com.example.emergencyassistb4b4.auth.dto.SignUpRequestDto;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,7 +37,7 @@ public class KakaoIndSignupStrategyTest {
                 .userRole(UserRole.IND)
                 .build();
         when(userRepository.existsByEmail("kakako@example.com")).thenReturn(false);
-        System.out.println("existsByEmail: " + userRepository.existsByEmail(signUpRequestDto.getEmail()));
+
         User savedUser = User.builder()
                 .id(1L)
                 .email(signUpRequestDto.getEmail())
@@ -46,7 +45,7 @@ public class KakaoIndSignupStrategyTest {
                 .userRole(UserRole.IND)
                 .loginType(LoginType.KAKAO)
                 .build();
-        System.out.println("savedUser: " + savedUser);
+
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
         when(tokenService.issueToken(any(UserResponseDto.class)))
                 .thenReturn(new TokenResponseDto("access-token", "refresh-token"));

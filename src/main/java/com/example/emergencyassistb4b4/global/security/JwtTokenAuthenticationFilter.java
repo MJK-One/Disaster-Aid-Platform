@@ -13,7 +13,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Set;
-
+// 1. /api/auth, /oauth2 등 경로는 필터 제외
+// 2. Authorization 헤더의 Bearer 토큰 추출
+// 3. JWT 유효성 검증 → 성공 시 SecurityContext에 Authentication 설정
 @RequiredArgsConstructor
 @Slf4j
 public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
@@ -33,7 +35,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
         // 요청 헤더의 Authorization 키의 값 조회
         String authorizationHeader = request.getHeader(HEADER_AUTHORIZATION);
-        log.debug("Authorization Header: {}", authorizationHeader);
+
         //가져온 값에서 접두사 제거
         String token = getAccessToken(authorizationHeader);
 
@@ -46,27 +48,15 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
                 log.warn("Invalid JWT token.");
             }
         }
-        log.debug("Token: {}", token);
-        log.debug("Authentication: {}", SecurityContextHolder.getContext().getAuthentication());
-
         filterChain.doFilter(request, response);
     }
     private String getAccessToken(String authorizationHeader) {
         if (authorizationHeader != null && authorizationHeader.startsWith(HEADER_PREFIX)) {
             return authorizationHeader.substring(HEADER_PREFIX.length());
-
         }
         return null;
     }
     // 추후에 경로가 많아질 것을 생각해서 Set<String>, PathMatcher 활용한 구성으로 리팩토링 예정
-    private static final Set<String> SKIP_PATHS = Set.of(
-            "/api/auth/signup",
-            "/api/auth/login",
-            "/oauth2",
-            "/api/auth/reissue",
-            "/api/login/oauth2/code"
-    );
-
     private boolean isSkipPath(String path) {
         return path.matches("^/api/login/oauth2/code/.*") ||
                 path.startsWith("/api/auth") ||
