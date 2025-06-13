@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @ActiveProfiles("test")
 @SpringBootTest(properties = "spring.profiles.active=test")
-@EmbeddedKafka(partitions = 1, topics = { "disaster-alert" }, brokerProperties = { "listeners=PLAINTEXT://localhost:0" }) // 이걸 톨해 임시 Kafka Broker에 실제 메시지 전송됨
+@EmbeddedKafka(partitions = 1, topics = {"disaster-alert"}, brokerProperties = {"listeners=PLAINTEXT://localhost:0"}) // 이걸 톨해 임시 Kafka Broker에 실제 메시지 전송됨
 class DisasterAlertKafkaTest { // Kafka Producer -> Kafka Broker (Kafka Producer 단위 테스트)
 
     @Autowired
