@@ -11,7 +11,7 @@ import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.PostDetailResponse;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.PostTeamsResponse;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.UpdatePostRequest;
-import com.example.emergencyassistb4b4.volunteer.infra.redis.service.RedisService;
+import com.example.emergencyassistb4b4.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.volunteer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class VolunteerPostService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private final RedisService redisService;
+    private final TeamParticipationRedisService teamParticipationRedisService;
 
     // 모집 게시글 생성
     @Transactional
@@ -76,7 +76,7 @@ public class VolunteerPostService {
 
         List<TeamStatusDto> teamStatuses = post.getTeams().stream()
                 .map(team -> {
-                    int currentCount = redisService.getCurrentCount(team.getId());
+                    int currentCount = teamParticipationRedisService.getCurrentCount(team.getId());
                     return new TeamStatusDto(
                             team.getId(),
                             team.getTeamNumber(),

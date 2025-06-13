@@ -15,7 +15,11 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "US005", "권한 없음."),
 
     // 자원봉사
+    VOLUNTEER_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "VOLUNTEER_INTERNAL_SERVER_ERROR"),
+    VOLUNTEER_CONFLICT(HttpStatus.CONFLICT, "VO008", "VOLUNTEER_CONFLICT"),
+    VOLUNTEER_BAD_REQUEST(HttpStatus.BAD_REQUEST, "VO000", "VOLUNTEER_BAD_REQUEST"),
     VOLUNTEER_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "VOLUNTEER_NOT_FOUND");
+
 
     private final HttpStatus httpStatus;
     private final String code;
@@ -33,6 +37,7 @@ public enum ErrorStatus implements BaseErrorCode {
             .message(message)
             .build();
     }
+
 
     @Override
     public ErrorReasonDto getReasonHttpStatus() {

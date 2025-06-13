@@ -2,11 +2,10 @@ package com.example.emergencyassistb4b4.volunteer.service;
 
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
-import com.example.emergencyassistb4b4.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.volunteer.domain.VolunteerParticipant;
 import com.example.emergencyassistb4b4.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.volunteer.dto.Join.CheckinStatusRequest;
-import com.example.emergencyassistb4b4.volunteer.infra.redis.service.RedisService;
+import com.example.emergencyassistb4b4.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.volunteer.repository.VolunteerParticipantRepository;
 import com.example.emergencyassistb4b4.volunteer.repository.VolunteerTeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ public class VolunteerJoinService {
 
     private final VolunteerTeamRepository teamRepository;
     private final VolunteerParticipantRepository participantRepository;
-    private final RedisService redisService;
+    private final TeamParticipationRedisService teamParticipationRedisService;
     private final VolunteerParticipantService participantService;
 
     // 팀 참가
@@ -30,7 +29,7 @@ public class VolunteerJoinService {
                 .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
 
         // 현재 인원 +
-        redisService.tryJoinTeam(team.getId(), userId, team.getMaxCapacity());
+        teamParticipationRedisService.tryJoinTeam(team.getId(), userId, team.getMaxCapacity());
 
         // 팀원 DB 저장
         participantService.joinSave(userId, team.getId());
@@ -49,7 +48,7 @@ public class VolunteerJoinService {
         }
 
         // 현재 인원 -
-        redisService.cancelJoin(participant.getId(), userId);
+        teamParticipationRedisService.cancelJoin(participant.getId(), userId);
 
         // 상태 변경
         participant.updateStatus(request.getStatus());
