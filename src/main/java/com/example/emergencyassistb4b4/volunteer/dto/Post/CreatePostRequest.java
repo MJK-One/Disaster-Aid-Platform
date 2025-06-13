@@ -61,4 +61,5 @@ public class CreatePostRequest {
 
         return post;
     }
+
 }

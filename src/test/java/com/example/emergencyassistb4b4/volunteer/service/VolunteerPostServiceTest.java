@@ -1,8 +1,6 @@
 package com.example.emergencyassistb4b4.volunteer.service;
 
 import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.enums.LoginType;
-import com.example.emergencyassistb4b4.user.enums.UserRole;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import com.example.emergencyassistb4b4.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
@@ -54,8 +52,8 @@ class VolunteerPostServiceTest {
                 .teamSize(3)
                 .location(PostLocationDto.builder()
                         .placeName("서울역")
-                        .latitude(BigDecimal.valueOf(37.555))
-                        .longitude(BigDecimal.valueOf(126.9707))
+                        .latitude(Double.valueOf(37.555))
+                        .longitude(Double.valueOf(126.9707))
                         .build())
                 .attendancePolicy(PostAttendancePolicyDto.builder()
                         .checkinStart(LocalDateTime.now())
@@ -95,8 +93,8 @@ class VolunteerPostServiceTest {
                 .teamSize(2)
                 .location(PostLocationDto.builder()
                         .placeName("강남역")
-                        .latitude(BigDecimal.valueOf(37.4979))
-                        .longitude(BigDecimal.valueOf(127.0276))
+                        .latitude(Double.valueOf(37.4979))
+                        .longitude(Double.valueOf(127.0276))
                         .build())
                 .attendancePolicy(PostAttendancePolicyDto.builder()
                         .checkinStart(LocalDateTime.now())
@@ -112,8 +110,8 @@ class VolunteerPostServiceTest {
         UpdatePostRequest updateRequest = UpdatePostRequest.builder()
                 .location(PostLocationDto.builder()
                         .placeName("수정된 장소")
-                        .latitude(BigDecimal.valueOf(35.1234))
-                        .longitude(BigDecimal.valueOf(129.1234))
+                        .latitude(Double.valueOf(35.1234))
+                        .longitude(Double.valueOf(129.1234))
                         .build())
                 .attendancePolicy(PostAttendancePolicyDto.builder()
                         .checkinStart(LocalDateTime.now())

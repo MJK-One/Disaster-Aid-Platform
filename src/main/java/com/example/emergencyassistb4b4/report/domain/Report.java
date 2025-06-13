@@ -56,7 +56,7 @@ public class Report extends BaseEntity {
     // 상태
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private ReportStatus status;
+    private ReportStatus status = ReportStatus.PENDING;  //생성시 PENDING으로
 
     // 행정구역 (시)
     @Column(name = "si", nullable = false, length = 255)
@@ -73,4 +73,10 @@ public class Report extends BaseEntity {
     // 경도
     @Column(name = "location_lng", nullable = false)
     private Double locationLng;
+
+    //상태변경
+    public void updateStatus(ReportStatus newStatus){
+        status = newStatus;
+    }
+
 }

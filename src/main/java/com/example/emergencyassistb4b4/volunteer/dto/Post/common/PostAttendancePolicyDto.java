@@ -33,4 +33,5 @@ public class PostAttendancePolicyDto {
                 .minCheckinMinutes(minStayMinutes)
                 .build();
     }
+
 }

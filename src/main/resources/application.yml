@@ -1,11 +1,9 @@
 server:
   port: 8080
-
   servlet:
     context-path: /api
 
 spring:
-
   application:
     name: disaster-alert-service
 
@@ -14,6 +12,40 @@ spring:
     username: ${POSTGRE_USERNAME}
     password: ${POSTGRE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    admin:
+      properties:
+        bootstrap.servers: localhost:9092
+    consumer:
+      group-id: alert-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
   security:
     oauth2:
       client:
@@ -23,7 +55,9 @@ spring:
             client-secret: ${GOOGLE_CLIENT_SECRET}
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
-            scope: profile_nickname, account_email
+            scope:
+              - profile_nickname
+              - account_email
             client-name: Google
 
           kakao:
@@ -36,6 +70,7 @@ spring:
               - account_email
             client-name: Kakao
             provider: kakao
+
         provider:
           kakao:
             authorization-uri: ${KAKAO_AUTH_URI}
@@ -43,15 +78,20 @@ spring:
             user-info-uri: ${KAKAO_USER_INFO_URI}
             user-name-attribute: id
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  main:
+    allow-bean-definition-overriding: true
 
 
-  jpa:
-    hibernate:
-      ddl-auto: create
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+
+kakao:
+  api:
+    key: ${KAKAO_API_KEY}
 
 
   data:
@@ -83,22 +123,14 @@ logging:
     root: INFO
     org.springframework.data.redis: WARN
     org.springframework.kafka: INFO
-
-    org.springframework.security : DEBUG
-    org.springframework.security.oauth2 : DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.amqp: DEBUG
+    org.springframework.amqp.rabbit.connection: TRACE
+    com.rabbitmq: DEBUG
+    com.example.disaster: DEBUG
     com.example.emergencyassistb4b4.global.security: DEBUG
     com.example.emergencyassistb4b4: DEBUG
 
   config:
     import: classpath:/.env
-
-
-kakao:
-  api:
-    key: ${KAKAO_API_KEY}
-
-jwt:
-  issuer: my-app
-  secret: MyUltraSecureJwtSecretKeyMustBe32Charsafeweqadb!
-  access-token-validity: 900000      # 15분
-  refresh-token-validity: 1209600000 # 14일

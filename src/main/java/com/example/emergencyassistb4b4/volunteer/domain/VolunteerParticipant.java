@@ -1,5 +1,7 @@
 package com.example.emergencyassistb4b4.volunteer.domain;
 
+import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.volunteer.enums.CheckinStatus;
 import jakarta.persistence.Column;
@@ -24,6 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class VolunteerParticipant {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -43,7 +46,12 @@ public class VolunteerParticipant {
     @Enumerated(EnumType.STRING)
     private CheckinStatus checkinStatus;
 
-    public void updateCheckinStatus(CheckinStatus finalStatus) {
-        this.checkinStatus=finalStatus;
+    public void updateStatus(CheckinStatus newStatus) {
+        if (this.checkinStatus == CheckinStatus.BLACKLISTED) {
+            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+            //IllegalStateException("블랙리스트는 상태 변경이 불가능합니다.");
+        }
+        this.checkinStatus = newStatus;
     }
+
 }

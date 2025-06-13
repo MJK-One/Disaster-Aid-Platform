@@ -8,11 +8,11 @@ import com.example.emergencyassistb4b4.volunteer.domain.AttendancePolicy;
 import com.example.emergencyassistb4b4.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.volunteer.domain.VolunteerLocation;
 import com.example.emergencyassistb4b4.volunteer.domain.VolunteerTeam;
+import com.example.emergencyassistb4b4.volunteer.dto.Join.TeamStatusDto;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.PostDetailResponse;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.PostTeamsResponse;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.UpdatePostRequest;
-import com.example.emergencyassistb4b4.volunteer.enums.PostCategory;
 import com.example.emergencyassistb4b4.volunteer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +27,7 @@ public class VolunteerPostService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final TeamParticipationRedisService teamParticipationRedisService;
 
     // 모집 게시글 생성
     @Transactional
@@ -68,9 +69,25 @@ public class VolunteerPostService {
         return PostDetailResponse.from(post);
     }
 
-//    @Transactional(readOnly = true)
-//    public PostTeamsResponse getTeamStatus(Long postId) {
-//    }
+    // 게시글 별 팀 인원 조회
+    @Transactional(readOnly = true)
+    public PostTeamsResponse getTeamStatus(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
+
+        List<TeamStatusDto> teamStatuses = post.getTeams().stream()
+                .map(team -> {
+                    int currentCount = teamParticipationRedisService.getCurrentCount(team.getId());
+                    return new TeamStatusDto(
+                            team.getId(),
+                            team.getTeamNumber(),
+                            team.getMaxCapacity(),
+                            currentCount
+                    );
+                }).toList();
+
+        return new PostTeamsResponse(post.getId(), teamStatuses);
+    }
 
     // 팀 생성
     private List<VolunteerTeam> generateTeams(Post post, int totalCapacity, int teamSize) {
@@ -87,4 +104,5 @@ public class VolunteerPostService {
         }
         return volunteerTeams;
     }
+
 }

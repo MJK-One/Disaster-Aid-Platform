@@ -3,7 +3,6 @@ package com.example.emergencyassistb4b4.volunteer.domain;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import jakarta.persistence.*;
 
-import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

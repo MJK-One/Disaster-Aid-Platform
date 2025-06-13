@@ -1,21 +1,26 @@
 package com.example.emergencyassistb4b4.volunteer.domain;
 
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
-import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.volunteer.enums.PostCategory;
 import jakarta.persistence.*;
 import lombok.*;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
 @Table(name = "Post")
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
 
     @Id
@@ -23,7 +28,7 @@ public class Post extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name="user_id", nullable=false)
     private User user;
 
     @Enumerated(EnumType.STRING)
@@ -37,6 +42,7 @@ public class Post extends BaseEntity {
     private int totalCapacity;
     private int teamSize;
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VolunteerTeam> teams = new ArrayList<>();
 
@@ -62,5 +68,4 @@ public class Post extends BaseEntity {
             team.setPost(this);
         }
     }
-
 }

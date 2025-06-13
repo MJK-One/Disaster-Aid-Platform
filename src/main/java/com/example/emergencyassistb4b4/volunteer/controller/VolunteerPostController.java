@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/post")
+@RequestMapping("/post")
 public class VolunteerPostController {
 
     private final VolunteerPostService volunteerPostService;
@@ -26,7 +26,7 @@ public class VolunteerPostController {
             @RequestParam Long userId,
             @Valid @RequestBody CreatePostRequest request) {
         volunteerPostService.createPost(userId, request);
-        return ApiResponse.onSuccess(SuccessStatus.POST_CREATE_SUCCESS, null);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_CREATE_SUCCESS, null);
     }
 
     @PatchMapping("/{postId}")
@@ -35,18 +35,19 @@ public class VolunteerPostController {
             @PathVariable Long postId,
             @Valid @RequestBody UpdatePostRequest request) {
         volunteerPostService.updatePost(userId, postId, request);
-        return ApiResponse.onSuccess(SuccessStatus.POST_UPDATE_SUCCESS, null);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, null);
     }
 
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostDetailResponse>> getPost(@PathVariable Long postId) {
         PostDetailResponse response = volunteerPostService.getPost(postId);
-        return ApiResponse.onSuccess(SuccessStatus.POST_READ_SUCCESS, response);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, response);
     }
 
-//    @GetMapping("/{postId}/teams")
-//    public ResponseEntity<ApiResponse<PostTeamsResponse>> getTeamStatus(@PathVariable Long postId) {
-//        PostTeamsResponse response = volunteerPostService.getTeamStatus(postId);
-//        return ApiResponse.onSuccess(SuccessStatus.POST_READ_SUCCESS, response);
-//    }
+    @GetMapping("/{postId}/teams")
+    public ResponseEntity<ApiResponse<PostTeamsResponse>> getTeamStatus(@PathVariable Long postId) {
+        PostTeamsResponse response = volunteerPostService.getTeamStatus(postId);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, response);
+    }
+
 }
