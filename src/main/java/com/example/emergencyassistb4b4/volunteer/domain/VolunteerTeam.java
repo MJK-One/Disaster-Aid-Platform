@@ -1,18 +1,14 @@
 package com.example.emergencyassistb4b4.volunteer.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -32,6 +28,10 @@ public class VolunteerTeam {
 
     private int teamNumber;
     private int maxCapacity;
+
+    @OneToMany(mappedBy = "volunteerTeam", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<VolunteerParticipant> participants = new ArrayList<>();
+
 
     public void setPost(Post post) {
         this.post = post;

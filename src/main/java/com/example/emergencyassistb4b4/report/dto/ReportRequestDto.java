@@ -5,27 +5,21 @@ import com.example.emergencyassistb4b4.report.domain.Report;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
+// 위도,경도,시,구를 프론트에서 가져오기(일회성이라서)
 public class ReportRequestDto {
 
-    private final DisasterType disasterType;
+    private DisasterType disasterType;
 
-    private final String description;
+    private String description;
 
-    private final String imageUrl;
+    private String imageUrl;
 
-    private final String videoUrl;
+    private String videoUrl;
 
-    public static ReportRequestDto from(Report report) {
-
-        return ReportRequestDto.builder()
-                .disasterType(report.getDisasterType())
-                .description(report.getDescription())
-                .imageUrl(report.getImageUrl())
-                .videoUrl(report.getVideoUrl())
-                .build();
-    }
 }

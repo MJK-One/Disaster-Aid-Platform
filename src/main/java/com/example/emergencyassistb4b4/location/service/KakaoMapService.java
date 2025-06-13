@@ -3,10 +3,12 @@ package com.example.emergencyassistb4b4.location.service;
 import com.example.emergencyassistb4b4.alert.enums.DisasterType;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
+import com.example.emergencyassistb4b4.location.dto.response.DisasterReportSimpleDto;
 import com.example.emergencyassistb4b4.location.dto.response.DisasterSummaryDto;
 import com.example.emergencyassistb4b4.location.dto.response.ShelterResponseDto;
 import com.example.emergencyassistb4b4.location.util.KakaoApiUtils;
 import com.example.emergencyassistb4b4.report.enums.ReportStatus;
+import com.example.emergencyassistb4b4.report.repository.ReportRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,10 +19,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -32,7 +36,7 @@ public class KakaoMapService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-//    private final ReportRepository reportRepository;
+    private final ReportRepository reportRepository;
 
     public List<ShelterResponseDto> searchShelters(double latitude, double longitude, double radiusMeter){
         String categoryCode = "PO3"; // 치안기관
@@ -66,31 +70,61 @@ public class KakaoMapService {
 
     }
 
-
     public List<DisasterSummaryDto> getDisasterSummary(
             double latitude,
             double longitude,
             int radiusMeter,
             long secondsAgo
-
     ) {
-        Duration withinTime = Duration.ofSeconds(secondsAgo);
-        LocalDateTime fromTime = LocalDateTime.now().minus(withinTime);
+        LocalDateTime fromTime = LocalDateTime.now().minusSeconds(secondsAgo);
 
-        // 예시용 mock 데이터. 실제로는 repository 에서 가져올 것
-        List<Object[]> results = new ArrayList<>();
-        results.add(new Object[]{DisasterType.TYPHOON, ReportStatus.CLOSED, 5L, 37.1234, 127.1234});
-        results.add(new Object[]{DisasterType.FLOOD, ReportStatus.PENDING, 2L, 37.1256, 127.1212});
-        results.add(new Object[]{DisasterType.EARTHQUAKE, ReportStatus.RECEIVED, 1L, 37.1211, 127.1266});
+        // 1. 위치 및 시간 조건으로 report 데이터 조회
+        List<DisasterReportSimpleDto> reports = reportRepository.findNearbyDisasterReports(
+                latitude, longitude, radiusMeter, fromTime
+        );
 
+        // 2. DisasterType + Status 기준으로 그룹핑
+        Map<String, List<DisasterReportSimpleDto>> grouped = reports.stream()
+                .collect(Collectors.groupingBy(r -> r.getDisasterType() + "_" + r.getStatus()));
 
-//        List<Object[]> results = reportRepository.findDisasterSummaryWithLocation(
-//              latitude, longitude, count ,radiusMeter, fromTime);
+        // 3. 각 그룹별 중앙값 좌표 계산 → DisasterSummaryDto 생성
+        return grouped.values().stream()
+                .map(this::calculateMedian)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
 
+    public DisasterSummaryDto calculateMedian(List<DisasterReportSimpleDto> reports) {
+        if (reports.isEmpty()) return null;
 
-        return results.stream()
-                .map(DisasterSummaryDto::from)
+        List<Double> latitudes = reports.stream()
+                .map(DisasterReportSimpleDto::getLatitude)
+                .sorted()
                 .toList();
+
+        List<Double> longitudes = reports.stream()
+                .map(DisasterReportSimpleDto::getLongitude)
+                .sorted()
+                .toList();
+
+        int size = reports.size();
+        double medianLat = (size % 2 == 1) ?
+                latitudes.get(size / 2) :
+                (latitudes.get(size / 2 - 1) + latitudes.get(size / 2)) / 2.0;
+
+        double medianLng = (size % 2 == 1) ?
+                longitudes.get(size / 2) :
+                (longitudes.get(size / 2 - 1) + longitudes.get(size / 2)) / 2.0;
+
+        DisasterReportSimpleDto sample = reports.get(0);
+
+        return new DisasterSummaryDto(
+                sample.getDisasterType(),
+                sample.getStatus(),
+                reports.size(),
+                medianLat,
+                medianLng
+        );
     }
 
 }

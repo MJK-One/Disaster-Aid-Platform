@@ -22,7 +22,7 @@ public class ReportController {
 
     @PostMapping()
     public ResponseEntity<ApiResponse<ReportResponseDto>> disasterReport(
-            @RequestBody ReportRequestDto requestDto,
+            @RequestBody ReportRequestDto requestDto
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
 

@@ -11,6 +11,9 @@ public enum ErrorStatus implements BaseErrorCode {
 
     CUSTOM_ERROR_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "Custom Error"),
 
+    NOT_FOUND_LOCATION(HttpStatus.NOT_FOUND,"LC004","위치를 찾지 못했습니다"),
+
+
     KAKAO_API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 요청 실패"),
     KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
     KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답"),
@@ -24,7 +27,12 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "US004", "존재하지 않는 사용자입니다."),
 
     // 자원봉사
-    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "존재하지 않는 게시글입니다.");
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "존재하지 않는 게시글입니다."),
+
+    ATTENDANCE_RECORD_PARSE_FAILED(HttpStatus.BAD_REQUEST, "VO004", "출석 기록 파싱 실패"),
+    WEBSOCKET_MESSAGE_SERIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "WebSocket 메시지 직렬화 실패"),
+    WEBSOCKET_MESSAGE_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "WebSocket 메시지 전송 실패");
+
 
     private final HttpStatus httpStatus;
     private final String code;

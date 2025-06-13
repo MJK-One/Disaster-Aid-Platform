@@ -43,4 +43,7 @@ public class VolunteerParticipant {
     @Enumerated(EnumType.STRING)
     private CheckinStatus checkinStatus;
 
+    public void updateCheckinStatus(CheckinStatus finalStatus) {
+        this.checkinStatus=finalStatus;
+    }
 }
