@@ -1,6 +1,8 @@
 package com.example.emergencyassistb4b4.report.service;
 
+import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
 import com.example.emergencyassistb4b4.global.kafka.producer.DisasterAlertProducer;
+import com.example.emergencyassistb4b4.location.service.LocationService;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.domain.ReportResponse;
 //import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
@@ -14,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,8 +25,7 @@ public class ReportService {
 
     private final ReportRepository reportRepository;
     private final ReportResponseRepository reportResponseRepository;
-    private final LocationService locationService;
-//    private final DisasterAlertProducer disasterAlertProducer;
+    private final DisasterAlertProducer disasterAlertProducer;
 
     // (사용자) 재난 신고 기능
     @Transactional
@@ -49,9 +49,9 @@ public class ReportService {
         Report savedReport = reportRepository.save(report);
 
         // kafka 메세지 발행
-//        DisasterAlertMessage alertMessage = DisasterAlertMessage.from(savedReport);
-//
-//        disasterAlertProducer.sendDisasterAlert(alertMessage);
+        DisasterAlertMessage alertMessage = DisasterAlertMessage.from(savedReport);
+
+        disasterAlertProducer.sendDisasterAlert(alertMessage);
 
         // Dto 반환
         return ReportResponseDto.from(savedReport);

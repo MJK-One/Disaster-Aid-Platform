@@ -19,7 +19,7 @@ public class TrackingListener {
     private final TrackingSocketHandler trackingSocketHandler;
     private final TrackingDataService trackingDataService;
 
-    @RabbitListener(queues = "attendance.queue")
+    @RabbitListener(queues = "tracking-delay-queue")
     public void handleTrackingMessage(MessageWrapper message) {
         if (message == null || message.getSessionState() == null || message.getPayload() == null) {
             log.warn("잘못된 메시지 수신: {}", message);

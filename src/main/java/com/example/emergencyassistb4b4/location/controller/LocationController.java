@@ -3,6 +3,7 @@ package com.example.emergencyassistb4b4.location.controller;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.location.dto.request.RegionRequestDto;
 import com.example.emergencyassistb4b4.location.service.LocationService;
+import com.example.emergencyassistb4b4.user.domain.CustomUserDetails;
 import com.example.emergencyassistb4b4.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +24,13 @@ public class LocationController {
 
     // 모든 유저 저장
     @PostMapping("/region")
-    public ResponseEntity<ApiResponse<String>> saveRegion(@RequestBody RegionRequestDto dto
+    public ResponseEntity<ApiResponse<String>> saveRegion(@RequestBody RegionRequestDto dto,
                                                           @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         //추후 변경 예정
         User currentUser = userDetails.getUser();
 
-        locationService.saveRegion(currentUser.getUserId(), dto.getSi(), dto.getGu());
+        locationService.saveRegion(currentUser.getId(), dto.getSi(), dto.getGu());
 
 
         return ApiResponse.onSuccess(LOCATION_SAVE_SUCCESS,null);

@@ -17,10 +17,10 @@ public class PostLocationDto {
     private String placeName;
 
     @NotNull(message = "위도는 필수입니다.")
-    private BigDecimal latitude;
+    private Double latitude;
 
     @NotNull(message = "경도는 필수입니다.")
-    private BigDecimal longitude;
+    private Double longitude;
 
     public VolunteerLocation toEntity() {
         return VolunteerLocation.builder()
