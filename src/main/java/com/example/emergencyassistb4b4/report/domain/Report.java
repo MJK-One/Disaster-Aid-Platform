@@ -78,4 +78,5 @@ public class Report extends BaseEntity {
     public void updateStatus(ReportStatus newStatus){
         status = newStatus;
     }
+
 }
