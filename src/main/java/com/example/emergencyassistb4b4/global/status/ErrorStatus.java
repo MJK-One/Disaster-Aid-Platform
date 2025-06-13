@@ -1,7 +1,6 @@
 package com.example.emergencyassistb4b4.global.status;
 
 import com.example.emergencyassistb4b4.global.response.ErrorReasonDto;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -50,14 +49,22 @@ public enum ErrorStatus implements BaseErrorCode {
     // 신고
     REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "Do not found."),
     REPORT_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "RP005", "No permissions on this report."),
-
     ALERT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AL010", "Failed to send message."),
+    NOT_FOUND_LOCATION(HttpStatus.NOT_FOUND,"LC004","위치를 찾지 못했습니다"),
+
 
     KAKAO_API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 요청 실패"),
     KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
-    KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답");
+    KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답"),
 
 
+    // 자원봉사
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "존재하지 않는 게시글입니다."),
+
+    ATTENDANCE_RECORD_PARSE_FAILED(HttpStatus.BAD_REQUEST, "VO004", "출석 기록 파싱 실패"),
+    WEBSOCKET_MESSAGE_SERIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "WebSocket 메시지 직렬화 실패"),
+    WEBSOCKET_MESSAGE_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "WebSocket 메시지 전송 실패"),
+    ATTENDANCE_LOCATION_OR_POLICY_MISSING(HttpStatus.BAD_REQUEST, "VO004","위치 정보나 출석 정책이 설정되지 않았습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -25,14 +25,9 @@ public enum SuccessStatus implements BaseCode {
 
     SHELTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Shelter search completed successfully"),
     DISASTER_SEARCH_SUCCESS(HttpStatus.OK, "LC001", "Disaster summary search completed successfully"),
-
-
-    // Alert
     GET_ALERTS_SUCCESS(HttpStatus.OK, "AL001", "알림 조회 성공"),
 
-
-    CUSTOM_SUCCESS_STATUS(HttpStatus.OK, "S1001", "Custom Success"),
-    ;
+    CUSTOM_SUCCESS_STATUS(HttpStatus.OK, "S1001", "Custom Success");
 
     private final HttpStatus httpStatus;
     private final String code;

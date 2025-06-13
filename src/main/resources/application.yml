@@ -15,12 +15,16 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
 
   data:
     redis:
@@ -87,15 +91,40 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
-jwt:
-  issuer: my-app
-  secret: ${JWT_SECRET_KEY}
-  access-token-validity: 900000      # 15분
-  refresh-token-validity: 1209600000 # 14일
-
 kakao:
   api:
     key: ${KAKAO_API_KEY}
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: alert-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+jwt:                       # << 여기가 최상위 레벨
+  issuer: yourIssuer
+  secret: =c3ByaW5nLXNlY3JldC1qd3Qta2V5LXNlcmVzZWN1cmUtMTIzNDU=
+  accessTokenValidity: 3600000
+  refreshTokenValidity: 86400000
 
 logging:
   level:
@@ -111,5 +140,5 @@ logging:
     com.example.emergencyassistb4b4.global.security: DEBUG
     com.example.emergencyassistb4b4: DEBUG
 
-  config:
-    import: classpath:/.env
+config:
+  import: classpath:/.env

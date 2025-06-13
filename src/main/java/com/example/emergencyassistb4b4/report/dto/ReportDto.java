@@ -9,8 +9,6 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-import static com.example.emergencyassistb4b4.report.domain.QReport.report;
-
 @Getter
 @Builder
 @AllArgsConstructor
@@ -40,8 +38,8 @@ public class ReportDto {
                 .status(r.getStatus())
                 .si(r.getSi())
                 .gu(r.getGu())
-                .locationLat(r.getLocationLat())
-                .locationLng(r.getLocationLng())
+                .locationLat(r.getLocation().getY())
+                .locationLng(r.getLocation().getX())
                 .createdAt(r.getCreatedAt())
                 .updatedAt(r.getUpdatedAt())
                 .build();

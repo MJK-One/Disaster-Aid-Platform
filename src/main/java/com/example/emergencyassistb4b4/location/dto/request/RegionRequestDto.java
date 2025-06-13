@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegionRequestDto {
-    // userId는 삭제예정
-    private Long userId;
+
     private String si;
     private String gu;
 }

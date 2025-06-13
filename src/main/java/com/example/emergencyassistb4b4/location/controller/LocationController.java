@@ -1,11 +1,13 @@
 package com.example.emergencyassistb4b4.location.controller;
 
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
-import com.example.emergencyassistb4b4.location.dto.request.CoordinateRequestDto;
 import com.example.emergencyassistb4b4.location.dto.request.RegionRequestDto;
 import com.example.emergencyassistb4b4.location.service.LocationService;
+import com.example.emergencyassistb4b4.user.domain.CustomUserDetails;
+import com.example.emergencyassistb4b4.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.emergencyassistb4b4.global.status.SuccessStatus.LOCATION_SAVE_SUCCESS;
@@ -22,23 +24,17 @@ public class LocationController {
 
     // 모든 유저 저장
     @PostMapping("/region")
-    public ResponseEntity<ApiResponse<String>> saveRegion(@RequestBody RegionRequestDto dto) {
-        locationService.saveRegion(dto.getUserId(), dto.getSi(), dto.getGu());
+    public ResponseEntity<ApiResponse<String>> saveRegion(@RequestBody RegionRequestDto dto,
+                                                          @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        //추후 변경 예정
+        User currentUser = userDetails.getUser();
+
+        locationService.saveRegion(currentUser.getId(), dto.getSi(), dto.getGu());
 
 
         return ApiResponse.onSuccess(LOCATION_SAVE_SUCCESS,null);
     }
-
-    //봉사자만 저장
-    @PostMapping("/coordinates")
-    public ResponseEntity<ApiResponse<String>> saveCoordinates(@RequestBody CoordinateRequestDto dto) {
-//        if (!locationService.isVolunteer(dto.getUserId())) {
-//            throw new ForbiddenException(ErrorStatus.USER_NOT_VOLUNTEER);
-//        }
-        locationService.saveCoordinates(dto.getUserId(), dto.getLatitude(), dto.getLongitude());
-        return ApiResponse.onSuccess(LOCATION_SAVE_SUCCESS,null);
-    }
-
 
 }
 

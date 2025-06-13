@@ -38,10 +38,10 @@ public class ReportResponse extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id", nullable = false)
-    Report report;
+    private Report report;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responder_id", nullable = false)
-    User responder;
+    private User responder;
 }
 

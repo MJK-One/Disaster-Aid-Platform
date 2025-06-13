@@ -1,7 +1,6 @@
 package com.example.emergencyassistb4b4.report.controller;
 
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
-import com.example.emergencyassistb4b4.global.security.CustomUserDetailsService;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
 import com.example.emergencyassistb4b4.report.dto.ReportDto;
 import com.example.emergencyassistb4b4.report.dto.ReportRequestDto;

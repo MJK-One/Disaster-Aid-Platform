@@ -1,14 +1,14 @@
-package com.example.emergencyassistb4b4.global.config;
+package com.example.emergencyassistb4b4.global.config.Jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class JacksonConfig {
-
     @Bean
     public ObjectMapper objectMapper() { // JSON ↔ Java 객체 변환
 
@@ -21,3 +21,5 @@ public class JacksonConfig {
         return objectMapper;
     }
 }
+
+
