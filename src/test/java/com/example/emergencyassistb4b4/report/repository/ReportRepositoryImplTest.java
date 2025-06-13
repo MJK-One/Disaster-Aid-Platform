@@ -6,17 +6,15 @@ import com.example.emergencyassistb4b4.report.dto.ReportDto;
 import com.example.emergencyassistb4b4.report.dto.ReportStatusResponseDto;
 import com.example.emergencyassistb4b4.report.enums.ReportStatus;
 import com.example.emergencyassistb4b4.report.service.ReportService;
+import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.enums.LoginType;
-import com.example.emergencyassistb4b4.user.enums.UserRole;
+import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -26,14 +24,12 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,7 +53,7 @@ class ReportServiceTest {
                 .password("pass")
                 .loginType(LoginType.LOCAL)
                 .provider("local")
-                .userRole(UserRole.USER)
+                .userRole(UserRole.NGO.IND)
                 .build();
 
         sampleReport = Report.builder()
@@ -68,8 +64,6 @@ class ReportServiceTest {
                 .videoUrl("vid")
                 .status(ReportStatus.PENDING)
                 .si("A").gu("B")
-                .locationLat(BigDecimal.ONE)
-                .locationLng(BigDecimal.ONE)
                 .build();
 
         // id 필드 직접 주입 (리플렉션이나 setter 없이 테스트용으로만)
@@ -122,20 +116,6 @@ class ReportServiceTest {
 //                );
 //        verify(reportRepository).updateStatusBatch(List.of(1L,2L), ReportStatus.CLOSED);
 //    }
-
-    @Test
-    void testGetNearbyReports() {
-        Pageable pg = PageRequest.of(0, 2);
-        List<Report> list = List.of(sampleReport, sampleReport);
-        Slice<Report> slice = new SliceImpl<>(list, pg, false);
-        when(reportRepository.findNearby(1.0,2.0,5.0,null,pg)).thenReturn(slice);
-
-        Slice<ReportDto> dtoSlice =
-                reportService.getNearbyReports(1.0,2.0,5.0,null,pg);
-
-        assertThat(dtoSlice.getContent()).hasSize(2);
-        verify(reportRepository).findNearby(1.0,2.0,5.0,null,pg);
-    }
 
     @Test
     void testGetMyReports() {

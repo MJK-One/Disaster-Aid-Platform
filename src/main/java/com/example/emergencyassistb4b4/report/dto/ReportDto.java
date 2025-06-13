@@ -7,8 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import static com.example.emergencyassistb4b4.report.domain.QReport.report;
 
 @Getter
 @Builder
@@ -23,8 +24,8 @@ public class ReportDto {
     private final ReportStatus status;
     private final String si;
     private final String gu;
-    private final BigDecimal locationLat;
-    private final BigDecimal locationLng;
+    private final Double locationLat;
+    private final Double locationLng;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 

@@ -4,8 +4,7 @@ import com.example.emergencyassistb4b4.report.domain.QReport;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.enums.ReportStatus;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -16,40 +15,34 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.example.emergencyassistb4b4.report.domain.QReport.report;
+
 @Repository
 @RequiredArgsConstructor
 public class ReportRepositoryImpl implements ReportRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-    private final QReport r = QReport.report;
+    private final QReport r = report;
 
     @Override
-    public Slice<Report> findNearby(double lat, double lng, double radiusKm, ReportStatus status, Pageable pageable) {
-        //거리 계산 Haversine 공식 거리순 정렬
-        NumberExpression<Double> distance = Expressions.numberTemplate(
-                Double.class,
-                "6371 * acos( cos( radians({0}) ) * cos( radians({1}.locationLat) ) * " +
-                        "cos( radians({1}.locationLng) - radians({2}) ) + sin( radians({0}) ) * " +
-                        "sin( radians({1}.locationLat) ) )",
-                lat, r, lng
-        );
+    public Slice<Report> findNearby(String si, String gu,ReportStatus status, Pageable pageable) {
+        BooleanBuilder where = new BooleanBuilder();
+        if (si != null && !si.isEmpty()) {where.and(report.si.eq(si));}
+        if (gu != null && !gu.isEmpty()) {where.and(report.gu.eq(gu));}
+        if (status != null) {where.and(report.status.eq(status));}
 
-        BooleanBuilder where = new BooleanBuilder()
-                .and(distance.loe(radiusKm));
-        if (status != null) {
-            where.and(r.status.eq(status));
-        }
-        List<Report> content = queryFactory.selectFrom(r)
+        // 쿼리 생성 및 페이징 (최신순)
+        List<Report> content = queryFactory
+                .selectFrom(report)
                 .where(where)
-                .orderBy(distance.asc(), r.createdAt.desc()) //거리순 ->최신순
+                .orderBy(report.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
 
         boolean hasNext = content.size() > pageable.getPageSize();
-        if (hasNext) content.remove(pageable.getPageSize());
+        if (hasNext) {content.remove(pageable.getPageSize());}
         return new SliceImpl<>(content, pageable, hasNext);
-
     }
 
     @Override

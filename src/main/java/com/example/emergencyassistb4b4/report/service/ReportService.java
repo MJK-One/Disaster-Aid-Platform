@@ -20,7 +20,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,7 +82,7 @@ public class ReportService {
             Long reportId,
             ReportStatus newStatus){
 
-        /**공공기관인지 검증*/
+        /* 공공기관인지 검증 */
         User goverment = userRepository.findById(publicId).orElseThrow(); //user error 넣기
         // Report 조회
         Report r = reportRepository.findById(reportId).orElseThrow(
@@ -98,12 +97,8 @@ public class ReportService {
     // 주변 신고 목록 조회
     @PreAuthorize("hasRole('GOV')")
     @Transactional(readOnly = true)
-    public Slice<ReportDto> getNearbyReports(
-            double lat, double lng, double radiusKm,
-            ReportStatus status, Pageable pageable){
-        return
-                reportRepository.findNearby(lat,lng,radiusKm,status,pageable).map(ReportDto::of);
-
+    public Slice<ReportDto> getNearbyReports(String si, String gu, ReportStatus status, Pageable pageable) {
+        return reportRepository.findNearby(si, gu, status, pageable).map(ReportDto::of);
     }
 
     //내 신고 목록 조회 (신고한 유저의 목록)

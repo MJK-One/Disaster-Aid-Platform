@@ -68,30 +68,29 @@ public class ReportController {
         Long publicId = userDetails.getUser().getId();  //로그인한 공공기관Id
         ReportStatusResponseDto dto = reportService.changeReportStatus(publicId,reportId,newStatus);
         return ApiResponse.onSuccess(SuccessStatus.REPORT_CREATE_SUCCESS,dto);
-        return null;
     }
     // 공공기관 : 다건 상태변경
 
 
-    /**  공공기관용 주변 신고목록조회 (거리순, 최신순, Slice 페이징)*/
+    /**  공공기관용 주변 신고목록조회 (지역별(시,구) ,최신순 , Slice 페이징)*/
     @PreAuthorize("hasRole('GOV')")
     @GetMapping("/slice")
-    public ResponseEntity<ApiResponse<Slice<ReportDto>>> getNearby(
-//            @AuthenticationPrincipal CustomUserDetails userDetails
-            @RequestParam double latitude,
-            @RequestParam double longitude,
-            @RequestParam(defaultValue = "5") double radiusKm,
+    public ResponseEntity<ApiResponse<Slice<ReportDto>>> getNearby
+    (
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam String si,
+            @RequestParam String gu,
             @RequestParam(required = false) ReportStatus status,
-            Pageable pageable)
-    {
-//        Long userId = userDetails.getUser().getId();
-        Slice<ReportDto> slice = reportService.getNearbyReports(latitude, longitude, radiusKm, status, pageable);
+            Pageable pageable){
+        Long userId = userDetails.getUser().getId();
+        Slice<ReportDto> slice = reportService.getNearbyReports(si, gu, status, pageable);
 
         return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS,slice);
     }
 
 
-    /** 내 신고 목록 조회 /마이페이지용 나중에 컨트롤러 옮겨야할지 ? (권한 상의 해야함 난제 )*/
+    /** 내 신고 목록 조회  hasRole을 뺴면되는지?*/
+//    @PreAuthorize("hasRole('IND')")
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<Slice<ReportDto>>> getMyReports(
             @AuthenticationPrincipal CustomUserDetails userDetails,
