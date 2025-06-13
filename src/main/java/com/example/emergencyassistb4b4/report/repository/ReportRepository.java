@@ -1,7 +1,6 @@
 package com.example.emergencyassistb4b4.report.repository;
 
 import com.example.emergencyassistb4b4.location.dto.response.DisasterReportSimpleDto;
-import com.example.emergencyassistb4b4.location.dto.response.DisasterSummaryDto;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,23 +10,24 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface ReportRepository extends JpaRepository<Report, Long> {
+public interface ReportRepository extends JpaRepository<Report, Long>,ReportRepositoryCustom {
 
     Optional<Report> findById(Long id);
 
-    @Query("""
-    SELECT new com.example.emergencyassistb4b4.location.dto.response.DisasterReportSimpleDto(
-        r.disasterType,
-        r.status,
-        r.locationLat,
-        r.locationLng
+    @Query(value = """
+    SELECT
+        r.disaster_type AS disasterType,
+        r.status AS status,
+        ST_Y(r.location::geometry) AS locationLat,
+        ST_X(r.location::geometry) AS locationLng
+    FROM report r
+    WHERE ST_DWithin(
+        r.location,
+        ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography,
+        :radiusMeter
     )
-    FROM Report r
-    WHERE FUNCTION('ST_Distance_Sphere',
-                   FUNCTION('point', :longitude, :latitude),
-                   FUNCTION('point', r.locationLng, r.locationLat)) <= :radiusMeter
-      AND r.createdAt >= :fromTime
-    """)
+    AND r.created_at >= :fromTime
+""", nativeQuery = true)
     List<DisasterReportSimpleDto> findNearbyDisasterReports(
             @Param("latitude") double latitude,
             @Param("longitude") double longitude,

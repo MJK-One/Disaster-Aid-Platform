@@ -16,6 +16,10 @@ import com.example.emergencyassistb4b4.report.repository.ReportResponseRepositor
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,6 +43,10 @@ public class ReportService {
     @Transactional
     public ReportResponseDto disasterReport(ReportRequestDto requestDto, User reporter) {
 
+        double latitude = 37.5665;
+        double longitude = 126.9780;
+        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+        Point location = geometryFactory.createPoint(new Coordinate(longitude, latitude));
 
         // 신고 저장
         Report report = Report.builder()
@@ -50,8 +58,7 @@ public class ReportService {
                 .status(ReportStatus.PENDING)
                 .si("서울시") // 예시: 위치 서비스로 가져온 값
                 .gu("강남구")
-                .locationLat(Double.valueOf(37.5665))
-                .locationLng(Double.valueOf(126.9780))
+                .location(location)
                 .build();
 
         Report savedReport = reportRepository.save(report);

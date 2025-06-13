@@ -46,7 +46,7 @@ public class TrackingDataService {
             CheckinStatus finalStatus = (presentCount > 20) ? CheckinStatus.PARTICIPATED : CheckinStatus.CHECKED;
 
             participantRepository.findById(volunteerId).ifPresent(participant -> {
-                participant.updateCheckinStatus(finalStatus);
+                participant.updateStatus(finalStatus);
                 updateList.add(participant);
             });
 
