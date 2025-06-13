@@ -1,12 +1,8 @@
 package com.example.emergencyassistb4b4.volunteer.domain;
 
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import java.math.BigDecimal;
+import jakarta.persistence.*;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,9 +11,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class VolunteerLocation extends BaseEntity {
 
     @Id
@@ -28,11 +24,18 @@ public class VolunteerLocation extends BaseEntity {
     private String placeName;
 
     // 위도
-    @Column(name = "location_lat", precision = 10, scale = 7, nullable = false)
-    private BigDecimal locationLat;
+    @Column(name = "location_lat")
+    private Double locationLat;
 
     // 경도
-    @Column(name = "location_lng", precision = 10, scale = 7, nullable = false)
-    private BigDecimal locationLng;
+    @Column(name = "location_lng")
+    private Double locationLng;
 
+    @OneToOne
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
+
+    public void setPost(Post post) {
+        this.post = post;
+    }
 }

@@ -4,18 +4,8 @@ import com.example.emergencyassistb4b4.alert.enums.DisasterType;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import com.example.emergencyassistb4b4.report.enums.ReportStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -32,7 +22,12 @@ import lombok.NoArgsConstructor;
 public class Report extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "report_seq_gen")
+    @SequenceGenerator(
+            name = "report_seq_gen",
+            sequenceName = "report_seq", // DB에 시퀀스 직접 샏성 필요
+            allocationSize = 50
+    )
     private Long id;
 
     // 신고자 (FK)
@@ -47,7 +42,7 @@ public class Report extends BaseEntity {
 
     // 설명
     @Lob
-    @Column(name = "description")
+    @Column(name = "description", nullable = false)
     private String description;
 
     // 이미지 URL
@@ -61,7 +56,7 @@ public class Report extends BaseEntity {
     // 상태
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private ReportStatus status;
+    private ReportStatus status = ReportStatus.PENDING;  //생성시 PENDING으로
 
     // 행정구역 (시)
     @Column(name = "si", nullable = false, length = 255)
@@ -72,10 +67,16 @@ public class Report extends BaseEntity {
     private String gu;
 
     // 위도
-    @Column(name = "location_lat", precision = 10, scale = 7, nullable = false)
-    private BigDecimal locationLat;
+    @Column(name = "location_lat", nullable = false)
+    private Double locationLat;
 
     // 경도
-    @Column(name = "location_lng", precision = 10, scale = 7, nullable = false)
-    private BigDecimal locationLng;
+    @Column(name = "location_lng", nullable = false)
+    private Double locationLng;
+
+    //상태변경
+    public void updateStatus(ReportStatus newStatus){
+        status = newStatus;
+    }
+
 }

@@ -1,31 +1,27 @@
 package com.example.emergencyassistb4b4.volunteer.domain;
 
+import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.volunteer.enums.PostCateGory;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.example.emergencyassistb4b4.volunteer.enums.PostCategory;
+import jakarta.persistence.*;
+import lombok.*;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
-@Builder
+
+import java.util.ArrayList;
+import java.util.List;
+
+
 @Entity
-@Table(name="Post")
+@Getter
 @AllArgsConstructor
+@Table(name = "Post")
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post {
+public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +32,7 @@ public class Post {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private PostCateGory category;
+    private PostCategory category;
 
     private String title;
 
@@ -45,4 +41,31 @@ public class Post {
 
     private int totalCapacity;
     private int teamSize;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VolunteerTeam> teams = new ArrayList<>();
+
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private VolunteerLocation location;
+
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private AttendancePolicy attendancePolicy;
+
+    public void setLocation(VolunteerLocation location) {
+        this.location = location;
+        location.setPost(this);
+    }
+
+    public void setAttendancePolicy(AttendancePolicy policy) {
+        this.attendancePolicy = policy;
+        policy.setPost(this);
+    }
+
+    public void addTeams(List<VolunteerTeam> teamList) {
+        this.teams = teamList;
+        for (VolunteerTeam team : teamList) {
+            team.setPost(this);
+        }
+    }
 }
