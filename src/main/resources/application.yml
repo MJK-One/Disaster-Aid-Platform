@@ -90,7 +90,7 @@ jwt:
   access-token-validity: 900000      # 15분
   refresh-token-validity: 1209600000 # 14일
 
-    com.example.disaster: DEBUG
+
 
 kakao:
   api:
