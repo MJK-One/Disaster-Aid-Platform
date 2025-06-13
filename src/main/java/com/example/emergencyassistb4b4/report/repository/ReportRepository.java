@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface ReportRepository extends JpaRepository<Report, Long> {
+public interface ReportRepository extends JpaRepository<Report, Long>,ReportRepositoryCustom {
+
+    Optional<Report> findById(Long id);
 }
