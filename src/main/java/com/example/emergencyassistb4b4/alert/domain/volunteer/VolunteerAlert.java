@@ -39,8 +39,8 @@ public class VolunteerAlert extends BaseEntity {
     private String title;
 
     @Column(nullable = false)
-    private String location;
+    private String placeName;
 
     @Column(nullable = false)
-    private LocalDateTime startTime;
+    private LocalDateTime checkinStart;
 }

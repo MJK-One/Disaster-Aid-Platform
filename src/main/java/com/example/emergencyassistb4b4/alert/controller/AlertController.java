@@ -1,6 +1,6 @@
 package com.example.emergencyassistb4b4.alert.controller;
 
-import com.example.emergencyassistb4b4.alert.dto.response.UserAlertResponseDto;
+import com.example.emergencyassistb4b4.alert.dto.response.UserAlert;
 import com.example.emergencyassistb4b4.alert.enums.AlertType;
 import com.example.emergencyassistb4b4.alert.service.query.AlertQueryService;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
@@ -21,7 +21,7 @@ public class AlertController {
     private final AlertQueryService alertQueryService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<UserAlertResponseDto.UserAlert>>> listAlerts(
+    public ResponseEntity<ApiResponse<List<UserAlert>>> listAlerts(
         @RequestParam String alertType
 //        @AuthenticationPrincipal CustomUserDetails userDetails
     ) {

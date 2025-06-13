@@ -1,8 +1,8 @@
 package com.example.emergencyassistb4b4.alert.service.query;
 
-import com.example.emergencyassistb4b4.alert.dto.response.UserAlertResponseDto.UserAlert;
-import com.example.emergencyassistb4b4.alert.dto.response.UserAlertResponseDto.Report;
-import com.example.emergencyassistb4b4.alert.dto.response.UserAlertResponseDto.Volunteer;
+import com.example.emergencyassistb4b4.alert.dto.report.ReportAlertResponseDto;
+import com.example.emergencyassistb4b4.alert.dto.response.UserAlert;
+import com.example.emergencyassistb4b4.alert.dto.volunteer.VolunteerAlertResponseDto;
 import com.example.emergencyassistb4b4.alert.enums.AlertType;
 import com.example.emergencyassistb4b4.alert.repository.report.UserReportAlertRepository;
 import com.example.emergencyassistb4b4.alert.repository.volunteer.UserVolunteerAlertRepository;
@@ -36,7 +36,7 @@ public class AlertQueryService {
         return userReportAlertRepository
             .findByUser_IdOrderByIdDesc(userId)
             .stream()
-            .map(alert -> (UserAlert) Report.fromUserReportAlert(alert))
+            .map(alert -> (UserAlert) ReportAlertResponseDto.fromUserReportAlert(alert))
             .toList();
     }
 
@@ -46,7 +46,7 @@ public class AlertQueryService {
         return userVolunteerAlertRepository
             .findByUser_IdOrderByIdDesc(userId)
             .stream()
-            .map(alert -> (UserAlert) Volunteer.fromUserVolunteerAlert(alert))
+            .map(alert -> (UserAlert) VolunteerAlertResponseDto.fromUserVolunteerAlert(alert))
             .toList();
     }
 }

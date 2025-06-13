@@ -59,8 +59,8 @@ public class FcmMessageDto {
                 시간 : %s
                 """,
             alert.getTitle(),
-            alert.getLocation(),
-            alert.getStartTime().format(DateTimeFormatter.ofPattern("MM월 dd일 HH:mm"))
+            alert.getPlaceName(),
+            alert.getCheckinStart().format(DateTimeFormatter.ofPattern("MM월 dd일 HH:mm"))
         );
 
         return FcmMessageDto.builder()

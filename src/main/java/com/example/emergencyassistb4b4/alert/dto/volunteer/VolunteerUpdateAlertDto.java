@@ -11,23 +11,23 @@ import lombok.Getter;
 public class VolunteerUpdateAlertDto {
 
     private final String title;
-    private final String location;
-    private final LocalDateTime startTime;
+    private final String placeName;
+    private final LocalDateTime checkinStart;
 
     public static VolunteerUpdateAlertDto fromPost(Post post) {
 
         return VolunteerUpdateAlertDto.builder()
             .title(post.getTitle())
-//            .location(post.getLocation().getPlaceName())
-//            .startTime(post.getAttendancePolicy().getCheckinStart())
+//            .placeName(post.getLocation().getPlaceName())
+//            .checkinStart(post.getAttendancePolicy().getCheckinStart())
             .build();
     }
 
     public VolunteerAlert toEntity() {
         return VolunteerAlert.builder()
             .title(this.title)
-            .location(this.location)
-            .startTime(this.startTime)
+            .placeName(this.placeName)
+            .checkinStart(this.checkinStart)
             .build();
     }
 }
