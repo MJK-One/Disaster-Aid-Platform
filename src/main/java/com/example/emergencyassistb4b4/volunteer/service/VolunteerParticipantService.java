@@ -1,0 +1,49 @@
+package com.example.emergencyassistb4b4.volunteer.service;
+
+import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
+import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.user.repository.UserRepository;
+import com.example.emergencyassistb4b4.volunteer.domain.VolunteerParticipant;
+import com.example.emergencyassistb4b4.volunteer.domain.VolunteerTeam;
+import com.example.emergencyassistb4b4.volunteer.enums.CheckinStatus;
+import com.example.emergencyassistb4b4.volunteer.repository.VolunteerParticipantRepository;
+import com.example.emergencyassistb4b4.volunteer.repository.VolunteerTeamRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+
+@Service
+@RequiredArgsConstructor
+public class VolunteerParticipantService {
+
+    private final UserRepository userRepository;
+    private final VolunteerTeamRepository teamRepository;
+    private final VolunteerParticipantRepository participantRepository;
+
+    // 참가 인원 DB 저장
+    @Transactional
+    public void joinSave(Long userId, Long teamId) {
+        // 유저 검증
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
+
+        // 팀 검증
+        VolunteerTeam team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
+
+        // 팀 - 유저 정보 생성
+        VolunteerParticipant participant = VolunteerParticipant.builder()
+                .user(user)
+                .volunteerTeam(team)
+                .joinedAt(LocalDateTime.now())
+                .checkinStatus(CheckinStatus.PARTICIPATED)
+                .build();
+
+        // 저장
+        participantRepository.save(participant);
+    }
+
+}

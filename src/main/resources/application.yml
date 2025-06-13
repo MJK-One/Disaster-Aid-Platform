@@ -1,11 +1,9 @@
 server:
   port: 8080
-
   servlet:
     context-path: /api
 
 spring:
-
   application:
     name: disaster-alert-service
 
@@ -47,12 +45,13 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
 
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   data:
     redis:
@@ -60,6 +59,9 @@ spring:
       port: ${REDIS_PORT:6379}
   kafka:
     bootstrap-servers: localhost:9092
+    admin:
+      properties:
+        bootstrap.servers: localhost:9092
     consumer:
       group-id: alert-service-group
       auto-offset-reset: earliest
@@ -73,6 +75,16 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  main:
+    allow-bean-definition-overriding: true
 
 logging:
   level:
@@ -88,6 +100,14 @@ logging:
   config:
     import: classpath:/.env
 
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.amqp: DEBUG
+    org.springframework.amqp.rabbit.connection: TRACE
+    com.rabbitmq: DEBUG
+    com.example.disaster: DEBUG
+    com.example.emergencyassistb4b4.global.security: DEBUG
+    com.example.emergencyassistb4b4: DEBUG
 
 kakao:
   api:
