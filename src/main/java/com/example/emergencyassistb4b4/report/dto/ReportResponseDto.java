@@ -48,8 +48,8 @@ public class ReportResponseDto {
                 .status(report.getStatus())
                 .si(report.getSi())
                 .gu(report.getGu())
-                .locationLat(report.getLocationLat())
-                .locationLng(report.getLocationLng())
+                .locationLat(report.getLocation().getY())
+                .locationLng(report.getLocation().getX())
                 .updatedAt(report.getUpdatedAt())
                 .build();
     }

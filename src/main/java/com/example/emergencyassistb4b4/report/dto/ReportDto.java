@@ -40,8 +40,8 @@ public class ReportDto {
                 .status(r.getStatus())
                 .si(r.getSi())
                 .gu(r.getGu())
-                .locationLat(r.getLocationLat())
-                .locationLng(r.getLocationLng())
+                .locationLat(r.getLocation().getY())
+                .locationLng(r.getLocation().getX())
                 .createdAt(r.getCreatedAt())
                 .updatedAt(r.getUpdatedAt())
                 .build();
