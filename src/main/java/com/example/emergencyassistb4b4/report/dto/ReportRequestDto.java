@@ -26,4 +26,16 @@ public class ReportRequestDto {
 
     @Size(max = 2048, message = "동영상 URL은 최대 2048자까지 가능합니다.")
     private final String videoUrl;
+
+    @NotNull(message = "위도는 필수입니다.")
+    private final Double latitude;
+
+    @NotNull(message = "경도는 필수입니다.")
+    private final Double longitude;
+
+    @NotBlank(message = "시 정보는 필수입니다.")
+    private final String si;
+
+    @NotBlank(message = "구 정보는 필수입니다.")
+    private final String gu;
 }
