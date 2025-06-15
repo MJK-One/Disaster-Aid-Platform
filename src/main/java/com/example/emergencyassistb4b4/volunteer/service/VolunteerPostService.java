@@ -4,7 +4,9 @@ import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
+import com.example.emergencyassistb4b4.volunteer.domain.AttendancePolicy;
 import com.example.emergencyassistb4b4.volunteer.domain.Post;
+import com.example.emergencyassistb4b4.volunteer.domain.VolunteerLocation;
 import com.example.emergencyassistb4b4.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.volunteer.dto.Join.TeamStatusDto;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
@@ -50,7 +52,7 @@ public class VolunteerPostService {
     @Transactional
     public void updatePost(Long userId, Long postId, UpdatePostRequest request) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
         // 위치 수정
         post.setLocation(request.getLocation().toEntity());
@@ -63,7 +65,7 @@ public class VolunteerPostService {
     @Transactional(readOnly = true)
     public PostDetailResponse getPost(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
         return PostDetailResponse.from(post);
     }

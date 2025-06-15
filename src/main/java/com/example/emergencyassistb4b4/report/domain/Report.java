@@ -5,13 +5,8 @@ import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import com.example.emergencyassistb4b4.report.enums.ReportStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
 import jakarta.persistence.*;
-
-import java.math.BigDecimal;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.locationtech.jts.geom.Point;
 
 @Getter
 @Builder
@@ -25,7 +20,7 @@ public class Report extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "report_seq_gen")
     @SequenceGenerator(
             name = "report_seq_gen",
-            sequenceName = "report_seq", // DB에 시퀀스 직접 샏성 필요
+            sequenceName = "report_seq", // DB에 시퀀스 직접 생성 필요
             allocationSize = 50
     )
     private Long id;
@@ -56,7 +51,7 @@ public class Report extends BaseEntity {
     // 상태
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private ReportStatus status = ReportStatus.PENDING;  //생성시 PENDING으로
+    private ReportStatus status = ReportStatus.PENDING;  // 생성 시 기본값
 
     // 행정구역 (시)
     @Column(name = "si", nullable = false, length = 255)
@@ -66,17 +61,12 @@ public class Report extends BaseEntity {
     @Column(name = "gu", nullable = false, length = 255)
     private String gu;
 
-    // 위도
-    @Column(name = "location_lat", nullable = false)
-    private Double locationLat;
+    // 위치 정보 (PostGIS Point 타입)
+    @Column(columnDefinition = "geography(Point, 4326)")
+    private Point location;
 
-    // 경도
-    @Column(name = "location_lng", nullable = false)
-    private Double locationLng;
-
-    //상태변경
-    public void updateStatus(ReportStatus newStatus){
-        status = newStatus;
+    // 상태 변경 메서드
+    public void updateStatus(ReportStatus newStatus) {
+        this.status = newStatus;
     }
-
 }

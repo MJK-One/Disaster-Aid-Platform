@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +23,7 @@ public class LocationService {
         locationRepository.saveCoordinates(userId, latitude, longitude);
     }
 
-    public List<Object> getRegion(String region) {
+    public Set<Object> getRegion(String region) {
         return locationRepository.getRegionUsers(region);
     }
 

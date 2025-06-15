@@ -1,9 +1,6 @@
 package com.example.emergencyassistb4b4.volunteer.service;
 
-import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
-
-import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import com.example.emergencyassistb4b4.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;

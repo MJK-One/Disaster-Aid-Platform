@@ -17,15 +17,6 @@ public class DisasterSummaryDto {
     private double latitude;
     private double longitude;
 
-    public static DisasterSummaryDto from(Object[] row) {
-        return DisasterSummaryDto.builder()
-                .disasterType((DisasterType) row[0])
-                .status((ReportStatus) row[1])
-                .count(((Number) row[2]).longValue())
-                .latitude((Double) row[3])
-                .longitude((Double) row[4])
-                .build();
-    }
 }
 
 

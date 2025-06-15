@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -22,15 +23,15 @@ public class LocationRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-
+    // 기기 토큰 변경예정
     public void saveRegion(Long userId, String si, String gu) {
         String regionKey = "region:" + si + ":" + gu;
-        redisTemplate.opsForList().leftPush(regionKey, userId.toString());
+        redisTemplate.opsForSet().add(regionKey, userId.toString());
         redisTemplate.expire(regionKey, Duration.ofMinutes(5));
     }
 
-    public List<Object> getRegionUsers(String regionKey) {
-        return redisTemplate.opsForList().range(regionKey, 0, -1);
+    public Set<Object> getRegionUsers(String regionKey) {
+        return redisTemplate.opsForSet().members(regionKey);
     }
 
     public void saveCoordinates(Long userId, double latitude, double longitude) {
