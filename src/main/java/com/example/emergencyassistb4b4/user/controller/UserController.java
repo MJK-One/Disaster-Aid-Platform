@@ -2,6 +2,9 @@ package com.example.emergencyassistb4b4.user.controller;
 
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
+import com.example.emergencyassistb4b4.report.dto.ReportResponseDto;
+import com.example.emergencyassistb4b4.user.domain.CustomUserDetails;
+import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -15,14 +18,15 @@ import java.nio.file.attribute.UserPrincipal;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
 public class UserController {
 
     private final UserService userService;
 
     @GetMapping("/user/me")
-    public ResponseEntity<ApiResponse<UserResponseDto>> getMyInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        UserResponseDto userResponseDto = userService.getMyInfo(userPrincipal.getName());
+    public ResponseEntity<ApiResponse<UserResponseDto>> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        UserResponseDto userResponseDto = userService.getMyInfo(userDetails.getUsername());
+
         return ApiResponse.onSuccess(SuccessStatus.CUSTOM_SUCCESS_STATUS, userResponseDto);
     }
 

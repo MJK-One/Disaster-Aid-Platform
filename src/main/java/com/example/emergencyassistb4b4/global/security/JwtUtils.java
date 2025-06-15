@@ -1,6 +1,5 @@
 package com.example.emergencyassistb4b4.global.security;
 
-import com.example.emergencyassistb4b4.auth.token.RefreshTokenService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
@@ -12,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -19,7 +20,9 @@ import java.security.Key;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 // 1. 토큰 생성 generateAccessToken(), generateRefreshToken(), createToken()
 // 2. 인증 객체 반환 getAuthentication()
@@ -30,7 +33,7 @@ import java.util.Set;
 public class JwtUtils {
 
     private final JwtProperties jwtProperties; //jwt 비밀키 등의 값을 주입받기 위한 객체
-    private final RefreshTokenService refreshTokenService;
+    private final UserDetailsService userDetailsService;
 
     /**
      * Access Token 생성, 1시간 유효
@@ -114,22 +117,26 @@ public class JwtUtils {
      * @return Authentication 토큰을 받아 인증 정보를 담은 객체 Authentication 을 반환
      */
     public Authentication getAuthentication(String token) {
-        Claims claims = getClaims(token); // jwt에서 claims(사용자 정보 등)를 추출
+        Claims claims = getClaims(token);
+        String email = claims.getSubject();
 
-        // 권한 정보 생성 ( 기본값은 ROLE_USER )
-        String role = claims.get("role", String.class);
-        if (role == null) {
-            role = "USER"; // 기본값
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        Set<SimpleGrantedAuthority> authorities = extractAuthorities(claims, userDetails);
+
+        return new UsernamePasswordAuthenticationToken(userDetails, token, authorities);
+    }
+
+    private Set<SimpleGrantedAuthority> extractAuthorities(Claims claims, UserDetails userDetails) {
+        String roleFromToken = claims.get("role", String.class);
+
+        if (roleFromToken != null) {
+            return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + roleFromToken));
+        } else {
+
+            return userDetails.getAuthorities().stream()
+                    .map(authority -> new SimpleGrantedAuthority(authority.getAuthority()))
+                    .collect(Collectors.toSet());
         }
-        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role));
-
-        return new UsernamePasswordAuthenticationToken( // 사용자 정보를 기반으로 Spring Security 용 User 객체 생성
-                new org.springframework.security.core.userdetails.User(
-                        claims.getSubject(),"", authorities), token,authorities);
-        // subject 는 주로 이메일이나 userId로 설정, 비밀번호는 없음 (인증용 객체라 ) , 위에서 생성한 권한 정보
-        // token :  credentials (여기서는 JWT 토큰 자체)
-        // authorities : 권한 정보 다시 주입
-
     }
     public Long getUserId(String token) { // JWT에서 사용자 ID를 추출하는 메서드
         Claims claims = getClaims(token); // 클레임 정보 추출

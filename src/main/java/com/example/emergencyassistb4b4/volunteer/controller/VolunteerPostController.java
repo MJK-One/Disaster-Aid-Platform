@@ -2,6 +2,7 @@ package com.example.emergencyassistb4b4.volunteer.controller;
 
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
+import com.example.emergencyassistb4b4.user.domain.CustomUserDetails;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.PostTeamsResponse;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.UpdatePostRequest;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.shaded.com.google.protobuf.Api;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,18 +25,18 @@ public class VolunteerPostController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> createPost(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreatePostRequest request) {
-        volunteerPostService.createPost(userId, request);
+        volunteerPostService.createPost(userDetails.getUser().getId(), request);
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_CREATE_SUCCESS, null);
     }
 
     @PatchMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> updatePost(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
             @Valid @RequestBody UpdatePostRequest request) {
-        volunteerPostService.updatePost(userId, postId, request);
+        volunteerPostService.updatePost(userDetails.getUser().getId(), postId, request);
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, null);
     }
 

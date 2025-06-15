@@ -46,7 +46,8 @@ public class WebOAuth2SecurityConfig {
                                 "/oauth2/authorization/kakao",
                                 "/oauth2/**",
                                 "/api/login/oauth2/code/**",
-                                "/api/auth/reissue"
+                                "/api/auth/reissue",
+                                "error"
 
                         ).permitAll()
                         //.requestMatchers("/api/**").authenticated()

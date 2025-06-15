@@ -24,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     log.warn("User not found with email {}", email);
-                    throw new ApiException(ErrorStatus.USER_NOT_FOUND);
+                    return new ApiException(ErrorStatus.USER_NOT_FOUND);
                 });
 
         // local 인데 비밀번호가 null 이면 예외

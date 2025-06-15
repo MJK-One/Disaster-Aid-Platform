@@ -64,6 +64,7 @@ public class ReportController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable(name ="reportId") Long reportId,
             @RequestParam ReportStatus newStatus){
+
         Long publicId = userDetails.getUser().getId();  //로그인한 공공기관Id
         ReportStatusResponseDto dto = reportService.changeReportStatus(publicId,reportId,newStatus);
         return ApiResponse.onSuccess(SuccessStatus.REPORT_CREATE_SUCCESS,dto);
@@ -76,12 +77,13 @@ public class ReportController {
     @GetMapping("/slice")
     public ResponseEntity<ApiResponse<Slice<ReportDto>>> getNearby
     (
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+//            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam String si,
             @RequestParam String gu,
             @RequestParam(required = false) ReportStatus status,
             Pageable pageable){
-        Long userId = userDetails.getUser().getId();
+
+//        Long userId = userDetails.getUser().getId();
         Slice<ReportDto> slice = reportService.getNearbyReports(si, gu, status, pageable);
 
         return ApiResponse.onSuccess(SuccessStatus.REPORT_GET_SUCCESS,slice);
