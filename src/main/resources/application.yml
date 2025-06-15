@@ -100,14 +100,7 @@ logging:
   config:
     import: classpath:/.env
 
-    org.springframework.security: DEBUG
-    org.springframework.security.oauth2: DEBUG
-    org.springframework.amqp: DEBUG
-    org.springframework.amqp.rabbit.connection: TRACE
-    com.rabbitmq: DEBUG
-    com.example.disaster: DEBUG
-    com.example.emergencyassistb4b4.global.security: DEBUG
-    com.example.emergencyassistb4b4: DEBUG
+
 
 kakao:
   api:
