@@ -7,6 +7,7 @@ import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
+import com.example.emergencyassistb4b4.userDevice.service.UserDeviceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class GeneralLoginStrategy implements LoginStrategy {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
+    private final UserDeviceService userDeviceService;
 
     @Override
     public boolean supports(UserRole userRole, LoginType loginType) {
@@ -26,13 +28,19 @@ public class GeneralLoginStrategy implements LoginStrategy {
 
     @Override
     public TokenResponseDto login(LoginRequestDto loginRequestDto) {
+
         // 1. 인증 시도
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequestDto.getEmail(), loginRequestDto.getPassword()));
+
         // 2. 인증된 사용자 정보
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         UserResponseDto userDto = UserResponseDto.from(userDetails.getUser()); // 이미 DTO 타입이면 바로 사용
-        // 3. 토큰 발급은 TokenService가 함
+
+        // 3. UserDevice에 FCM 토큰 저장
+        userDeviceService.saveDevice(userDetails.getUser());
+
+        // 4. 토큰 발급은 TokenService가 함
         return tokenService.issueToken(userDto);
 
     }

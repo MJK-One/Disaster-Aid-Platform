@@ -1,5 +1,6 @@
 package com.example.emergencyassistb4b4.volunteer.service;
 
+import com.example.emergencyassistb4b4.alert.service.volunteer.VolunteerUpdateAlertOrchestratorService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
@@ -31,6 +32,7 @@ public class VolunteerPostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final TeamParticipationRedisService teamParticipationRedisService;
+    private final VolunteerUpdateAlertOrchestratorService volunteerUpdateAlertOrchestratorService;
 
     // 모집 게시글 생성
     @Transactional
@@ -72,6 +74,9 @@ public class VolunteerPostService {
                 policy.getAllowedRadiusM(),
                 policy.getMinStayMinutes()
         );
+
+        // 게시글 수정 알림 발송
+        volunteerUpdateAlertOrchestratorService.process(post);
     }
 
     // 모집 게시글 조회

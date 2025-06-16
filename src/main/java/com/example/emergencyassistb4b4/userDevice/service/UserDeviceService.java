@@ -30,7 +30,7 @@ public class UserDeviceService {
                 .user(user)
                 .build());
 
-        device.updateToken("token"); // 테스트용 토큰 값 삽입
+        device.updateToken("efmnfjcuXvJ6cGBfVnofsF:APA91bEv5Sa3xFKJROP3jPLjcDyPW776v-SktqmWY9-hAObZ3k8NPQDwt0LR3V52g7j3gh0eajJGWVia3H5G99-4yF_8VEJAcfavMMO3Mh3_AYb45h69LxU"); // 테스트용 토큰 값 삽입
 
         userDeviceRepository.save(device);
     }
