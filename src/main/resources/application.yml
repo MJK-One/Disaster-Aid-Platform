@@ -12,6 +12,7 @@ spring:
     username: ${POSTGRE_USERNAME}
     password: ${POSTGRE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
   security:
     oauth2:
       client:
@@ -23,7 +24,6 @@ spring:
             authorization-grant-type: authorization_code
             scope: profile_nickname, account_email
             client-name: Google
-
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             redirect-uri: "http://localhost:8080/api/login/oauth2/code/kakao"
@@ -41,8 +41,6 @@ spring:
             user-info-uri: ${KAKAO_USER_INFO_URI}
             user-name-attribute: id
 
-
-
   jpa:
     hibernate:
       ddl-auto: none
@@ -57,6 +55,7 @@ spring:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
       port: ${REDIS_PORT:6379}
+
   kafka:
     bootstrap-servers: localhost:9092
     admin:
@@ -76,7 +75,6 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-
   rabbitmq:
     host: localhost
     port: 5672
@@ -91,20 +89,19 @@ logging:
     root: INFO
     org.springframework.data.redis: WARN
     org.springframework.kafka: INFO
-
     org.springframework.security : DEBUG
     org.springframework.security.oauth2 : DEBUG
     com.example.emergencyassistb4b4.global.security: DEBUG
     com.example.emergencyassistb4b4: DEBUG
-
   config:
     import: classpath:/.env
-
-
 
 kakao:
   api:
     key: ${KAKAO_API_KEY}
+
+fcm:
+  test-token: ${FCM_TOKEN}
 
 jwt:
   issuer: my-app

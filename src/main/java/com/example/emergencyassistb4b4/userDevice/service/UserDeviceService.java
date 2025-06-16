@@ -12,7 +12,10 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +25,9 @@ public class UserDeviceService {
 
     private final StringRedisTemplate redisTemplate;
     private final UserDeviceRepository userDeviceRepository;
-    private final UserRepository userRepository;
+
+    @Value("${fcm.test-token}")
+    private String testFcmToken;
 
     // TODO : 프론트 연동 후 기기 등록/갱신 로직 구현 + 앱 설치/로그인 시 실행
     public void saveDevice(User user) {
@@ -34,7 +39,7 @@ public class UserDeviceService {
                 .build());
 
         // 테스트용 토큰 값을 여기에 삽입해주세요!
-        device.updateToken("d9i9Uf-m3ygI7IVbOfv-FP:APA91bF8gYn_VSO7Rwsr3QCDInMy4lLO-rR7yiEm8swpMLqacyzcn9VGX2KD4ZT9fTMJJqKzmO9MEqyJm53SGmJXA1SDi59gmmYJS7Dv_TDj-sfn3zuosIk");
+        device.updateToken(testFcmToken);
 
         userDeviceRepository.save(device);
     }
