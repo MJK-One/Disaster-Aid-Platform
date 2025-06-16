@@ -32,12 +32,12 @@ public class ReportImmediateAlertOrchestratorService {
         FcmMessageDto message = FcmMessageDto.fromReportImmediateAlert(info);
 
         // 3. FCM 발송 대상 조회
-//        User government = userService.findGovernment(info.getSi());
-//        UserDevice device = userDeviceService.findByUserId(government.getId());
-//        String token = device.getFcmToken();
+        User government = userService.findGovernment(info.getSi());
+        UserDevice device = userDeviceService.findByUserId(government.getId());
+        String token = device.getFcmToken();
 
         // 4. FCM 발송
-//        fcmSender.sendAlert(message, List.of(token));
+        fcmSender.sendAlert(message, List.of(token));
     }
 }
 

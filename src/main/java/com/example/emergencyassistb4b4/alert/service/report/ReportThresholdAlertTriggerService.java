@@ -1,6 +1,6 @@
 package com.example.emergencyassistb4b4.alert.service.report;
 
-import com.example.emergencyassistb4b4.report.domain.Report;
+import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
 import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +17,10 @@ public class ReportThresholdAlertTriggerService {
     private static final Duration KEY_TTL      = Duration.ofDays(1);
     private static final List<Long> THRESHOLDS = List.of(3L, 5L, 7L, 10L); // 임곗값 상의 후 결정
 
-    public void checkReportThreshold(Report report) {
+    public void checkReportThreshold(DisasterAlertMessage kafkaDto) {
 
         // 동일한 재난 신고 카운터 키 생성
-        String reportCounterKey = generateReportCounterKey(report);
+        String reportCounterKey = generateReportCounterKey(kafkaDto);
         Long count = redisTemplate.opsForValue().increment(reportCounterKey);
         redisTemplate.expire(reportCounterKey, KEY_TTL);
 
@@ -40,9 +40,12 @@ public class ReportThresholdAlertTriggerService {
     }
 
     // 재난 발생 지역(시, 도), 재난 타입, 날짜 기준으로 key 생성
-    private String generateReportCounterKey(Report report) {
-        return String.format("report:%s:%s:%s:%s", report.getSi(), report.getGu(),
-            report.getDisasterType(), report.getCreatedAt().toLocalDate());
+    private String generateReportCounterKey(DisasterAlertMessage kafkaDto) {
+
+        String[] location = kafkaDto.getLocation().split(" ");
+
+        return String.format("report:%s:%s:%s:%s", location[0], location[1],
+            kafkaDto.getDisasterType(), kafkaDto.getReportedAt().toLocalDate());
     }
 
     // 임계치 도달 여부 확인

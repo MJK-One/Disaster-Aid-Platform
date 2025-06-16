@@ -30,27 +30,29 @@ public class UserDeviceService {
                 .user(user)
                 .build());
 
-        device.updateToken("efmnfjcuXvJ6cGBfVnofsF:APA91bEv5Sa3xFKJROP3jPLjcDyPW776v-SktqmWY9-hAObZ3k8NPQDwt0LR3V52g7j3gh0eajJGWVia3H5G99-4yF_8VEJAcfavMMO3Mh3_AYb45h69LxU"); // 테스트용 토큰 값 삽입
+        // 테스트용 토큰 값을 여기에 삽입해주세요!
+        device.updateToken("efmnfjcuXvJ6cGBfVnofsF:APA91bEv5Sa3xFKJROP3jPLjcDyPW776v-SktqmWY9-hAObZ3k8NPQDwt0LR3V52g7j3gh0eajJGWVia3H5G99-4yF_8VEJAcfavMMO3Mh3_AYb45h69LxU");
 
         userDeviceRepository.save(device);
     }
 
-    // Location Redis에서 특정 지역의 디바이스 목록 조회
+    // TODO : 프론트 연동 후 Location Redis -> 특정 지역 디바이스 목록 조회
     public List<UserDevice> findByRegion(String si, String gu) {
 
-        String regionKey = String.format("region:%s:%s", si, gu);
+//        String regionKey = String.format("region:%s:%s", si, gu);
+//
+//        Set<String> userIdStrings = redisTemplate.opsForSet().members(regionKey);
+//
+//        if (userIdStrings == null || userIdStrings.isEmpty()) {
+//            return List.of();
+//        }
+//
+//        List<Long> userIds = userIdStrings.stream()
+//            .map(Long::parseLong)
+//            .toList();
 
-        Set<String> userIdStrings = redisTemplate.opsForSet().members(regionKey);
-
-        if (userIdStrings == null || userIdStrings.isEmpty()) {
-            return List.of();
-        }
-
-        List<Long> userIds = userIdStrings.stream()
-            .map(Long::parseLong)
-            .toList();
-
-        return userDeviceRepository.findByUserIdIn(userIds);
+        // (임시) 전체 조회로 대체
+        return userDeviceRepository.findAll();
     }
 
     public UserDevice findByUserId(Long userId) {
