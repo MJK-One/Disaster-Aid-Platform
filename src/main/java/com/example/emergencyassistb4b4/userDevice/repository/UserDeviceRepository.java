@@ -1,5 +1,6 @@
 package com.example.emergencyassistb4b4.userDevice.repository;
 
+import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.userDevice.domain.UserDevice;
 import java.util.List;
 import java.util.Optional;
@@ -8,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserDeviceRepository extends JpaRepository<UserDevice, Long> {
 
-    List<UserDevice> findByDeviceIdIn(Set<String> deviceIds);
+    Optional<UserDevice> findByUser(User user);
 
     Optional<UserDevice> findByUserId(Long userId);
 

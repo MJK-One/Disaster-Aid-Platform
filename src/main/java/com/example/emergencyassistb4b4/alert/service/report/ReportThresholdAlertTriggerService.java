@@ -15,7 +15,7 @@ public class ReportThresholdAlertTriggerService {
     private final ReportThresholdAlertOrchestratorService reportAlertOrchestratorService;
 
     private static final Duration KEY_TTL      = Duration.ofDays(1);
-    private static final List<Long> THRESHOLDS = List.of(10L, 100L, 1000L); // 임곗값 상의 후 결정
+    private static final List<Long> THRESHOLDS = List.of(3L, 5L, 7L, 10L); // 임곗값 상의 후 결정
 
     public void checkReportThreshold(Report report) {
 

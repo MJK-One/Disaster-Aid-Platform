@@ -1,5 +1,8 @@
 package com.example.emergencyassistb4b4.alert.enums;
 
+import static com.example.emergencyassistb4b4.global.status.ErrorStatus.CUSTOM_ERROR_STATUS;
+
+import com.example.emergencyassistb4b4.global.exception.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -18,7 +21,12 @@ public enum DisasterType {
 
     private final String name;
 
-    public static DisasterType from(String value) {
-        return DisasterType.valueOf(value.toUpperCase());
+    public static DisasterType from(String DisasterName) {
+        for (DisasterType type : values()) {
+            if (type.name().equalsIgnoreCase(DisasterName) || type.name.equals(DisasterName)) {
+                return type;
+            }
+        }
+        throw new ApiException(CUSTOM_ERROR_STATUS); // TODO : 에러 코드 수정
     }
 }
