@@ -3,15 +3,19 @@ package com.example.emergencyassistb4b4.global.security;
 import com.example.emergencyassistb4b4.auth.token.RefreshTokenService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
+import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
+import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -27,10 +31,12 @@ import java.util.Set;
 // 4. 클레임 조회 getClaims(), getUserId()
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class JwtUtils {
 
     private final JwtProperties jwtProperties; //jwt 비밀키 등의 값을 주입받기 위한 객체
     private final RefreshTokenService refreshTokenService;
+    private final UserRepository userRepository;
 
     /**
      * Access Token 생성, 1시간 유효
@@ -115,20 +121,20 @@ public class JwtUtils {
      */
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token); // jwt에서 claims(사용자 정보 등)를 추출
+        String email = claims.getSubject();
 
-        // 권한 정보 생성 ( 기본값은 ROLE_USER )
-        String role = claims.get("role", String.class);
-        if (role == null) {
-            role = "USER"; // 기본값
-        }
-        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role));
+        // 이메일 기반으로 사용자 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        return new UsernamePasswordAuthenticationToken( // 사용자 정보를 기반으로 Spring Security 용 User 객체 생성
-                new org.springframework.security.core.userdetails.User(
-                        claims.getSubject(),"", authorities), token,authorities);
-        // subject 는 주로 이메일이나 userId로 설정, 비밀번호는 없음 (인증용 객체라 ) , 위에서 생성한 권한 정보
-        // token :  credentials (여기서는 JWT 토큰 자체)
-        // authorities : 권한 정보 다시 주입
+
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+
+        return new UsernamePasswordAuthenticationToken(
+                userDetails, // principal
+                token,       // credentials (보통은 null 또는 token)
+                userDetails.getAuthorities() // 권한
+        );
 
     }
     public Long getUserId(String token) { // JWT에서 사용자 ID를 추출하는 메서드

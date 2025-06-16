@@ -3,7 +3,7 @@ package com.example.emergencyassistb4b4.auth.login.strategy;
 import com.example.emergencyassistb4b4.auth.dto.LoginRequestDto;
 import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
-import com.example.emergencyassistb4b4.user.domain.CustomUserDetails;
+import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;

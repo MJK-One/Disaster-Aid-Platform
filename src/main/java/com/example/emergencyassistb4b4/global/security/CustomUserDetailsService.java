@@ -2,7 +2,6 @@ package com.example.emergencyassistb4b4.global.security;
 
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
-import com.example.emergencyassistb4b4.user.domain.CustomUserDetails;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
@@ -26,6 +25,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                     log.warn("User not found with email {}", email);
                     throw new ApiException(ErrorStatus.USER_NOT_FOUND);
                 });
+
+
 
         // local 인데 비밀번호가 null 이면 예외
         if (user.getLoginType() == LoginType.LOCAL && !StringUtils.hasText(user.getPassword())) {
