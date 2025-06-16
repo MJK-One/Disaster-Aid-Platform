@@ -8,4 +8,5 @@ import com.example.emergencyassistb4b4.user.domain.UserRole;
 public interface SignUpStrategy {
     boolean supports(UserRole userRole, LoginType loginType);
     TokenResponseDto signUp(SignUpRequestDto signUpRequest);
+
 }
