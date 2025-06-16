@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +61,20 @@ public class Post extends BaseEntity {
     public void setAttendancePolicy(AttendancePolicy policy) {
         this.attendancePolicy = policy;
         policy.setPost(this);
+    }
+
+    public void updateLocation(String placeName, Double latitude, Double longitude) {
+        if (this.location == null) {
+            this.location = new VolunteerLocation();
+        }
+        this.location.update(placeName, latitude, longitude);
+    }
+
+    public void updateAttendancePolicy(LocalDateTime start, LocalDateTime end, int radius, int minutes) {
+        if (this.attendancePolicy == null) {
+            this.attendancePolicy = new AttendancePolicy();
+        }
+        this.attendancePolicy.update(start, end, radius, minutes);
     }
 
     public void addTeams(List<VolunteerTeam> teamList) {

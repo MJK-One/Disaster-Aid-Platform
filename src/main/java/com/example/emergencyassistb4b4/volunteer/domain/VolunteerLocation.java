@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.volunteer.domain;
 
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
+import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostLocationDto;
 import jakarta.persistence.*;
 
 import lombok.AccessLevel;
@@ -37,5 +38,11 @@ public class VolunteerLocation extends BaseEntity {
 
     public void setPost(Post post) {
         this.post = post;
+    }
+
+    public void update(String placeName, Double latitude, Double longitude) {
+        this.placeName = placeName;
+        this.locationLat = latitude;
+        this.locationLng = longitude;
     }
 }

@@ -34,4 +34,12 @@ public class PostAttendancePolicyDto {
                 .build();
     }
 
+    public static PostAttendancePolicyDto from(AttendancePolicy policy) {
+        return PostAttendancePolicyDto.builder()
+                .checkinStart(policy.getCheckinStart())
+                .checkinEnd(policy.getCheckinEnd())
+                .allowedRadiusM(policy.getAttendanceRadiusMeters())
+                .minStayMinutes(policy.getMinCheckinMinutes())
+                .build();
+    }
 }
