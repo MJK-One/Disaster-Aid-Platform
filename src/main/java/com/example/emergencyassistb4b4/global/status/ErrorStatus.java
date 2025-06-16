@@ -51,6 +51,7 @@ public enum ErrorStatus implements BaseErrorCode {
     REPORT_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "RP005", "No permissions on this report."),
     ALERT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AL010", "Failed to send message."),
     NOT_FOUND_LOCATION(HttpStatus.NOT_FOUND,"LC004","위치를 찾지 못했습니다"),
+    USER_DEVICE_NOT_FOUND(HttpStatus.NOT_FOUND, "RP004", "유저 디바이스가 존재하지 않습니다."),
 
 
     KAKAO_API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 요청 실패"),

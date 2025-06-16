@@ -3,14 +3,19 @@ package com.example.emergencyassistb4b4.userDevice.service;
 import static com.example.emergencyassistb4b4.global.status.ErrorStatus.CUSTOM_ERROR_STATUS;
 
 import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import com.example.emergencyassistb4b4.userDevice.domain.UserDevice;
 import com.example.emergencyassistb4b4.userDevice.repository.UserDeviceRepository;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +25,9 @@ public class UserDeviceService {
 
     private final StringRedisTemplate redisTemplate;
     private final UserDeviceRepository userDeviceRepository;
+
+    @Value("${fcm.test-token}")
+    private String testFcmToken;
 
     // TODO : 프론트 연동 후 기기 등록/갱신 로직 구현 + 앱 설치/로그인 시 실행
     public void saveDevice(User user) {
@@ -31,7 +39,7 @@ public class UserDeviceService {
                 .build());
 
         // 테스트용 토큰 값을 여기에 삽입해주세요!
-        device.updateToken("efmnfjcuXvJ6cGBfVnofsF:APA91bEv5Sa3xFKJROP3jPLjcDyPW776v-SktqmWY9-hAObZ3k8NPQDwt0LR3V52g7j3gh0eajJGWVia3H5G99-4yF_8VEJAcfavMMO3Mh3_AYb45h69LxU");
+        device.updateToken(testFcmToken);
 
         userDeviceRepository.save(device);
     }
@@ -57,7 +65,7 @@ public class UserDeviceService {
 
     public UserDevice findByUserId(Long userId) {
         return userDeviceRepository.findByUserId(userId)
-            .orElseThrow(() -> new ApiException(CUSTOM_ERROR_STATUS)); // TODO:에러코드설정
+                .orElseThrow(() -> new ApiException(ErrorStatus.USER_DEVICE_NOT_FOUND)); // TODO:에러코드설정
     }
 
     public List<UserDevice> findByUserIds(List<Long> userIds) {

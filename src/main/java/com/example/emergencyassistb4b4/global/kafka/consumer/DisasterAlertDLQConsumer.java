@@ -31,13 +31,17 @@ public class DisasterAlertDLQConsumer {
             AlertFailureLog failureLog = AlertFailureLog.builder()
                     .reportId(alertMessage.getReportId())
                     .alertMessage(message)
-                    .failureReason("FCM 발송 3회 실패로 DLQ 전송됨")
+                    .failureReason(FailureReason.FCM_FAIL_3TIMES.name())
                     .build();
 
             alertFailureLogRepository.save(failureLog);
 
             // (옵션) 관리자에게 알림 전송 (ex. 이메일, 슬랙, FCM 등)
             sendAdminNotification(alertMessage);
+
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+
+            log.error("[DLT] 메시지 역직렬화 실패, 메시지 내용: {}", message, e);
 
         } catch (Exception e) {
 
@@ -49,5 +53,9 @@ public class DisasterAlertDLQConsumer {
 
         // 예시: 슬랙 알림 or 이메일 발송 로직
         log.warn("[Admin 알림] FCM 실패 -> 관리자 확인 필요: {}", alertMessage);
+    }
+
+    private enum FailureReason {
+        FCM_FAIL_3TIMES
     }
 }

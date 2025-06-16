@@ -13,25 +13,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class DisasterAlertProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-
-    private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     private static final String TOPIC = "disaster-alert";
 
     // Kafka 메시지 발행 메서드
     public void sendDisasterAlert(DisasterAlertMessage message) {
 
-        try {
-            // 객체 -> JSON 문자열로 변환
-            String msg = objectMapper.writeValueAsString(message);
-
-            // Kafka 토픽에 메시지 발행
-            kafkaTemplate.send(TOPIC, msg);
-            log.info("kafka - disaster-alert 발행: {}", msg);
-
-        } catch (JsonProcessingException e) {
-            log.error("kafka 발행 실패", e);
-        }
+        kafkaTemplate.send(TOPIC, message)
+                .thenAccept(result -> log.info("kafka - disaster-alert 발행 성공: {}", message))
+                .exceptionally(ex -> {
+                    log.error("kafka - disaster-alert 발행 실패: {}", message, ex);
+                    return null;
+                });
     }
 }

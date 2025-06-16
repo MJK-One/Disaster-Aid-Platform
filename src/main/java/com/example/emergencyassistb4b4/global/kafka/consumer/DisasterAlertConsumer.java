@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.global.kafka.consumer;
 
 import com.example.emergencyassistb4b4.alert.fcm.FcmFailureService;
+import com.example.emergencyassistb4b4.alert.service.report.ReportImmediateAlertOrchestratorService;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -13,22 +14,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class DisasterAlertConsumer {
 
-    private final ObjectMapper objectMapper;
-
-    private final FcmFailureService fcmFailureService; // FCM 발송 서비스
+    private final ReportImmediateAlertOrchestratorService reportImmediateAlertOrchestratorService;
 
     // Kafka Listener -> Kafka 메시지를 수신
-    @KafkaListener(topics = "disaster-alert", groupId = "disaster-alert-consumer-group")
-    public void consumeDisasterAlert(String message) {
+    @KafkaListener(
+            topics = "disaster-alert",
+            groupId = "disaster-alert-consumer-group",
+            containerFactory = "kafkaListenerContainerFactory")
+    public void consumeDisasterAlert(DisasterAlertMessage alertMessage) {
 
         try {
-            // JSON 문자열 -> DisasterAlertMessage 객체로 역직렬화
-            DisasterAlertMessage alertMessage = objectMapper.readValue(message, DisasterAlertMessage.class);
-
-            log.info("kafka - disaster-alert 수신: {}", message);
+            log.info("kafka - disaster-alert 수신: {}", alertMessage);
 
             // FCM 발송
-            fcmFailureService.sendAlert(alertMessage);
+            reportImmediateAlertOrchestratorService.process(alertMessage);
 
         } catch (Exception e) {
 
