@@ -3,7 +3,7 @@ package com.example.emergencyassistb4b4.location.controller;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.location.dto.request.RegionRequestDto;
 import com.example.emergencyassistb4b4.location.service.LocationService;
-import com.example.emergencyassistb4b4.user.domain.CustomUserDetails;
+import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
 import com.example.emergencyassistb4b4.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

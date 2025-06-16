@@ -7,7 +7,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -17,14 +20,18 @@ import java.io.IOException;
 // 3. JWT 유효성 검증 → 성공 시 SecurityContext에 Authentication 설정
 @RequiredArgsConstructor
 @Slf4j
+@Component
 public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
+
+
     public final static String HEADER_AUTHORIZATION = "Authorization";
     public final static String HEADER_PREFIX = "Bearer ";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         String path = request.getRequestURI();
         // 필터 예외 경로 처리
         if(isSkipPath(path)) {
@@ -42,10 +49,15 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         if (token != null) {
             if (jwtUtils.validateToken(token)) {
                 Authentication authentication = jwtUtils.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContext context = SecurityContextHolder.createEmptyContext();
+                context.setAuthentication(authentication);
+                SecurityContextHolder.setContext(context);
+
+
             } else {
                 log.warn("Invalid JWT token.");
             }
+
         }
         filterChain.doFilter(request, response);
     }
