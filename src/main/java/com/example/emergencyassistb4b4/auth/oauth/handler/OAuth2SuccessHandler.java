@@ -28,7 +28,7 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofHours(1);
 
     // 하드코딩 된 부분 수정 예정
-    public static final String REDIRECT_URI = "http://localhost:5173/oauth2/redirect";
+    public static final String REDIRECT_URI = "http://localhost:3000/oauth2/redirect";
 
     private final TokenService tokenService;
 
