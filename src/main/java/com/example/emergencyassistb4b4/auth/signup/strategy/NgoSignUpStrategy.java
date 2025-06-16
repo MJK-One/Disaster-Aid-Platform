@@ -27,6 +27,7 @@ public class NgoSignUpStrategy implements SignUpStrategy {
     @Override
     public TokenResponseDto signUp(SignUpRequestDto requestDto) {
         User user = User.builder()
+                .nickname(requestDto.getName())
                 .email(requestDto.getEmail())
                 .password(bCryptPasswordEncoder.encode(requestDto.getPassword()))
                 .organizationName(requestDto.getOrganizationName())

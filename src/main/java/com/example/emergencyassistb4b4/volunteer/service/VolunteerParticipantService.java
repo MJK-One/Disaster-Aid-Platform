@@ -9,6 +9,7 @@ import com.example.emergencyassistb4b4.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.volunteer.enums.CheckinStatus;
 import com.example.emergencyassistb4b4.volunteer.repository.VolunteerParticipantRepository;
 import com.example.emergencyassistb4b4.volunteer.repository.VolunteerTeamRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,11 @@ public class VolunteerParticipantService {
 
         // 저장
         participantRepository.save(participant);
+    }
+
+    // 참가 인원 조회
+    public List<Long> findParticipants(Long postId) {
+        return participantRepository.findUserIdsByPostId(postId);
     }
 
 }

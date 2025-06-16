@@ -6,6 +6,7 @@ import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.repository.ReportRepository;
 import com.example.emergencyassistb4b4.report.repository.ReportResponseRepository;
 import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.dto.UserRequestDto;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
@@ -46,6 +47,10 @@ public class UserService {
         return report.getReporter();
     }
 
-
+    // 공공기관 조회
+    public User findGovernment(String si) {
+        return userRepository.findFirstByNicknameStartingWithAndUserRole(si, UserRole.GOV)
+            .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
+    }
 
 }
