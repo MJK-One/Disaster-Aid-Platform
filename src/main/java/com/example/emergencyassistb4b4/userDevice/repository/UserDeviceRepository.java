@@ -7,11 +7,13 @@ import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface UserDeviceRepository extends JpaRepository<UserDevice, Long> {
 
     Optional<UserDevice> findByUser(User user);
 
-    @Query("SELECT ud FROM UserDevice ud WHERE ud.user.id IN :userIds")
+    Optional<UserDevice> findByUserId(Long userId);
+
     List<UserDevice> findByUserIdIn(List<Long> userIds);
 }

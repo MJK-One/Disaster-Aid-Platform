@@ -59,12 +59,8 @@ public class UserDeviceService {
     }
 
     public UserDevice findByUserId(Long userId) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
-
-        return userDeviceRepository.findByUser(user)
-            .orElseThrow(() -> new ApiException(ErrorStatus.USER_DEVICE_NOT_FOUND)); // TODO:에러코드설정
+        return userDeviceRepository.findByUserId(userId)
+                .orElseThrow(() -> new ApiException(ErrorStatus.USER_DEVICE_NOT_FOUND)); // TODO:에러코드설정
     }
 
     public List<UserDevice> findByUserIds(List<Long> userIds) {
