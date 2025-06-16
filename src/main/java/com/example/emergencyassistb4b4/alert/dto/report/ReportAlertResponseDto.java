@@ -16,7 +16,7 @@ public class ReportAlertResponseDto implements UserAlert {
     private Long id;
     private String si;
     private String gu;
-    private DisasterType disasterType;
+    private String disasterType;
     private Long count;
 
     public static ReportAlertResponseDto fromUserReportAlert(UserReportAlert userReportAlert) {
@@ -26,7 +26,7 @@ public class ReportAlertResponseDto implements UserAlert {
             .id(userReportAlert.getId())
             .si(reportAlert.getSi())
             .gu(reportAlert.getGu())
-            .disasterType(reportAlert.getDisasterType())
+            .disasterType(reportAlert.getDisasterType().getName())
             .count(reportAlert.getCount())
             .build();
     }

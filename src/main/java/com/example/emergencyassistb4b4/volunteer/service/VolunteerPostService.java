@@ -1,5 +1,6 @@
 package com.example.emergencyassistb4b4.volunteer.service;
 
+import com.example.emergencyassistb4b4.alert.service.volunteer.VolunteerUpdateAlertOrchestratorService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
@@ -13,6 +14,8 @@ import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.PostDetailResponse;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.PostTeamsResponse;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.UpdatePostRequest;
+import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostAttendancePolicyDto;
+import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostLocationDto;
 import com.example.emergencyassistb4b4.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.volunteer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,7 @@ public class VolunteerPostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final TeamParticipationRedisService teamParticipationRedisService;
+    private final VolunteerUpdateAlertOrchestratorService volunteerUpdateAlertOrchestratorService;
 
     // 모집 게시글 생성
     @Transactional
@@ -55,10 +59,24 @@ public class VolunteerPostService {
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
         // 위치 수정
-        post.setLocation(request.getLocation().toEntity());
+        PostLocationDto location = request.getLocation();
+        post.getLocation().update(
+                location.getPlaceName(),
+                location.getLatitude(),
+                location.getLongitude()
+        );
 
         // 출석 정책 수정
-        post.setAttendancePolicy(request.getAttendancePolicy().toEntity());
+        PostAttendancePolicyDto policy = request.getAttendancePolicy();
+        post.getAttendancePolicy().update(
+                policy.getCheckinStart(),
+                policy.getCheckinEnd(),
+                policy.getAllowedRadiusM(),
+                policy.getMinStayMinutes()
+        );
+
+        // 게시글 수정 알림 발송
+        volunteerUpdateAlertOrchestratorService.process(post);
     }
 
     // 모집 게시글 조회

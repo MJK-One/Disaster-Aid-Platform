@@ -18,8 +18,8 @@ public class VolunteerUpdateAlertDto {
 
         return VolunteerUpdateAlertDto.builder()
             .title(post.getTitle())
-//            .placeName(post.getLocation().getPlaceName())
-//            .checkinStart(post.getAttendancePolicy().getCheckinStart())
+            .placeName(post.getLocation().getPlaceName())
+            .checkinStart(post.getAttendancePolicy().getCheckinStart())
             .build();
     }
 

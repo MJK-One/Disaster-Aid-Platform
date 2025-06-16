@@ -27,4 +27,12 @@ public class PostLocationDto {
                 .locationLng(longitude)
                 .build();
     }
+
+    public static PostLocationDto from(VolunteerLocation location) {
+        return PostLocationDto.builder()
+                .placeName(location.getPlaceName())
+                .latitude(location.getLocationLat())
+                .longitude(location.getLocationLng())
+                .build();
+    }
 }
