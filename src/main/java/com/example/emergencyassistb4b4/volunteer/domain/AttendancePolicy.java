@@ -34,5 +34,12 @@ public class AttendancePolicy extends BaseEntity {
     public void setPost(Post post) {
         this.post = post;
     }
+
+    public void update(LocalDateTime start, LocalDateTime end, int radius, int minutes) {
+        this.checkinStart = start;
+        this.checkinEnd = end;
+        this.attendanceRadiusMeters = radius;
+        this.minCheckinMinutes = minutes;
+    }
 }
 

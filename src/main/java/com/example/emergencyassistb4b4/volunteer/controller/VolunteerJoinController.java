@@ -1,12 +1,15 @@
 package com.example.emergencyassistb4b4.volunteer.controller;
 
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
+import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
 import com.example.emergencyassistb4b4.volunteer.dto.Join.CheckinStatusRequest;
 import com.example.emergencyassistb4b4.volunteer.service.VolunteerJoinService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,23 +19,25 @@ public class VolunteerJoinController {
 
     private final VolunteerJoinService volunteerJoinService;
 
+    @PreAuthorize("hasRole('IND')")
     @PostMapping("/posts/{postId}/teams/{teamNumber}/apply")
     public ResponseEntity<ApiResponse<Void>> joinTeam(
             @PathVariable Long postId,
             @PathVariable int teamNumber,
-            @RequestParam Long userId
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        volunteerJoinService.joinTeam(postId, teamNumber, userId);
+        volunteerJoinService.joinTeam(postId, teamNumber, userDetails.getUser().getId());
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_CREATE_SUCCESS, null);
     }
 
+    @PreAuthorize("hasRole('IND')")
     @PatchMapping("/volunteer-participants/{participantId}")
     public  ResponseEntity<ApiResponse<Void>> cancelJoin(
             @PathVariable Long participantId,
             @Valid @RequestBody CheckinStatusRequest request,
-            @RequestParam Long userId
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        volunteerJoinService.cancelJoin(participantId, request, userId);
+        volunteerJoinService.cancelJoin(participantId, request, userDetails.getUser().getId());
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, null);
     }
 

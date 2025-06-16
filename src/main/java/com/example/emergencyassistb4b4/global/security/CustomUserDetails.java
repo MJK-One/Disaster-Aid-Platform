@@ -1,5 +1,6 @@
-package com.example.emergencyassistb4b4.user.domain;
+package com.example.emergencyassistb4b4.global.security;
 
+import com.example.emergencyassistb4b4.user.domain.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
