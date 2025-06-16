@@ -1,6 +1,5 @@
-package com.example.emergencyassistb4b4.global.response;
+package com.example.emergencyassistb4b4.global.exception.dto;
 
-import com.example.emergencyassistb4b4.global.exception.dto.FieldErrorDetail;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,12 +11,11 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorReasonDto {
-
-    private HttpStatus httpStatus;
     private final boolean isSuccess;
+    private final HttpStatus httpStatus;
     private final String code;
     private final String message;
 
+    // Optional: validation error인 경우만 사용
     private final List<FieldErrorDetail> fieldErrors;
-
 }

@@ -64,8 +64,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-admin:9.5.0'
 
     // 📦spl
-    implementation 'org.hibernate.orm:hibernate-spatial:6.3.1.Final'
-    implementation 'org.locationtech.jts:jts-core:1.18.2'
+    implementation 'org.hibernate.orm:hibernate-core:6.6.15.Final'
+    implementation 'org.hibernate.orm:hibernate-spatial:6.6.15.Final'
+    implementation 'org.locationtech.jts:jts-core:1.19.0'
 
     // 🔐 .env support
     implementation 'io.github.cdimascio:dotenv-java:3.2.0'

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
 
@@ -43,6 +44,7 @@ public class TrackingListener {
 
             case ENDED -> {
                 log.info("[ENDED] 세션 종료 알림 도착 - teamId={}", teamId);
+
                 trackingSocketHandler.sendToTeam(teamId, "tracking_ended", dto);
                 // 1. 봉사자 목록 조회
                 List<Long> volunteerIds=dto.getParticipantUserIds();
