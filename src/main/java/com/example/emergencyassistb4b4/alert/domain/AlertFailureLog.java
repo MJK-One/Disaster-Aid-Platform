@@ -27,7 +27,7 @@ public class AlertFailureLog extends BaseEntity {
     private Long reportId;
 
     // 실패한 알림 내용 (JSON 형태로 기록)
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String alertMessage;
 
     // 실패 사유
