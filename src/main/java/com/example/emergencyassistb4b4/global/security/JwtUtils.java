@@ -108,7 +108,7 @@ public class JwtUtils {
         } catch (ExpiredJwtException e) {
             throw new ApiException(ErrorStatus.EXPIRED_ACCESS_TOKEN);
         } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
-            throw new ApiException(ErrorStatus.INVAlID_ACCESS_TOKEN);
+            throw new ApiException(ErrorStatus.INVALID_ACCESS_TOKEN);
         } catch (Exception e) {
             throw new ApiException(ErrorStatus.CUSTOM_ERROR_STATUS);
         }

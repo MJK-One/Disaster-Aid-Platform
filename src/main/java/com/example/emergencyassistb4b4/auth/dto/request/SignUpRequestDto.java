@@ -1,10 +1,8 @@
-package com.example.emergencyassistb4b4.auth.signup;
+package com.example.emergencyassistb4b4.auth.dto.request;
 
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,19 +18,21 @@ public class SignUpRequestDto {
     private String email;
 
     @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
+    @Size(min = 8, message = "비밀번호는 최소 8자리 이상이어야 합니다.")
+    @Pattern(regexp = "(?=.*[A-Za-z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,}", message = "비밀번호는 영문자, 숫자, 특수문자를 포함해야 합니다.")
     private String password; // local만 필수
 
-     private String name; // IND
+     private String name;
+
+    @Pattern(regexp = "^\\d{10,15}$", message = "전화번호는 10~15자리 숫자로 입력해야 합니다.")
      private String phoneNumber; // IND
 
     @NotNull(message = "사용자 역할은 필수 선택값입니다.")
     private UserRole userRole;
 
-    @NotNull
+    @NotNull(message = "로그인 타입은 필수입니다.")
     private LoginType loginType;
 
-    // GOV/NGO 역할에 필요한 추가 정보 (IDV 는 null 허용)
-    private String businessNumber; // 사업자 번호
-    private String organizationName; //기관, 단체명
+    private String si;
 
 }

@@ -1,7 +1,7 @@
-package com.example.emergencyassistb4b4.auth.signup.strategy;
+package com.example.emergencyassistb4b4.auth.strategy.signup;
 
-import com.example.emergencyassistb4b4.auth.dto.SignUpRequestDto;
-import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
+import com.example.emergencyassistb4b4.auth.dto.request.SignUpRequestDto;
+import com.example.emergencyassistb4b4.auth.dto.response.TokenResponseDto;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
@@ -31,13 +31,17 @@ public class GovSignUpStrategy implements SignUpStrategy {
                 .nickname(requestDto.getName())
                 .email(requestDto.getEmail())
                 .password(bCryptPasswordEncoder.encode(requestDto.getPassword()))
-                .organizationName(requestDto.getOrganizationName())
                 .phoneNumber(requestDto.getPhoneNumber())
-                .businessNumber(requestDto.getBusinessNumber())
+                .si(requestDto.getSi())
                 .loginType(LoginType.LOCAL)
                 .userRole(UserRole.GOV)
                 .build();
         userRepository.save(user);
+        return loginAfterSignUp(user);
+    }
+
+    private TokenResponseDto loginAfterSignUp(User user) {
+        // 로그인 후 토큰 발급 (즉시 로그인 처리)
         return tokenService.issueToken(UserResponseDto.from(user));
     }
 }

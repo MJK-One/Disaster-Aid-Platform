@@ -2,6 +2,7 @@ package com.example.emergencyassistb4b4.global.config;
 
 import com.example.emergencyassistb4b4.auth.oauth.handler.OAuth2SuccessHandler;
 import com.example.emergencyassistb4b4.auth.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
+import com.example.emergencyassistb4b4.auth.oauth.service.KakaoService;
 import com.example.emergencyassistb4b4.auth.oauth.service.OAuth2UserCustomService;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.security.JwtTokenAuthenticationFilter;
@@ -46,7 +47,7 @@ public class WebOAuth2SecurityConfig {
     private final JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter;
     @Bean
     @Order(SecurityProperties.BASIC_AUTH_ORDER)
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, TokenService tokenService) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, TokenService tokenService, KakaoService kakaoService) throws Exception {
          http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -56,9 +57,7 @@ public class WebOAuth2SecurityConfig {
                                 "/login/oauth2/code/kakao",
                                 "/oauth2/authorization/kakao",
                                 "/oauth2/**",
-                                "/login/oauth2/code/**",
-                                "/auth/reissue",
-                                "/error"
+                                "/login/oauth2/code/**"
 
                         ).permitAll()
                         //.requestMatchers("/api/**").authenticated()
@@ -72,7 +71,7 @@ public class WebOAuth2SecurityConfig {
                 .addFilterAfter(jwtTokenAuthenticationFilter,  SecurityContextHolderFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         //oauth 인증 성공 후 사용자 정보를 가져오고 성공 핸들러를 통해 jwt 토큰 발급
-                        .successHandler(oAuth2SuccessHandler(tokenService))
+                        .successHandler(oAuth2SuccessHandler(tokenService, kakaoService))
                         .authorizationEndpoint(endpoint -> endpoint
                                 .baseUri("/oauth2/authorization")
                                 .authorizationRequestRepository(new OAuth2AuthorizationRequestBasedOnCookieRepository()))
@@ -83,7 +82,6 @@ public class WebOAuth2SecurityConfig {
 
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                            authException.printStackTrace();
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json; charset=utf-8");
                            response.getWriter().write(
@@ -95,10 +93,11 @@ public class WebOAuth2SecurityConfig {
     }
 
     @Bean
-    public OAuth2SuccessHandler oAuth2SuccessHandler(TokenService tokenService) {
+    public OAuth2SuccessHandler oAuth2SuccessHandler(TokenService tokenService, KakaoService kakaoService) {
 
         return new OAuth2SuccessHandler(
                 tokenService,
+                kakaoService,
                 new OAuth2AuthorizationRequestBasedOnCookieRepository()
         );
     }
