@@ -95,7 +95,6 @@ sourceSets {
 tasks.named('compileJava') {
     options.annotationProcessorGeneratedSourcesDirectory = file("build/generated/sources/annotationProcessor/java/main")
 }
-
 test {
     useJUnitPlatform()
 }
