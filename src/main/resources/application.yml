@@ -41,6 +41,8 @@ spring:
             user-info-uri: ${KAKAO_USER_INFO_URI}
             user-name-attribute: id
 
+
+
   jpa:
     hibernate:
       ddl-auto: none

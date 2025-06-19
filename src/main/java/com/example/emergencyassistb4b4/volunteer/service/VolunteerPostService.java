@@ -5,9 +5,7 @@ import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
-import com.example.emergencyassistb4b4.volunteer.domain.AttendancePolicy;
 import com.example.emergencyassistb4b4.volunteer.domain.Post;
-import com.example.emergencyassistb4b4.volunteer.domain.VolunteerLocation;
 import com.example.emergencyassistb4b4.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.volunteer.dto.Join.TeamStatusDto;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
@@ -17,7 +15,7 @@ import com.example.emergencyassistb4b4.volunteer.dto.Post.UpdatePostRequest;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostAttendancePolicyDto;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostLocationDto;
 import com.example.emergencyassistb4b4.volunteer.infra.redis.service.TeamParticipationRedisService;
-import com.example.emergencyassistb4b4.volunteer.repository.PostRepository;
+import com.example.emergencyassistb4b4.volunteer.repository.VolunteerPostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +28,7 @@ import java.util.List;
 public class VolunteerPostService {
 
     private final UserRepository userRepository;
-    private final PostRepository postRepository;
+    private final VolunteerPostRepository volunteerPostRepository;
     private final TeamParticipationRedisService teamParticipationRedisService;
     private final VolunteerUpdateAlertOrchestratorService volunteerUpdateAlertOrchestratorService;
 
@@ -49,13 +47,13 @@ public class VolunteerPostService {
         post.addTeams(teams);
 
         // 저장
-        postRepository.save(post);
+        volunteerPostRepository.save(post);
     }
 
     // 모집 게시글 수정
     @Transactional
     public void updatePost(Long userId, Long postId, UpdatePostRequest request) {
-        Post post = postRepository.findById(postId)
+        Post post = volunteerPostRepository.findById(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
         // 위치 수정
@@ -63,8 +61,7 @@ public class VolunteerPostService {
         post.getLocation().update(
                 location.getPlaceName(),
                 location.getLatitude(),
-                location.getLongitude()
-        );
+                location.getLongitude());
 
         // 출석 정책 수정
         PostAttendancePolicyDto policy = request.getAttendancePolicy();
@@ -82,7 +79,7 @@ public class VolunteerPostService {
     // 모집 게시글 조회
     @Transactional(readOnly = true)
     public PostDetailResponse getPost(Long postId) {
-        Post post = postRepository.findById(postId)
+        Post post = volunteerPostRepository.findById(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
 
         return PostDetailResponse.from(post);
@@ -91,7 +88,7 @@ public class VolunteerPostService {
     // 게시글 별 팀 인원 조회
     @Transactional(readOnly = true)
     public PostTeamsResponse getTeamStatus(Long postId) {
-        Post post = postRepository.findById(postId)
+        Post post = volunteerPostRepository.findById(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
 
         List<TeamStatusDto> teamStatuses = post.getTeams().stream()

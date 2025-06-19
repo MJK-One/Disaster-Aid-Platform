@@ -7,14 +7,13 @@ import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.UpdatePostRequest;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostAttendancePolicyDto;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostLocationDto;
-import com.example.emergencyassistb4b4.volunteer.repository.PostRepository;
+import com.example.emergencyassistb4b4.volunteer.repository.VolunteerPostRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,7 +30,7 @@ class VolunteerPostServiceTest {
     private UserRepository userRepository;
 
     @Autowired
-    private PostRepository postRepository;
+    private VolunteerPostRepository volunteerPostRepository;
 
     @Test
     @DisplayName("게시글 생성이 성공적으로 동작한다")
@@ -67,7 +66,7 @@ class VolunteerPostServiceTest {
         volunteerPostService.createPost(user.getId(), request);
 
         // then
-        List<Post> posts = postRepository.findAll();
+        List<Post> posts = volunteerPostRepository.findAll();
         assertThat(posts).hasSize(1);
         Post post = posts.get(0);
         assertThat(post.getTitle()).isEqualTo("봉사 테스트");
@@ -105,7 +104,7 @@ class VolunteerPostServiceTest {
                 .build();
 
         volunteerPostService.createPost(user.getId(), request);
-        Post post = postRepository.findAll().get(0);
+        Post post = volunteerPostRepository.findAll().get(0);
 
         UpdatePostRequest updateRequest = UpdatePostRequest.builder()
                 .location(PostLocationDto.builder()
@@ -125,7 +124,7 @@ class VolunteerPostServiceTest {
         volunteerPostService.updatePost(user.getId(), post.getId(), updateRequest);
 
         // then
-        Post updated = postRepository.findById(post.getId()).orElseThrow();
+        Post updated = volunteerPostRepository.findById(post.getId()).orElseThrow();
         assertThat(updated.getLocation().getPlaceName()).isEqualTo("수정된 장소");
         assertThat(updated.getAttendancePolicy().getMinCheckinMinutes()).isEqualTo(60);
     }

@@ -4,13 +4,17 @@ import com.example.emergencyassistb4b4.alert.service.report.ReportImmediateAlert
 import com.example.emergencyassistb4b4.alert.service.report.ReportThresholdAlertTriggerService;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
 import com.example.emergencyassistb4b4.global.kafka.producer.DisasterAlertProducer;
+import com.example.emergencyassistb4b4.location.service.LocationService;
 import com.example.emergencyassistb4b4.report.domain.Report;
+import com.example.emergencyassistb4b4.report.domain.ReportResponse;
+import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
 import com.example.emergencyassistb4b4.report.dto.ReportDto;
 import com.example.emergencyassistb4b4.report.dto.ReportRequestDto;
 import com.example.emergencyassistb4b4.report.dto.ReportResponseDto;
 import com.example.emergencyassistb4b4.report.dto.ReportStatusResponseDto;
 import com.example.emergencyassistb4b4.report.enums.ReportStatus;
 import com.example.emergencyassistb4b4.report.repository.ReportRepository;
+import com.example.emergencyassistb4b4.report.repository.ReportResponseRepository;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;

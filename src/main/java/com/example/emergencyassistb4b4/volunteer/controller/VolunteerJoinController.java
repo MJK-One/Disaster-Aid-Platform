@@ -20,7 +20,7 @@ public class VolunteerJoinController {
     private final VolunteerJoinService volunteerJoinService;
 
     @PreAuthorize("hasRole('IND')")
-    @PostMapping("/posts/{postId}/teams/{teamNumber}/apply")
+    @PostMapping("/post/{postId}/teams/{teamNumber}/apply")
     public ResponseEntity<ApiResponse<Void>> joinTeam(
             @PathVariable Long postId,
             @PathVariable int teamNumber,
