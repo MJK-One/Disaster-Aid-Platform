@@ -24,7 +24,7 @@ public class SignUpRequestDto {
 
      private String name;
 
-    @Pattern(regexp = "^\\d{10,15}$", message = "전화번호는 10~15자리 숫자로 입력해야 합니다.")
+    @Pattern(regexp = "^01[016789]-?\\d{3,4}-?\\d{4}$", message = "전화번호는 올바른 한국 휴대폰 번호 형식이어야 합니다.")
      private String phoneNumber; // IND
 
     @NotNull(message = "사용자 역할은 필수 선택값입니다.")
