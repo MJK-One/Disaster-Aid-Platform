@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class OAuth2Controller {
     @GetMapping("/{provider}")
     public void redirectToProvider(@PathVariable String provider, HttpServletResponse response) throws IOException {
