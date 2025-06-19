@@ -1,3 +1,51 @@
+## 📁 프로젝트 디렉토리 구조 (React Native - 기능 기반 분리)
+
+📁 src/<br>
+├── auth/ # 로그인/회원가입 + OAuth<br>
+│ ├── screens/ # 로그인 화면, 회원가입 화면<br>
+│ ├── api/ # 로그인, 회원가입 요청<br>
+│ └── hooks/ # useAuth(), useLogin()<br>
+│<br>
+├── user/ # 마이페이지, 사용자 정보 조회 등<br>
+│ ├── screens/<br>
+│ ├── api/<br>
+│ └── components/<br>
+│<br>
+├── volunteer/ # 자원봉사 모집글, 참가, 출석 등<br>
+│ ├── screens/<br>
+│ ├── api/<br>
+│ ├── hooks/<br>
+│ └── components/<br>
+│<br>
+├── report/ # 재난 신고, 공공 대시보드용 화면<br>
+│ ├── screens/<br>
+│ ├── api/<br>
+│ └── components/<br>
+│<br>
+├── location/ # 지도 기반 기능, 위치 확인 등<br>
+│ ├── screens/<br>
+│ ├── hooks/ # useCurrentLocation, useShelterMarkers 등<br>
+│ ├── api/<br>
+│ └── components/<br>
+│<br>
+├── notification/ # FCM, 알림 관련 로직<br>
+│ ├── services/ # 알림 처리 (subscribe/unsubscribe)<br>
+│ └── components/<br>
+│<br>
+├── global/ # 공통 설정, 인터셉터, 에러 처리<br>
+│ ├── api/ # axios 인스턴스, 인터셉터<br>
+│ ├── context/ # AuthContext, GlobalContext 등<br>
+│ ├── constants/ # 색상, 문자열, 공통 스타일<br>
+│ └── utils/ # 쿠키 처리, 날짜 포맷 등<br>
+│<br>
+├── navigation/ # React Navigation 관련<br>
+│ ├── StackNavigator.js<br>
+│ ├── TabNavigator.js<br>
+│ └── AuthNavigator.js<br>
+│<br>
+└── components/ # 재사용 가능한 UI 컴포넌트 (Button, Modal 등)<br>
+
+---
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
