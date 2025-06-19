@@ -71,8 +71,11 @@ public enum ErrorStatus implements BaseErrorCode {
     ATTENDANCE_RECORD_PARSE_FAILED(HttpStatus.BAD_REQUEST, "VO004", "출석 기록 파싱 실패"),
     WEBSOCKET_MESSAGE_SERIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "WebSocket 메시지 직렬화 실패"),
     WEBSOCKET_MESSAGE_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "WebSocket 메시지 전송 실패"),
-    ATTENDANCE_LOCATION_OR_POLICY_MISSING(HttpStatus.BAD_REQUEST, "VO004","위치 정보나 출석 정책이 설정되지 않았습니다.");
+    ATTENDANCE_LOCATION_OR_POLICY_MISSING(HttpStatus.BAD_REQUEST, "VO004","위치 정보나 출석 정책이 설정되지 않았습니다."),
 
+    //카카오
+    KAKAO_API_FAILED(HttpStatus.BAD_GATEWAY, "KAKAO_001", "카카오 API 호출에 실패했습니다."),
+    KAKAO_DATA_INVALID(HttpStatus.BAD_REQUEST, "KAKAO_002", "카카오 사용자 정보가 올바르지 않습니다.");
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;

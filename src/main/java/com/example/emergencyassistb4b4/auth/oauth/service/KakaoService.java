@@ -1,34 +1,25 @@
 package com.example.emergencyassistb4b4.auth.oauth.service;
 
 import com.example.emergencyassistb4b4.auth.oauth.dto.KakaoUserDetailsDto;
-import com.google.api.client.http.HttpHeaders;
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
+import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
 
 @Service
-
+@RequiredArgsConstructor
 public class KakaoService {
     // 카카오 사용자 정보를 가져올 API URL
     private static final String KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me";
-
     private final RestTemplate restTemplate;
-
-
-
-    public KakaoService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
-
 
     /**
      * 카카오 액세스 토큰을 사용하여 사용자 정보를 가져오는 메서드
@@ -43,10 +34,15 @@ public class KakaoService {
         HttpEntity<HttpHeaders> entity = new HttpEntity<>(headers);
 
         // 카카오 API 호출(사용자 정보 요청)
-        ResponseEntity<Map> response = restTemplate.exchange(KAKAO_USER_INFO_URL, HttpMethod.GET, entity, Map.class);
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(KAKAO_USER_INFO_URL, HttpMethod.GET, entity, Map.class);
+            // 응답에서 사용자 정보를 파싱하여 kakaoUserDetailsDto 객체로 변환
+            return parseKakaoUserDetails(response.getBody());
+        } catch (RestClientException e) {
+            throw new ApiException(ErrorStatus.KAKAO_API_FAILED);
+        }
 
-        // 응답에서 사용자 정보를 파싱하여 kakaoUserDetailsDto 객체로 변환
-        return parseKakaoUserDetails(response.getBody());
+
     }
     /**
      * 카카오 사용자 정보를 파싱하여 KakaoUserDetails 객체로 변환하는 메서드
@@ -54,15 +50,25 @@ public class KakaoService {
      * @return KakaoUserDetails 객체
      */
     private KakaoUserDetailsDto parseKakaoUserDetails(Map<String, Object> attributes) {
-        Long kakaoId = (Long) attributes.get("id");
+        if (attributes == null || attributes.get("id") == null) {
+            throw new ApiException(ErrorStatus.KAKAO_DATA_INVALID);
+        }
+
+        Long kakaoId = ((Number) attributes.get("id")).longValue();
+
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account"); //이메일 포함
+        if (kakaoAccount == null) {
+            throw new ApiException(ErrorStatus.KAKAO_DATA_INVALID);
+        }
+        String email = (String) kakaoAccount.get("email");
+
         Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+        String nickname = profile != null ? (String) profile.get("nickname") : null;
 
-        KakaoUserDetailsDto kakaoUserDetailsDto = new KakaoUserDetailsDto();
-        kakaoUserDetailsDto.setId(kakaoId);
-        kakaoUserDetailsDto.setNickname((String) profile.get("nickname"));
-        kakaoUserDetailsDto.setEmail((String) profile.get("email"));
-
-        return kakaoUserDetailsDto;
+        return KakaoUserDetailsDto.builder()
+                .id(kakaoId)
+                .email(email)
+                .nickname(nickname)
+                .build();
     }
 }
