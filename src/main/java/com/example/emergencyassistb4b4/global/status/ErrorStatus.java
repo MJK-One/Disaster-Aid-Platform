@@ -74,8 +74,8 @@ public enum ErrorStatus implements BaseErrorCode {
     ATTENDANCE_LOCATION_OR_POLICY_MISSING(HttpStatus.BAD_REQUEST, "VO004","위치 정보나 출석 정책이 설정되지 않았습니다."),
 
     //카카오
-    KAKAO_API_FAILED(HttpStatus.BAD_GATEWAY, "KAKAO_001", "카카오 API 호출에 실패했습니다."),
-    KAKAO_DATA_INVALID(HttpStatus.BAD_REQUEST, "KAKAO_002", "카카오 사용자 정보가 올바르지 않습니다.");
+    KAKAO_API_FAILED(HttpStatus.BAD_GATEWAY, "KAKAO001", "카카오 API 호출에 실패했습니다."),
+    KAKAO_DATA_INVALID(HttpStatus.BAD_REQUEST, "KAKAO002", "카카오 사용자 정보가 올바르지 않습니다.");
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
