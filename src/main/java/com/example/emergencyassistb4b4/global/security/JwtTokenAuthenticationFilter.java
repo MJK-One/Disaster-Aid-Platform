@@ -22,7 +22,6 @@ import java.util.Set;
 // 3. JWT 유효성 검증 → 성공 시 SecurityContext에 Authentication 설정
 @RequiredArgsConstructor
 @Slf4j
-@Component
 public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
@@ -36,17 +35,21 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
+        log.debug("Request Path: {}", path); // 경로 로그 출력
         // 필터 예외 경로 처리
         if(isSkipPath(path)) {
+            log.debug("Skipping path: {}", path); // 필터를 건너뛴 경로 로그
             filterChain.doFilter(request, response);
             return;
         }
 
         // 요청 헤더의 Authorization 키의 값 조회
         String authorizationHeader = request.getHeader(HEADER_AUTHORIZATION);
+        log.debug("Authorization Header: {}", authorizationHeader); // 헤더 출력
 
         //가져온 값에서 접두사 제거
         String token = getAccessToken(authorizationHeader);
+        log.debug("Extracted Token: {}", token); // 추출한 토큰 로그
 
         //가져온 토큰이 유효한지 확인하고 유효한 때는 인증 정보 설정
         if (token != null) {
@@ -55,18 +58,24 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
                 context.setAuthentication(authentication);
                 SecurityContextHolder.setContext(context);
+                log.debug("Authentication successful, user: {}", authentication.getName()); // 인증 성공 로그
 
 
             } else {
                 log.warn("Invalid JWT token.");
             }
 
+        } else {
+            log.debug("No token found in request.");
         }
         filterChain.doFilter(request, response);
     }
     private String getAccessToken(String authorizationHeader) {
-        if (authorizationHeader != null && authorizationHeader.startsWith(HEADER_PREFIX)) {
-            return authorizationHeader.substring(HEADER_PREFIX.length());
+        if (authorizationHeader != null) {
+            log.debug("Authorization Header: {}", authorizationHeader);  // 헤더 값 확인
+            if (authorizationHeader.startsWith(HEADER_PREFIX)) {
+                return authorizationHeader.substring(HEADER_PREFIX.length());
+            }
         }
         return null;
     }

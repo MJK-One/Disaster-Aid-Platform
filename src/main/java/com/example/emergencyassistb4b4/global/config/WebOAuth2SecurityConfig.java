@@ -31,6 +31,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -44,7 +46,7 @@ public class WebOAuth2SecurityConfig {
 
     private final JwtUtils jwtUtils;
     private final OAuth2UserCustomService oAuth2UserCustomService;
-    private final JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter;
+
     @Bean
     @Order(SecurityProperties.BASIC_AUTH_ORDER)
     public SecurityFilterChain securityFilterChain(HttpSecurity http, TokenService tokenService, KakaoService kakaoService) throws Exception {
@@ -68,7 +70,7 @@ public class WebOAuth2SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable) // 기본 폼 사용 X
                 .logout(AbstractHttpConfigurer::disable) // 로그아웃 비활성화
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //세션 사용안함
-                .addFilterAfter(jwtTokenAuthenticationFilter,  SecurityContextHolderFilter.class)
+                .addFilterAfter(jwtTokenAuthenticationFilter(),  SecurityContextHolderFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         //oauth 인증 성공 후 사용자 정보를 가져오고 성공 핸들러를 통해 jwt 토큰 발급
                         .successHandler(oAuth2SuccessHandler(tokenService, kakaoService))
@@ -108,14 +110,18 @@ public class WebOAuth2SecurityConfig {
 //        return new OAuth2AuthorizationRequestBasedOnCookieRepository();
 //    }
 
-    /*@Bean
+    @Bean
     public JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter() {
         log.info(" JwtTokenAuthenticationFilter 등록됨");
-        return new JwtTokenAuthenticationFilter(jwtUtils);
-    }*/
+        return new JwtTokenAuthenticationFilter(jwtUtils, pathMatcher());
+    }
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+    @Bean
+    public PathMatcher pathMatcher() {
+        return new AntPathMatcher();
     }
 
     @Bean
