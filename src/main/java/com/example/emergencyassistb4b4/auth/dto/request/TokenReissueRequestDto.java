@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.auth.dto;
+package com.example.emergencyassistb4b4.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

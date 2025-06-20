@@ -1,6 +1,6 @@
 package com.example.emergencyassistb4b4.auth.token;
 
-import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
+import com.example.emergencyassistb4b4.auth.dto.response.TokenResponseDto;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.security.JwtUtils;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;

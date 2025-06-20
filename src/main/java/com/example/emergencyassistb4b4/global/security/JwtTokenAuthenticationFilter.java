@@ -11,9 +11,11 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Set;
 
 // 1. /api/auth, /oauth2 등 경로는 필터 제외
 // 2. Authorization 헤더의 Bearer 토큰 추출
@@ -28,6 +30,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
     public final static String HEADER_AUTHORIZATION = "Authorization";
     public final static String HEADER_PREFIX = "Bearer ";
+    private final PathMatcher pathMatcher;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -67,10 +70,15 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
-    // 추후에 경로가 많아질 것을 생각해서 Set<String>, PathMatcher 활용한 구성으로 리팩토링 예정
+    // 필터 skip 경로 (로그인, 회원가입 등만 포함)
+    private static final Set<String> SKIP_PATH = Set.of(
+            "/api/auth/login",
+            "/api/auth/signup",
+            "/oauth2/**",
+            "/api/login/oauth2/code/**"
+    );
+
     private boolean isSkipPath(String path) {
-        return path.matches("^/api/login/oauth2/code/.*") ||
-                path.startsWith("/api/auth") ||
-                path.startsWith("/oauth2");
+        return SKIP_PATH.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 }
