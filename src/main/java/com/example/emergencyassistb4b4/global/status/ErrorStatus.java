@@ -21,7 +21,6 @@ public enum ErrorStatus implements BaseErrorCode {
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AU005","리프레시 토큰을 찾을 수 없습니다."),
     TOKEN_USER_MISMATCH(HttpStatus.UNAUTHORIZED, "AU006","토큰의 사용자 정보가 일치하지 않습니다."),
 
-
     //회원가입 및 로그인
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "U001", "이미 존재하는 이메일입니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "U002", "비밀번호가 일치하지 않습니다."),
@@ -33,9 +32,11 @@ public enum ErrorStatus implements BaseErrorCode {
     LOGIN_STRATEGY_NOT_FOUND(HttpStatus.BAD_REQUEST, "U008", " 지원하지 않는 로그인 방식입니다."),
     BUSINESS_NUMBER_REQUIRED(HttpStatus.BAD_REQUEST, "U009" ,"이 필드는 필수값입니다."),
     INVALID_SIGNUP_REQUEST(HttpStatus.BAD_REQUEST, "U010", "유효하지 않은 회원가입 요청입니다."),
+
     // 로그아웃
     LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "U001", "로그아웃 처리에 실패했습니다."),
     CUSTOM_ERROR_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "Custom Error"),
+
     // Redis
     REDIS_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R001", "Redis 에 토큰 저장 실패"),
     REDIS_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R002", "Redis 에서 토큰 삭제 실패"),
@@ -45,6 +46,7 @@ public enum ErrorStatus implements BaseErrorCode {
     VOLUNTEER_CONFLICT(HttpStatus.CONFLICT, "VO008", "VOLUNTEER_CONFLICT"),
     VOLUNTEER_BAD_REQUEST(HttpStatus.BAD_REQUEST, "VO000", "VOLUNTEER_BAD_REQUEST"),
     VOLUNTEER_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "VOLUNTEER_NOT_FOUND"),
+    VOLUNTEER_FORBIDDEN(HttpStatus.FORBIDDEN, "VO0003", "VOLUNTEER_FORBIDDEN"),
 
     // 신고
     REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "Do not found."),
@@ -53,15 +55,11 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_LOCATION(HttpStatus.NOT_FOUND,"LC004","위치를 찾지 못했습니다"),
     USER_DEVICE_NOT_FOUND(HttpStatus.NOT_FOUND, "RP004", "유저 디바이스가 존재하지 않습니다."),
 
-
     KAKAO_API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 요청 실패"),
     KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
     KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답"),
 
-
-    // 자원봉사
-    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "존재하지 않는 게시글입니다."),
-
+    // 자원 봉사
     ATTENDANCE_RECORD_PARSE_FAILED(HttpStatus.BAD_REQUEST, "VO004", "출석 기록 파싱 실패"),
     WEBSOCKET_MESSAGE_SERIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "WebSocket 메시지 직렬화 실패"),
     WEBSOCKET_MESSAGE_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "WebSocket 메시지 전송 실패"),

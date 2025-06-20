@@ -53,8 +53,8 @@ public class VolunteerPostService {
     // 모집 게시글 수정
     @Transactional
     public void updatePost(Long userId, Long postId, UpdatePostRequest request) {
-        Post post = volunteerPostRepository.findById(postId)
-                .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
+        Post post = volunteerPostRepository.findByIdAndUserId(postId, userId)
+                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
 
         // 위치 수정
         PostLocationDto location = request.getLocation();
@@ -80,7 +80,7 @@ public class VolunteerPostService {
     @Transactional(readOnly = true)
     public PostDetailResponse getPost(Long postId) {
         Post post = volunteerPostRepository.findById(postId)
-                .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
 
         return PostDetailResponse.from(post);
     }

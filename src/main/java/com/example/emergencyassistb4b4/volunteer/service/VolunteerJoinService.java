@@ -33,7 +33,8 @@ public class VolunteerJoinService {
     public void joinTeam(Long postId, int teamNumber, Long userId ) {
         // 출석 시간 지난 경우 X
         CheckinPeriodDto period = postRepository.findCheckinPeriodByPostId(postId)
-                .orElseThrow(() -> new ApiException(ErrorStatus.POST_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
+
         if(now.isAfter(period.checkinStart())) {
                 throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
@@ -52,15 +53,24 @@ public class VolunteerJoinService {
     // 팀 참가 취소
     @Transactional
     public void cancelJoin(Long participantId, CheckinStatusRequest request, Long userId) {
-        // 출석 시간 < 취소 X < 출석 마감 시간
+        // 참가자 존재 + 내 것인지 확인
+        VolunteerParticipant participant = participantRepository.findByIdAndUserId(participantId, userId)
+                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_FORBIDDEN));
 
-
-        // 팀원 검증
-        VolunteerParticipant participant = participantRepository.findById(participantId)
+        // participant -> postId
+        Long postId = participantRepository.findPostIdByParticipantId(participantId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
 
+        // 출석 시간 < 취소 X < 출석 마감 시간
+        CheckinPeriodDto period = postRepository.findCheckinPeriodByPostId(postId)
+                .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
+
+        if(now.isAfter(period.checkinStart()) && now.isBefore(period.checkinEnd())) {
+            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+        }
+
         // 현재 인원 -
-        teamParticipationRedisService.cancelJoin(participant.getId(), userId);
+        teamParticipationRedisService.cancelJoin(participant.getVolunteerTeam().getId(), userId);
 
         // 상태 변경
         participant.updateStatus(request.getStatus());
