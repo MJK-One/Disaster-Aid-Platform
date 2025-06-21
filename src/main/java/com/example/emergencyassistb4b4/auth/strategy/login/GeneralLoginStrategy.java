@@ -1,7 +1,7 @@
-package com.example.emergencyassistb4b4.auth.login.strategy;
+package com.example.emergencyassistb4b4.auth.strategy.login;
 
-import com.example.emergencyassistb4b4.auth.dto.LoginRequestDto;
-import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
+import com.example.emergencyassistb4b4.auth.dto.request.LoginRequestDto;
+import com.example.emergencyassistb4b4.auth.dto.response.TokenResponseDto;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
@@ -22,7 +22,7 @@ public class GeneralLoginStrategy implements LoginStrategy {
     private final UserDeviceService userDeviceService;
 
     @Override
-    public boolean supports(UserRole userRole, LoginType loginType) {
+    public boolean supports(LoginType loginType) {
         return loginType == LoginType.LOCAL;
     }
 

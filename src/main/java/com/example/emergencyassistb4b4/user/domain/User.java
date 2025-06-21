@@ -20,7 +20,7 @@ public class User extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nickname", unique = true)
+    @Column(name = "nickname")
     private String nickname;
 
     @Column(length = 20)
@@ -39,25 +39,27 @@ public class User extends BaseEntity{
     @Column(name = "provider", length = 255)
     private String provider;
 
-    private String businessNumber;
-    private String organizationName;
+    // 서울시, OO시
+    @Column(name = "si")
+    private String si;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role")
     private UserRole userRole;
 
-    private LocalDateTime lastLoginAt;
+
 
 
     @Builder
-    public User(String email, String password, String nickname, LoginType loginType, String provider, UserRole userRole) {
+    public User(String email, String password, String nickname, String Si,LoginType loginType, String provider, UserRole userRole) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.si = Si;
         this.loginType = loginType;
         this.provider = provider;
         this.userRole = userRole;
-        this.lastLoginAt = LocalDateTime.now();
+
     }
 
 

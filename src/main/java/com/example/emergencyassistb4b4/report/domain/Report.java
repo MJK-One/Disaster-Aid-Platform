@@ -36,8 +36,7 @@ public class Report extends BaseEntity {
     private DisasterType disasterType;
 
     // 설명
-    @Lob
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
     // 이미지 URL
@@ -64,6 +63,11 @@ public class Report extends BaseEntity {
     // 위치 정보 (PostGIS Point 타입)
     @Column(columnDefinition = "geography(Point, 4326)")
     private Point location;
+
+    // 공공기관 (신고 수신자)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "responder_id")
+    private User responder;
 
     // 상태 변경 메서드
     public void updateStatus(ReportStatus newStatus) {
