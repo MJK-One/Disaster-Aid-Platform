@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import io.jsonwebtoken.security.SignatureException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;

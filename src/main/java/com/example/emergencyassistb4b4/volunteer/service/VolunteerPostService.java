@@ -121,7 +121,7 @@ public class VolunteerPostService {
         for (int i = 0; i < teamCount; i++) {
             VolunteerTeam team = VolunteerTeam.builder()
                     .post(post)
-                    .teamNumber(i)
+                    .teamNumber(i+1)
                     .maxCapacity(teamSize)
                     .build();
             volunteerTeams.add(team);
