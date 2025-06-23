@@ -4,6 +4,7 @@ import com.example.emergencyassistb4b4.alert.domain.report.ReportAlert;
 import com.example.emergencyassistb4b4.alert.domain.report.UserReportAlert;
 import com.example.emergencyassistb4b4.alert.dto.response.UserAlert;
 import com.example.emergencyassistb4b4.alert.enums.DisasterType;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class ReportAlertResponseDto implements UserAlert {
     private String gu;
     private String disasterType;
     private Long count;
+    private LocalDateTime createdAt;
 
     public static ReportAlertResponseDto fromUserReportAlert(UserReportAlert userReportAlert) {
         ReportAlert reportAlert = userReportAlert.getReportAlert();
@@ -28,6 +30,7 @@ public class ReportAlertResponseDto implements UserAlert {
             .gu(reportAlert.getGu())
             .disasterType(reportAlert.getDisasterType().getName())
             .count(reportAlert.getCount())
+            .createdAt(reportAlert.getCreatedAt())
             .build();
     }
 }

@@ -38,7 +38,7 @@ public class GeneralLoginStrategy implements LoginStrategy {
         UserResponseDto userDto = UserResponseDto.from(userDetails.getUser()); // 이미 DTO 타입이면 바로 사용
 
         // 3. UserDevice에 FCM 토큰 저장
-        userDeviceService.saveDevice(userDetails.getUser());
+        userDeviceService.testSaveDevice(userDetails.getUser());
 
         // 4. 토큰 발급은 TokenService가 함
         return tokenService.issueToken(userDto);

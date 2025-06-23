@@ -3,6 +3,7 @@ package com.example.emergencyassistb4b4.userDevice.domain;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.userDevice.enums.DeviceOs;
+import com.example.emergencyassistb4b4.userDevice.enums.DeviceType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -34,12 +35,19 @@ public class UserDevice extends BaseEntity {
     @JoinColumn(name = "user_id",  nullable = false)
     private User user;
 
-//    @Column(nullable = false, unique = true)
-//    private String deviceId;
-
-//    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)
 //    @Column(nullable = false)
-//    private DeviceOs os;
+    private DeviceType type;
+
+    @Enumerated(EnumType.STRING)
+//    @Column(nullable = false)
+    private DeviceOs os;
+
+//    @Column(nullable = false)
+    private String osVersion;
+
+//    @Column(nullable = false)
+    private String model;
 
     @Column(nullable = false)
     private String fcmToken;
