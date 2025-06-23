@@ -47,12 +47,11 @@ public class WebOAuth2SecurityConfig {
     private final JwtUtils jwtUtils;
     private final OAuth2UserCustomService oAuth2UserCustomService;
 
-  
-
     @Bean
     @Order(SecurityProperties.BASIC_AUTH_ORDER)
     public SecurityFilterChain securityFilterChain(HttpSecurity http, TokenService tokenService, KakaoService kakaoService) throws Exception {
          http
+                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/static/**",
@@ -61,13 +60,11 @@ public class WebOAuth2SecurityConfig {
                                 "/login/oauth2/code/kakao",
                                 "/oauth2/authorization/kakao",
                                 "/oauth2/**",
-
                                 "/login/oauth2/code/**",
                                 "/auth/reissue",
                                 "/error",
                                 "/tracking",
-                                "/location-tracking" // WebSocket 핸드쉐이크 경로 허용 추가
-
+                                "/location-tracking", // WebSocket 핸드쉐이크 경로 허용 추가
                                 "/login/oauth2/code/**"
 
                         ).permitAll()
@@ -78,22 +75,11 @@ public class WebOAuth2SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable) // HTTP BASIC 비활성화
                 .formLogin(AbstractHttpConfigurer::disable) // 기본 폼 사용 X
                 .logout(AbstractHttpConfigurer::disable) // 로그아웃 비활성화
-
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //세션 사용안함
-                .addFilterAfter(jwtTokenAuthenticationFilter(),  SecurityContextHolderFilter.class)
+                 .addFilterBefore(jwtTokenAuthenticationFilter(),  AnonymousAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         //oauth 인증 성공 후 사용자 정보를 가져오고 성공 핸들러를 통해 jwt 토큰 발급
                         .successHandler(oAuth2SuccessHandler(tokenService, kakaoService))
-
-                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안함
-                // 여기서 필터 순서를 AnonymousAuthenticationFilter 이전으로 변경
-                .addFilterBefore(jwtTokenAuthenticationFilter, AnonymousAuthenticationFilter.class)
-                .oauth2Login(oauth2 -> oauth2
-                        .successHandler(oAuth2SuccessHandler(tokenService))
-                        //oauth 인증 성공 후 사용자 정보를 가져오고 성공 핸들러를 통해 jwt 토큰 발급
-                        .successHandler(oAuth2SuccessHandler(tokenService, kakaoService))
-
-
                         .authorizationEndpoint(endpoint -> endpoint
                                 .baseUri("/oauth2/authorization")
                                 .authorizationRequestRepository(new OAuth2AuthorizationRequestBasedOnCookieRepository()))
