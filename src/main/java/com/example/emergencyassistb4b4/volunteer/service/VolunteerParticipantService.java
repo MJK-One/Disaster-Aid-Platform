@@ -1,5 +1,8 @@
 package com.example.emergencyassistb4b4.volunteer.service;
 
+import com.example.emergencyassistb4b4.attendance.event.TrackingScheduleEvent;
+import com.example.emergencyassistb4b4.attendance.event.TrackingScheduleEventListener;
+import com.example.emergencyassistb4b4.attendance.socket.handler.TrackingSocketHandler;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
@@ -23,10 +26,11 @@ public class VolunteerParticipantService {
     private final UserRepository userRepository;
     private final VolunteerTeamRepository teamRepository;
     private final VolunteerParticipantRepository participantRepository;
+    private final TrackingSocketHandler trackingSocketHandler;
+    private final TrackingScheduleEventListener eventListener;
 
-    // 참가 인원 DB 저장
     @Transactional
-    public void joinSave(Long userId, Long teamId) {
+    public VolunteerParticipant joinSave(Long userId, Long teamId) {
         // 유저 검증
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
@@ -44,8 +48,17 @@ public class VolunteerParticipantService {
                 .build();
 
         // 저장
-        participantRepository.save(participant);
+        participant = participantRepository.save(participant);
+
+        // WebSocket userId ↔ volunteerId 매핑
+        trackingSocketHandler.cacheVolunteerUserMapping(participant.getId(), userId);
+
+        // 출석 스케줄 이벤트 트리거
+        eventListener.handleTrackingScheduleEvent(new TrackingScheduleEvent(team.getId()));
+
+        return participant;
     }
+
 
     // 참가 인원 조회
     public List<Long> findParticipants(Long postId) {

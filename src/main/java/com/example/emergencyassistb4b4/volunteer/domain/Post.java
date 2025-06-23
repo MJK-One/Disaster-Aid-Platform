@@ -37,7 +37,7 @@ public class Post extends BaseEntity {
 
     private String title;
 
-    @Lob
+    @Column(columnDefinition = "text")
     private String content;
 
     private int totalCapacity;

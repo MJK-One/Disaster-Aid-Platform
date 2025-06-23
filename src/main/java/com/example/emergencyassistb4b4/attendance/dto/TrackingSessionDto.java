@@ -3,6 +3,7 @@ package com.example.emergencyassistb4b4.attendance.dto;
 import com.example.emergencyassistb4b4.volunteer.domain.AttendancePolicy;
 import com.example.emergencyassistb4b4.volunteer.domain.VolunteerLocation;
 import com.example.emergencyassistb4b4.volunteer.domain.VolunteerTeam;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +17,9 @@ import java.util.List;
 @NoArgsConstructor
 public class TrackingSessionDto {
     private Long teamId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endTime;
     private double targetLat;
     private double targetLng;

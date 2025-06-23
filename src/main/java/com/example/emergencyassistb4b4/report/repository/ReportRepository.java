@@ -2,6 +2,7 @@ package com.example.emergencyassistb4b4.report.repository;
 
 import com.example.emergencyassistb4b4.location.dto.response.DisasterReportSimpleDto;
 import com.example.emergencyassistb4b4.report.domain.Report;
+import com.example.emergencyassistb4b4.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, Long>,ReportRepositoryCustom {
 
-    Optional<Report> findById(Long id);
+    List<Report> findAllByResponder(User responder);
 
     @Query(value = """
     SELECT
