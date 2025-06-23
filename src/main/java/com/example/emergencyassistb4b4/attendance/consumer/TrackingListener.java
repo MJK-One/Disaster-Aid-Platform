@@ -45,17 +45,8 @@ public class TrackingListener {
             }
 
             case ENDED -> {
-
-                log.info("[ENDED] 세션 종료 알림 도착 - teamId={}", teamId);
-
-                trackingSocketHandler.sendToTeam(teamId, "tracking_ended", dto);
-                // 1. 봉사자 목록 조회
-                List<Long> volunteerIds=dto.getParticipantUserIds();
-
-
                 log.info("[ENDED] 세션 종료 알림");
                 sendTypedMessageToVolunteers(participantIds, "ENDED", dto);
-
 
                 trackingService.saveSessionAttendanceData(participantIds, dto.getTeamId());
                 participantIds.forEach(socketHandler::removeVolunteerUserMapping);

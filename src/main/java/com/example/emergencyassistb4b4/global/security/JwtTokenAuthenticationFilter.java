@@ -20,7 +20,9 @@ import java.util.Set;
 // 2. Authorization 헤더의 Bearer 토큰 추출
 // 3. JWT 유효성 검증 → 성공 시 SecurityContext에 Authentication 설정
 @RequiredArgsConstructor
+@Component
 @Slf4j
+
 public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
@@ -36,7 +38,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         log.debug("Request Path: {}", path); // 경로 로그 출력
         // 필터 예외 경로 처리
-        if(isSkipPath(path)) {
+        if (isSkipPath(path)) {
             log.debug("Skipping path: {}", path); // 필터를 건너뛴 경로 로그
             filterChain.doFilter(request, response);
             return;
@@ -69,6 +71,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
+
     private String getAccessToken(String authorizationHeader) {
         if (authorizationHeader != null) {
             log.debug("Authorization Header: {}", authorizationHeader);  // 헤더 값 확인
@@ -78,6 +81,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
+
     // 필터 skip 경로 (로그인, 회원가입 등만 포함)
     private static final Set<String> SKIP_PATH = Set.of(
             "/api/auth/login",
@@ -89,3 +93,4 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     private boolean isSkipPath(String path) {
         return SKIP_PATH.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
+}
