@@ -1,32 +1,34 @@
 package com.example.emergencyassistb4b4.global.config.webSocket;
 
-import lombok.extern.slf4j.Slf4j;
+import com.example.emergencyassistb4b4.attendance.socket.controller.LocationTrackingWebSocketHandler;
+import com.example.emergencyassistb4b4.attendance.socket.handler.TrackingSocketHandler;
+import com.example.emergencyassistb4b4.global.security.JwtUtils;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import lombok.RequiredArgsConstructor;
 
-@Slf4j
 @Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+@EnableWebSocket
+@RequiredArgsConstructor
+public class WebSocketConfig implements WebSocketConfigurer {
 
-
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        // 클라이언트가 구독할 topic prefix 설정
-        config.enableSimpleBroker("/topic");
-        // 클라이언트가 서버에 메시지 보낼 때 prefix 설정
-        config.setApplicationDestinationPrefixes("/app");
-    }
+    private final TrackingSocketHandler trackingSocketHandler;
+    private final LocationTrackingWebSocketHandler locationTrackingWebSocketHandler;
+    private final JwtUtils jwtUtils;
 
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        log.info("Registering STOMP endpoint /ws");
-        registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://127.0.0.1:5501", "http://localhost:5501")
-                .withSockJS();
-    }
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        // 백엔드 → 프론트 메시지 전송용
+        registry.addHandler(trackingSocketHandler, "/tracking")
+                .addInterceptors(new JwtHandshakeInterceptor(jwtUtils))
+                .setAllowedOrigins("http://localhost:5501", "http://127.0.0.1:5501");
 
+        // 프론트 → 백엔드 위치 전송용
+        registry.addHandler(locationTrackingWebSocketHandler, "/location-tracking")
+                .addInterceptors(new JwtHandshakeInterceptor(jwtUtils))
+                .setAllowedOrigins("http://localhost:5501", "http://127.0.0.1:5501");
+    }
 }
+

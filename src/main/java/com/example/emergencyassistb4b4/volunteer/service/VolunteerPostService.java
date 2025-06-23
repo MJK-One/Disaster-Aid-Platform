@@ -8,15 +8,14 @@ import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import com.example.emergencyassistb4b4.volunteer.domain.Post;
 import com.example.emergencyassistb4b4.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.volunteer.dto.Join.TeamStatusDto;
-import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
-import com.example.emergencyassistb4b4.volunteer.dto.Post.PostDetailResponse;
-import com.example.emergencyassistb4b4.volunteer.dto.Post.PostTeamsResponse;
-import com.example.emergencyassistb4b4.volunteer.dto.Post.UpdatePostRequest;
+import com.example.emergencyassistb4b4.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostAttendancePolicyDto;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostLocationDto;
 import com.example.emergencyassistb4b4.volunteer.infra.redis.service.TeamParticipationRedisService;
 import com.example.emergencyassistb4b4.volunteer.repository.VolunteerPostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,6 +73,13 @@ public class VolunteerPostService {
 
         // 게시글 수정 알림 발송
         volunteerUpdateAlertOrchestratorService.process(post);
+    }
+
+    // 모집 게시글 다건 조회
+    @Transactional(readOnly = true)
+    public Slice<PostsResponse> getPostList(Pageable pageable) {
+        return volunteerPostRepository.findAll(pageable)
+                .map(PostsResponse::from);
     }
 
     // 모집 게시글 조회

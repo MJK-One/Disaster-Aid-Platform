@@ -36,7 +36,7 @@ public class VolunteerJoinService {
                 .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
 
         if(now.isAfter(period.checkinStart())) {
-                throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
+            throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
 
         // 팀 검증
