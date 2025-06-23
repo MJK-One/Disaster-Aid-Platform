@@ -32,7 +32,7 @@ public class TrackingSessionPublisher {
 
             log.info("Published delayed tracking session: participants={}, delay={}ms",
                     messageWrapper.getPayload().getParticipantUserIds(), delayMillis);
-            // custom 안합니다
+
         } catch (AmqpException e) {
             log.error("Failed to publish delayed tracking session: participants={}, delay={}ms",
                     messageWrapper.getPayload().getParticipantUserIds(),delayMillis);

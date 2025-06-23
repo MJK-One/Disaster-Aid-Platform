@@ -1,5 +1,7 @@
 package com.example.emergencyassistb4b4.global.util;
 
+import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +34,7 @@ public class CookieUtil {
     public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
-            return;
+            throw new ApiException(ErrorStatus.COOKIE_NOT_FOUND);
         }
         for (Cookie cookie : cookies) {
             if(name.equals(cookie.getName())) {
@@ -47,7 +49,7 @@ public class CookieUtil {
     // 객체를 직렬화해서 쿠키의 값으로 변환
     public static String serialize(Object obj) {
         if (!(obj instanceof Serializable)) {
-            throw new IllegalArgumentException("객체는 Serializable을 구현해야 합니다.");
+            throw new ApiException(ErrorStatus.INVALID_OBJECT_TYPE); //객체 타입이 일치하지 않으면 예외 처리
         }
         byte[] data = SerializationUtils.serialize(obj);
         return Base64.getUrlEncoder().encodeToString(data);
@@ -55,12 +57,9 @@ public class CookieUtil {
     //역직렬화해서 객체로 변환
     public static Object deserialize(Cookie cookie, Class<?> cls) {
         if (cookie == null) {
-
-            return null; // 또는 throw new IllegalArgumentException("쿠키가 존재하지 않습니다");
+            throw new ApiException(ErrorStatus.COOKIE_NOT_FOUND);
         }
         try
-                //(ByteArrayInputStream bais = new ByteArrayInputStream(Base64.getUrlDecoder().decode(cookie.getValue()));
-             //ObjectInputStream ois = new ObjectInputStream(bais))
         {
             byte[] decoded = Base64.getUrlDecoder().decode(cookie.getValue());
 
@@ -68,7 +67,7 @@ public class CookieUtil {
             try(ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded))) {
                 Object obj = ois.readObject();
                 if (!cls.isInstance(obj)) {
-                    throw new IllegalArgumentException("역직렬화된 객체 타입이 일치하지 않음.");
+                    throw new ApiException(ErrorStatus.INVALID_OBJECT_TYPE); // 역직렬화된 객체 타입이 일치하지 않으면 예외 처리
                 }
                 return cls.cast(obj);
 
@@ -77,8 +76,7 @@ public class CookieUtil {
             //return cls.cast(obj);
 
         } catch (IOException | ClassNotFoundException e) {
-
-            throw new IllegalArgumentException("역직렬화 중 오류 발생", e);
+            throw new ApiException(ErrorStatus.DESERIALIZATION_ERROR); // 역직렬화 중 오류 발생 시 처리
         }
 
     }

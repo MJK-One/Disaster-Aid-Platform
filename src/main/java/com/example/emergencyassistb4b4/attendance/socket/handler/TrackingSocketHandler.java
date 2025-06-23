@@ -1,75 +1,70 @@
 package com.example.emergencyassistb4b4.attendance.socket.handler;
 
-import com.example.emergencyassistb4b4.global.exception.ApiException;
-import com.example.emergencyassistb4b4.volunteer.domain.VolunteerParticipant;
-import com.example.emergencyassistb4b4.volunteer.domain.VolunteerTeam;
-import com.example.emergencyassistb4b4.volunteer.repository.VolunteerTeamRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.*;
 
-import java.net.URI;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
-import static com.example.emergencyassistb4b4.global.status.ErrorStatus.WEBSOCKET_MESSAGE_SEND_FAILED;
-import static com.example.emergencyassistb4b4.global.status.ErrorStatus.WEBSOCKET_MESSAGE_SERIALIZATION_FAILED;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class TrackingSocketHandler implements WebSocketHandler {
 
-    private final Map<Long, Set<WebSocketSession>> userSessions = new ConcurrentHashMap<>(); // volunteerId → sessions
-    private final VolunteerTeamRepository volunteerTeamRepository;
-    // teamId → volunteerIds
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    // RedisTemplate 타입 변경
+    private final RedisTemplate<String, String> redisTemplate;
+    private static final String VOLUNTEER_USER_PREFIX = "volunteer_user:";
+    // userId → sessions (1:N)
+    private final Map<Long, Set<WebSocketSession>> userSessions = new ConcurrentHashMap<>();
+    private final ObjectMapper objectMapper;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        log.info("WebSocket 연결됨: {}", session.getId());
+        Long userId = (Long) session.getAttributes().get("userId"); // attributes에서 userId 꺼내기
+        log.info("WebSocket afterConnectionEstablished - sessionId={}, userId={}", session.getId(), userId);
+        if (userId == null) {
+            log.warn("userId 누락 또는 인증 실패. 세션 종료: {}", session.getId());
+            closeSession(session, CloseStatus.NOT_ACCEPTABLE);
+            return;
+        }
+        registerSession(userId, session);
+        log.info("WebSocket 연결 완료 - userId={}, sessionId={}", userId, session.getId());
+    }
 
-        Long volunteerId = extractVolunteerIdFromQueryParam(session);
-        if (volunteerId != null) {
-            registerSession(volunteerId, session);
-            log.info("volunteerId {}에 대해 세션 {} 등록 완료", volunteerId, session.getId());
-        } else {
-            log.warn("인증 실패 또는 volunteerId 누락. 세션 종료: {}", session.getId());
-            try {
-                session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Unauthorized"));
-            } catch (Exception e) {
-                log.error("세션 강제 종료 실패: {}", e.getMessage());
-            }
+    private void registerSession(Long userId, WebSocketSession session) {
+        userSessions.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet()).add(session);
+    }
+
+    private void closeSession(WebSocketSession session, CloseStatus status) {
+        try {
+            if (session.isOpen()) session.close(status);
+        } catch (Exception e) {
+            log.error("세션 종료 실패", e);
         }
     }
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) {
-        // 메시지 수신 처리 필요 없으면 생략
-        log.debug("수신된 메시지: {}", message.getPayload());
+        // 필요 시 구현
     }
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) {
-        log.error("WebSocket 오류: {}", exception.getMessage());
-        try {
-            if (session.isOpen()) {
-                session.close(CloseStatus.SERVER_ERROR);
-            }
-        } catch (Exception e) {
-            log.error("세션 닫기 실패: {}", e.getMessage());
-        }
+        log.error("WebSocket 전송 오류", exception);
+        closeSession(session, CloseStatus.SERVER_ERROR);
         removeSession(session);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        log.info("WebSocket 연결 종료: {}", session.getId());
+        log.info("WebSocket 연결 종료: sessionId={}", session.getId());
         removeSession(session);
     }
 
@@ -78,90 +73,75 @@ public class TrackingSocketHandler implements WebSocketHandler {
         return false;
     }
 
-    public void registerSession(Long volunteerId, WebSocketSession session) {
-        userSessions.computeIfAbsent(volunteerId, k -> ConcurrentHashMap.newKeySet()).add(session);
-    }
-
-    public void removeSession(WebSocketSession session) {
+    private void removeSession(WebSocketSession session) {
         userSessions.values().forEach(sessions -> sessions.remove(session));
         userSessions.entrySet().removeIf(entry -> entry.getValue().isEmpty());
     }
 
-    public void sendTrackingStatus(Long volunteerId, Object statusMessage) {
-        Set<WebSocketSession> sessions = userSessions.get(volunteerId);
-        if (sessions != null) {
-            sessions.removeIf(session -> !session.isOpen());
-            sessions.forEach(session -> {
-                try {
-                    String json = objectMapper.writeValueAsString(statusMessage);
-                    session.sendMessage(new TextMessage(json));
-                } catch (Exception e) {
-                    log.error("WebSocket 메시지 전송 실패: {}", e.getMessage());
-                }
-            });
-            if (sessions.isEmpty()) {
-                userSessions.remove(volunteerId);
-            }
-        } else {
-            log.warn("volunteerId {}에 대한 활성 세션 없음", volunteerId);
+    // ============= Redis 캐싱 (participantId → userId) =============
+
+    public void cacheVolunteerUserMapping(Long volunteerParticipantId, Long userId) {
+        String key = VOLUNTEER_USER_PREFIX + volunteerParticipantId;
+        redisTemplate.opsForValue().set(key, userId.toString());
+        log.debug("Redis 매핑 저장: {} -> {}", key, userId);
+    }
+
+    public Long getUserIdByVolunteerId(Long volunteerParticipantId) {
+        String key = VOLUNTEER_USER_PREFIX + volunteerParticipantId;
+        String userIdStr = redisTemplate.opsForValue().get(key);
+        if (userIdStr == null) return null;
+        try {
+            return Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            log.error("Redis에 저장된 userId 형식 오류: key={}, value={}", key, userIdStr);
+            return null;
         }
     }
 
-    public void sendToTeam(Long teamId, String event, Object payload) {
+    public void removeVolunteerUserMapping(Long volunteerParticipantId) {
+        String key = VOLUNTEER_USER_PREFIX + volunteerParticipantId;
+        redisTemplate.delete(key);
+        log.debug("Redis 매핑 삭제: {}", key);
+    }
 
-        Optional<VolunteerTeam> team = volunteerTeamRepository.findWithPostAndDetailsById(teamId);
-        if (team.isEmpty()) {
-            log.warn("teamId={}에 대한 volunteerId 없음", teamId);
+    // ============= WebSocket 메시지 전송 =============
+
+
+    @Transactional(readOnly = true)
+    public void sendToUser(Long volunteerParticipantId, String event, Object payload) {
+        if (volunteerParticipantId == null) {
+            log.warn("보낼 대상 volunteerParticipantId가 null입니다.");
             return;
         }
-
-        Set<Long> volunteerIds = team.get()
-                .getParticipants()
-                .stream()
-                .map(VolunteerParticipant::getId)
-                .collect(Collectors.toSet());
 
         String json;
         try {
             json = objectMapper.writeValueAsString(Map.of("type", event, "data", payload));
         } catch (Exception e) {
-            log.error("WebSocket 메시지 직렬화 실패", e);
+            log.error("메시지 직렬화 실패", e);
             return;
         }
 
+        Long userId = getUserIdByVolunteerId(volunteerParticipantId);
+        if (userId == null) {
+            log.warn("Redis에서 userId 매핑을 찾을 수 없음: volunteerParticipantId={}", volunteerParticipantId);
+            return;
+        }
 
-        for (Long volunteerId : volunteerIds) {
-            Set<WebSocketSession> sessions = userSessions.get(volunteerId);
-            if (sessions == null) continue;
+        Set<WebSocketSession> sessions = userSessions.get(userId);
+        if (sessions == null || sessions.isEmpty()) {
+            log.warn("WebSocket 세션 없음: userId={}", userId);
+            return;
+        }
 
-            sessions.removeIf(session -> !session.isOpen());
-            for (WebSocketSession session : sessions) {
-                try {
-                    session.sendMessage(new TextMessage(json));
-                } catch (Exception e) {
-                    throw new ApiException(WEBSOCKET_MESSAGE_SERIALIZATION_FAILED);
-                }
+        sessions.removeIf(session -> !session.isOpen());
+
+        for (WebSocketSession session : sessions) {
+            try {
+                session.sendMessage(new TextMessage(json));
+            } catch (Exception e) {
+                log.error("WebSocket 메시지 전송 실패: userId={}, volunteerParticipantId={}", userId, volunteerParticipantId, e);
             }
         }
-    }
-
-    private Long extractVolunteerIdFromQueryParam(WebSocketSession session) {
-        try {
-            URI uri = session.getUri();
-            if (uri == null) return null;
-
-            String query = uri.getQuery();
-            if (query == null) return null;
-
-            for (String param : query.split("&")) {
-                String[] parts = param.split("=");
-                if (parts.length == 2 && parts[0].equals("volunteerId")) {
-                    return Long.parseLong(parts[1]);
-                }
-            }
-        } catch (Exception e) {
-            throw new ApiException(WEBSOCKET_MESSAGE_SEND_FAILED);
-        }
-        return null;
     }
 }

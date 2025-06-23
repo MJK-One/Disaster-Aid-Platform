@@ -1,12 +1,10 @@
 package com.example.emergencyassistb4b4.auth.controller;
 
-import com.example.emergencyassistb4b4.auth.dto.LoginRequestDto;
-import com.example.emergencyassistb4b4.auth.dto.SignUpRequestDto;
-import com.example.emergencyassistb4b4.auth.dto.TokenReissueRequestDto;
-import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
-import com.example.emergencyassistb4b4.auth.login.LoginService;
-import com.example.emergencyassistb4b4.auth.service.LogoutService;
-import com.example.emergencyassistb4b4.auth.signup.SignUpService;
+import com.example.emergencyassistb4b4.auth.dto.request.LoginRequestDto;
+import com.example.emergencyassistb4b4.auth.dto.request.SignUpRequestDto;
+import com.example.emergencyassistb4b4.auth.dto.request.TokenReissueRequestDto;
+import com.example.emergencyassistb4b4.auth.dto.response.TokenResponseDto;
+import com.example.emergencyassistb4b4.auth.service.AuthService;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.security.JwtUtils;
@@ -24,16 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 public class AuthController {
-    private final SignUpService signUpService;
-    private final LoginService loginService;
+    private final AuthService authService;
     private final TokenService tokenService;
-    private final LogoutService logoutService;
+
     private final JwtUtils jwtUtils;
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<TokenResponseDto>> signup(@Valid
                                                          @RequestBody SignUpRequestDto requestDto, ServletRequest servletRequest) {
-        TokenResponseDto token = signUpService.signup(requestDto);
+        TokenResponseDto token = authService.signup(requestDto);
         return ApiResponse.onSuccess(SuccessStatus.SIGNUP_SUCCESS, token);
     }
 
@@ -41,7 +38,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<TokenResponseDto>> login(@Valid
                                                                @RequestBody LoginRequestDto requestDto, ServletRequest servletRequest) {
 
-        TokenResponseDto tokens = loginService.login(requestDto);
+        TokenResponseDto tokens = authService.login(requestDto);
         return ApiResponse.onSuccess(SuccessStatus.LOGIN_SUCCESS, tokens);
 
 
@@ -59,7 +56,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(ServletRequest servletRequest) {
         String token = jwtUtils.resolveToken(servletRequest);
-        logoutService.logout(token);
+        authService.logout(token);
         return ApiResponse.onSuccess(SuccessStatus.LOGOUT_SUCCESS, null);
     }
 }

@@ -1,3 +1,6 @@
+config:
+  import: classpath:/.env
+
 server:
   port: 8080
   servlet:
@@ -13,6 +16,15 @@ spring:
     password: ${POSTGRE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
+
   security:
     oauth2:
       client:
@@ -24,6 +36,7 @@ spring:
             authorization-grant-type: authorization_code
             scope: profile_nickname, account_email
             client-name: Google
+
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             redirect-uri: "http://localhost:8080/api/login/oauth2/code/kakao"
@@ -40,22 +53,10 @@ spring:
             token-uri: ${KAKAO_TOKEN_URI}
             user-info-uri: ${KAKAO_USER_INFO_URI}
             user-name-attribute: id
-
-  jpa:
-    hibernate:
-      ddl-auto: none
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
       port: ${REDIS_PORT:6379}
-
   kafka:
     bootstrap-servers: localhost:9092
     admin:
@@ -83,19 +84,6 @@ spring:
 
   main:
     allow-bean-definition-overriding: true
-
-logging:
-  level:
-    root: INFO
-    org.springframework.data.redis: WARN
-    org.springframework.kafka: INFO
-    org.springframework.security : DEBUG
-    org.springframework.security.oauth2 : DEBUG
-    com.example.emergencyassistb4b4.global.security: DEBUG
-    com.example.emergencyassistb4b4: DEBUG
-  config:
-    import: classpath:/.env
-
 kakao:
   api:
     key: ${KAKAO_API_KEY}
@@ -105,6 +93,17 @@ fcm:
 
 jwt:
   issuer: my-app
-  secret: MyUltraSecureJwtSecretKeyMustBe32Charsafeweqadb!
+  secret: ${JWT_SECRET_KEY}
   access-token-validity: 900000      # 15분
   refresh-token-validity: 1209600000 # 14일
+
+logging:
+  level:
+    root: INFO
+    org.springframework.data.redis: WARN
+    org.springframework.kafka: INFO
+
+    org.springframework.security : DEBUG
+    org.springframework.security.oauth2 : DEBUG
+    com.example.emergencyassistb4b4.global.security: DEBUG
+    com.example.emergencyassistb4b4: DEBUG

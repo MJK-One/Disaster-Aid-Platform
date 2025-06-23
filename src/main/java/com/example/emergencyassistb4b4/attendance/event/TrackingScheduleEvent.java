@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class TrackingScheduleEvent {
+
     private final Long teamId;
 
     public TrackingScheduleEvent(Long teamId) {

@@ -1,7 +1,9 @@
 package com.example.emergencyassistb4b4.auth.oauth.handler;
 
-import com.example.emergencyassistb4b4.auth.dto.TokenResponseDto;
+import com.example.emergencyassistb4b4.auth.dto.response.TokenResponseDto;
+import com.example.emergencyassistb4b4.auth.oauth.dto.KakaoUserDetailsDto;
 import com.example.emergencyassistb4b4.auth.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
+import com.example.emergencyassistb4b4.auth.oauth.service.KakaoService;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.util.CookieUtil;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
@@ -9,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.h2.command.Token;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -26,12 +29,10 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
     public static final String REFRESH_TOKEN = "refresh_token";
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofHours(1);
-
-    // 하드코딩 된 부분 수정 예정
     public static final String REDIRECT_URI = "http://localhost:3000/oauth2/redirect";
 
     private final TokenService tokenService;
-
+    private final KakaoService kakaoService;
     private final OAuth2AuthorizationRequestBasedOnCookieRepository oauth2AuthorizationRequestBasedOnCookieRepository;
 
 
@@ -46,26 +47,37 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
 
         OAuth2User oAuth2User  = (OAuth2User) authentication.getPrincipal();   // 인증 성공 객체에서 OAuth2UserPrincipal을 가져옴
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        // 필수 정보 추출
-        Long userId = Long.valueOf(attributes.get("userId").toString());
-        String email = attributes.get("email").toString();
-        String role = attributes.get("role").toString();
 
-        UserResponseDto userResponseDto = new UserResponseDto(userId, email);
+        String registrationId = oAuth2User.getName();
 
-        //1. 토큰 발급 (Access + Refresh + Redis에 저장)
-        TokenResponseDto tokens = tokenService.issueToken(userResponseDto);
+        if("kakao".equalsIgnoreCase(registrationId)) {
 
-        //2. 리프레시 토큰 쿠키 저장
-        addRefreshTokenToCookie(request, response, tokens.refreshToken());
+            // 카카오 액세스 토큰 얻기
+            String accessToken = (String) attributes.get("access_token");
 
-        //3. 인증 관련 설정값, 쿠키 제거
-        clearAuthenticationAttributes(request, response);
+            // 카카오 사용자 정보 가져오기
+            KakaoUserDetailsDto kakaoUserDetails = kakaoService.getKakaoUserInfo(accessToken);
 
-        //4. 리다이렉트
-        String targetUrl = getTargetUrl(tokens.accessToken());
+            // 사용자 정보를 바탕으로 토큰 발급
+            TokenResponseDto kakaoToken = tokenService.issueToken(new UserResponseDto(kakaoUserDetails.getId(), kakaoUserDetails.getEmail()));
 
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+            //  리프레시 토큰 쿠키 저장
+            addRefreshTokenToCookie(request, response, kakaoToken.refreshToken());
+
+            // 인증 관련 설정값, 쿠키 제거
+            clearAuthenticationAttributes(request, response);
+
+            // 리다이렉트 처리
+            String targetUrl = getTargetUrl();
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+
+
+        } else if ("google".equalsIgnoreCase(registrationId)) {
+            String refreshToken = (String) attributes.get("access_token");
+            //  GoogleUserDetails googleUserDetails = googleService.getGoogleUserInfo(accessToken);  // 구글 사용자 정보 가져오기
+        }
+
+
     }
 
     private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
@@ -79,9 +91,8 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
         super.clearAuthenticationAttributes(request);
         oauth2AuthorizationRequestBasedOnCookieRepository.removeAuthorizationRequest(request, response);
     }
-    private String getTargetUrl(String accessToken) {
+    private String getTargetUrl() {
         return UriComponentsBuilder.fromUriString(REDIRECT_URI)
-                .queryParam("token", accessToken)
                 .build().toUriString();
 
     }
