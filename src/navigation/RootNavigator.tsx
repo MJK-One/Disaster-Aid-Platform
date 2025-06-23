@@ -5,17 +5,29 @@ import SignUpScreen from '../api/auth/screens/singupScreen';
 import WelcomeScreen from '../WelcomeScreen';
 import VolunteerPostListScreen from '../api/volunteer/screens/VolunteerPostListScreen';
 import VolunteerPostCreateScreen from '../api/volunteer/screens/VolunteerPostCreateScreen';
+import Layout from '../components/Layout';
 
 const Stack = createNativeStackNavigator();
 
+const withLayout = (Component: React.ComponentType) => {
+  return (props: any) => (
+    <Layout>
+      <Component {...props} />
+    </Layout>
+  );
+};
+
 const RootNavigator = () => {
   return (
-    <Stack.Navigator initialRouteName="Welcome">
-      <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
+    <Stack.Navigator initialRouteName="Login">
+      {/* ❌ Layout 미적용 */}
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
       <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="VolunteerPosts" component={VolunteerPostListScreen} options={{ headerShown: false }}/>
-      <Stack.Screen name="PostCreate" component={VolunteerPostCreateScreen} options={{ headerShown: false }}/>
+
+      {/* ✅ Layout 적용 */}
+      <Stack.Screen name="Welcome" component={withLayout(WelcomeScreen)} options={{ headerShown: false }} />
+      <Stack.Screen name="VolunteerPosts" component={withLayout(VolunteerPostListScreen)} options={{ headerShown: false }} />
+      <Stack.Screen name="PostCreate" component={withLayout(VolunteerPostCreateScreen)} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 };
