@@ -4,18 +4,15 @@ import com.example.emergencyassistb4b4.alert.service.report.ReportImmediateAlert
 import com.example.emergencyassistb4b4.alert.service.report.ReportThresholdAlertTriggerService;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
 import com.example.emergencyassistb4b4.global.kafka.producer.DisasterAlertProducer;
-import com.example.emergencyassistb4b4.location.service.LocationService;
 import com.example.emergencyassistb4b4.report.domain.Report;
-import com.example.emergencyassistb4b4.report.domain.ReportResponse;
-import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
 import com.example.emergencyassistb4b4.report.dto.ReportDto;
 import com.example.emergencyassistb4b4.report.dto.ReportRequestDto;
 import com.example.emergencyassistb4b4.report.dto.ReportResponseDto;
 import com.example.emergencyassistb4b4.report.dto.ReportStatusResponseDto;
 import com.example.emergencyassistb4b4.report.enums.ReportStatus;
 import com.example.emergencyassistb4b4.report.repository.ReportRepository;
-import com.example.emergencyassistb4b4.report.repository.ReportResponseRepository;
 import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
@@ -37,7 +34,6 @@ import java.util.stream.Collectors;
 public class ReportService {
 
     private final ReportRepository reportRepository;
-    private final ReportResponseRepository reportResponseRepository;
     private final DisasterAlertProducer disasterAlertProducer;
     private final UserRepository userRepository;
     private final ReportImmediateAlertOrchestratorService reportImmediateAlertOrchestratorService;
@@ -47,10 +43,17 @@ public class ReportService {
     @Transactional
     public ReportResponseDto disasterReport(ReportRequestDto requestDto, User reporter) {
 
-        double latitude = 37.5665;
-        double longitude = 126.9780;
+        double latitude = requestDto.getLatitude();
+        double longitude = requestDto.getLongitude();
+        String si = requestDto.getSi(); // 신고자가 속한 시 정보
+
+        // 위도, 경도 -> point
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Point location = geometryFactory.createPoint(new Coordinate(longitude, latitude));
+
+        // 시 이름을 포함한 GOV 유저 중 첫 번째를 responder로 선택
+        User responder = userRepository.findFirstByUserRoleAndNicknameContaining(UserRole.GOV, si)
+                .orElseThrow(() -> new IllegalStateException(si + " 지역 공공기관이 존재하지 않습니다."));
 
         // 신고 저장
         Report report = Report.builder()
@@ -60,9 +63,10 @@ public class ReportService {
                 .imageUrl(requestDto.getImageUrl())
                 .videoUrl(requestDto.getVideoUrl())
                 .status(ReportStatus.PENDING)
-                .si("서울시") // 예시: 위치 서비스로 가져온 값
-                .gu("강남구")
+                .si(requestDto.getSi()) // 예시: 위치 서비스로 가져온 값
+                .gu(requestDto.getGu())
                 .location(location)
+                .responder(responder)
                 .build();
 
         Report savedReport = reportRepository.save(report);
@@ -86,10 +90,10 @@ public class ReportService {
     @Transactional(readOnly = true)
     public List<ReportResponseDto> getReportList(User responder) {
 
-        List<ReportResponse> reportResponses = reportResponseRepository.findByResponder(responder);
+        List<Report> reports = reportRepository.findAllByResponder(responder);
 
-        return reportResponses.stream()
-                .map(reportResponse -> ReportResponseDto.from(reportResponse.getReport()))
+        return reports.stream()
+                .map(ReportResponseDto::from)
                 .collect(Collectors.toList());
     }
 
@@ -130,4 +134,21 @@ public class ReportService {
                 .map(ReportDto::of);
     }
 
+    public static String extractSiPrefix(String nickname) {
+
+        // 예: "서울시 소방서" → "서울시"
+        if (nickname == null || nickname.isBlank()) return "";
+
+        String[] parts = nickname.trim().split("\\s+");
+
+        for (String part : parts) {
+
+            if (part.endsWith("시")) {
+
+                return part;
+            }
+        }
+
+        return ""; // 못 찾은 경우
+    }
 }

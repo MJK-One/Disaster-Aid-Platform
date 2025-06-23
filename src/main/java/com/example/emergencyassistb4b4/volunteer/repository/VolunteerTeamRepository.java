@@ -11,10 +11,11 @@ public interface VolunteerTeamRepository extends JpaRepository<VolunteerTeam, Lo
     Optional<VolunteerTeam> findByPost_IdAndTeamNumber(Long postId, int teamNumber);
 
     @Query("""
-    SELECT VT FROM VolunteerTeam VT
+    SELECT DISTINCT VT FROM VolunteerTeam VT
     JOIN FETCH VT.post p
     JOIN FETCH p.location
     JOIN FETCH p.attendancePolicy
+    LEFT JOIN FETCH VT.participants
     WHERE VT.id = :teamId
 """)
     Optional<VolunteerTeam> findWithPostAndDetailsById(@Param("teamId") Long teamId);
