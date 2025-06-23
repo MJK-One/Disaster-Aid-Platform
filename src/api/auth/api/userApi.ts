@@ -1,3 +1,4 @@
+// src/api/userApi.ts
 import axiosInstance from '../../global/api/axiosInstance';
 import type { SignUpRequestDto, LoginRequestDto } from '../types/User';
 
@@ -7,6 +8,6 @@ export const userApi = {
 };
 
 export const fetchMyInfo = async () => {
-  const response = await axiosInstance.get('/user/me');
+  const response = await axiosInstance.get('/user/me'); 
   return response.data;
 };

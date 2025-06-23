@@ -15,6 +15,5 @@ export interface SignUpRequestDto {
 export interface LoginRequestDto {
   email: string;
   password: string;
-  userRole: 'IND' | 'NGO' | 'GOV';
   loginType: 'LOCAL';
 }

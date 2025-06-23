@@ -3,22 +3,31 @@ import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { userApi } from '../api/userApi';
 import type { LoginRequestDto } from '../types/User';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [form, setForm] = useState<LoginRequestDto>({
     email: '',
     password: '',
-    userRole: 'IND',
     loginType: 'LOCAL',
   });
 
   const handleLogin = async () => {
     try {
       const response = await userApi.login(form);
-      console.log('로그인 성공:', response.data);
+
+      const accessToken = response.data?.payload?.accessToken;
+
+      if (!accessToken) {
+        throw new Error('accessToken이 존재하지 않습니다.');
+      }
+
+      await AsyncStorage.setItem('accessToken', accessToken);
+      console.log('🟢 accessToken 저장됨:', accessToken);
+
       Alert.alert('로그인 성공');
-      navigation.navigate('Home' as never);
+      navigation.navigate('Welcome' as never);
     } catch (error) {
       console.error(error);
       Alert.alert('로그인 실패', '이메일 또는 비밀번호를 확인해주세요');
