@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   View,
@@ -44,7 +45,7 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
       <Image
-        source={require('../../../img/b4b4.png')}
+        source={require('../img/b4b4.png')}
         style={styles.logo}
       />
 

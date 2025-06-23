@@ -30,7 +30,7 @@ const Footer = () => {
 
             <View style={{ flex: 1 }} />
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('MyActivities' as never)}>
         <Image
           source={require('../img/mypageicon.png')}
           style={styles.icon}

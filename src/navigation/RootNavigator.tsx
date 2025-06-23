@@ -3,8 +3,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../api/auth/screens/loginScreen';
 import SignUpScreen from '../api/auth/screens/singupScreen';
 import WelcomeScreen from '../WelcomeScreen';
+
 import VolunteerPostListScreen from '../api/volunteer/screens/VolunteerPostListScreen';
 import VolunteerPostCreateScreen from '../api/volunteer/screens/VolunteerPostCreateScreen';
+import MyActivitiesScreen from '../api/report/screens/MyActivitiesScreen';
+import ReportListPage from '../api/report/screens/ReportListPage'
 import Layout from '../components/Layout';
 
 const Stack = createNativeStackNavigator();
@@ -28,6 +31,8 @@ const RootNavigator = () => {
       <Stack.Screen name="Welcome" component={withLayout(WelcomeScreen)} options={{ headerShown: false }} />
       <Stack.Screen name="VolunteerPosts" component={withLayout(VolunteerPostListScreen)} options={{ headerShown: false }} />
       <Stack.Screen name="PostCreate" component={withLayout(VolunteerPostCreateScreen)} options={{ headerShown: false }} />
+      <Stack.Screen name="MyActivities" component={MyActivitiesScreen}options={{ title: '나의 활동' }} />
+      <Stack.Screen name="ReportList" component={ReportListPage} options={{ title: '내 신고 목록' }} />
     </Stack.Navigator>
   );
 };
