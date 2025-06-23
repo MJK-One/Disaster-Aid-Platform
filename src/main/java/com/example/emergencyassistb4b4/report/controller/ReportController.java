@@ -58,7 +58,7 @@ public class ReportController {
 
 
     // 공공기관 : 단건 상태 변경
-    @PreAuthorize("hasRole('GOV')")
+    @PreAuthorize("hasRole('GOV')") // AOP
     @PatchMapping("/{reportId}/status")
     public ResponseEntity<ApiResponse<ReportStatusResponseDto>> changeStatus(
             @AuthenticationPrincipal CustomUserDetails userDetails,

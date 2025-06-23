@@ -40,7 +40,7 @@ public class ReportRequestDto {
     @NotBlank(message = "시 정보는 필수입니다.")
     private String si;
 
-    @NotBlank(message = "구 정보는 필수입니다.")
+    @Size(max = 50)
     private String gu;
 
 }

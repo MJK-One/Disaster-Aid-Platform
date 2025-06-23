@@ -47,7 +47,7 @@ public class WebOAuth2SecurityConfig {
     private final JwtUtils jwtUtils;
     private final OAuth2UserCustomService oAuth2UserCustomService;
 
-  
+
 
     @Bean
     @Order(SecurityProperties.BASIC_AUTH_ORDER)
@@ -157,7 +157,7 @@ public class WebOAuth2SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000", "http://127.0.0.1:5501")
+                        .allowedOriginPatterns("*") // ✅ React Native 대응
                         .allowedMethods("*")
                         .allowedHeaders("*")
                         .allowCredentials(true);
