@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -90,4 +89,3 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     private boolean isSkipPath(String path) {
         return SKIP_PATH.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
-}
