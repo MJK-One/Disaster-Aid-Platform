@@ -3,14 +3,16 @@ package com.example.emergencyassistb4b4.volunteer.controller;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
-import com.example.emergencyassistb4b4.volunteer.dto.Post.CreatePostRequest;
-import com.example.emergencyassistb4b4.volunteer.dto.Post.PostTeamsResponse;
-import com.example.emergencyassistb4b4.volunteer.dto.Post.UpdatePostRequest;
-import com.example.emergencyassistb4b4.volunteer.dto.Post.PostDetailResponse;
+import com.example.emergencyassistb4b4.volunteer.domain.Post;
+import com.example.emergencyassistb4b4.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.volunteer.service.VolunteerPostService;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,6 +42,14 @@ public class VolunteerPostController {
             @Valid @RequestBody UpdatePostRequest request) {
         volunteerPostService.updatePost(userDetails.getUser().getId(), postId, request);
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, null);
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<Slice<PostsResponse>>> getPosts(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Slice<PostsResponse> response = volunteerPostService.getPostList(pageable);
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, response);
     }
 
     @GetMapping("/{postId}")

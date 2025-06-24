@@ -52,7 +52,8 @@ public class ReportService {
         Point location = geometryFactory.createPoint(new Coordinate(longitude, latitude));
 
         // 시 이름을 포함한 GOV 유저 중 첫 번째를 responder로 선택
-        User responder = userRepository.findFirstByUserRoleAndNicknameContaining(UserRole.GOV, si)
+        String keyword = si.replace("특별시", "").replace("광역시", "").replace("자치시", "").replace("도", "");
+        User responder = userRepository.findFirstByUserRoleAndNicknameContaining(UserRole.GOV, keyword)
                 .orElseThrow(() -> new IllegalStateException(si + " 지역 공공기관이 존재하지 않습니다."));
 
         // 신고 저장
