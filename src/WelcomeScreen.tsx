@@ -1,4 +1,5 @@
-import React from 'react';
+// WelcomeScreen.tsx
+
 import { TouchableOpacity, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 

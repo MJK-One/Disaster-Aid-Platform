@@ -9,7 +9,9 @@ import VolunteerPostCreateScreen from '../api/volunteer/screens/VolunteerPostCre
 import VolunteerPostDetailScreen from '../api/volunteer/screens/VolunteerPostDetailScreen';
 
 import MyActivitiesScreen from '../api/report/screens/MyActivitiesScreen';
-import ReportListPage from '../api/report/screens/ReportListPage';
+
+import ReportListPage from '../api/report/screens/ReportListPage'
+import AlertScreen from '../api/alert/screens/AlertScreen';
 
 import Layout from '../components/Layout';
 import ReportScreen from '../api/report/screens/ReportScreen';
@@ -26,6 +28,7 @@ export type RootStackParamList = {
   ReportList: undefined;
   ReportScreen: undefined;
   Dashboard: undefined;
+  Alert: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -54,6 +57,7 @@ const RootNavigator = () => {
       <Stack.Screen name="ReportList" component={withLayout(ReportListPage)} options={{ title: '내 신고 목록' }} />
       <Stack.Screen name="ReportScreen" component={withLayout(ReportScreen)} options={{ title: '신고 할께요' }} />
       <Stack.Screen name="Dashboard" component={withLayout(DashboardScreen)} options={{ title: '대쉬보드'}} />
+      <Stack.Screen name="Alert" component={withLayout(AlertScreen)} options={{ title: '내 알림'}} /> 
     </Stack.Navigator>
   );
 };
