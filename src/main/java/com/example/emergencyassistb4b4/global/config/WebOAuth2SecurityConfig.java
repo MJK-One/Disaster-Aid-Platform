@@ -143,10 +143,10 @@ public class WebOAuth2SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                    .allowedOrigins("http://localhost:3000", "http://127.0.0.1:5501")
-                    .allowedMethods("*")
-                    .allowedHeaders("*")
-                    .allowCredentials(true);
+                        .allowedOrigins("http://localhost:3000", "http://localhost:8081", "http://10.0.2.2:8080")
+                        .allowedMethods("*")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }
