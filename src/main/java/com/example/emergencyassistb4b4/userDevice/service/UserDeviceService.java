@@ -29,7 +29,8 @@ public class UserDeviceService {
     private final StringRedisTemplate redisTemplate;
     private final UserDeviceRepository userDeviceRepository;
 
-    String token = "efmnfjcuXvJ6cGBfVnofsF:APA91bFTSq3YQ-fTvWoByXA0Y-GlHBH-IZSNA6LOkUIP5llwkHIjxi6YoktvDJbyX4_gJ4vd0Bn6hF-5-TIbkZm2UbKBLqlggH3OgRe0Q5UH70tTTaY12Y8";
+    @Value("${fcm.test-token}")
+    private String testFcmToken;
 
     // TODO : 프론트 연동 후 기기 등록/갱신 로직 구현 + 앱 설치/로그인 시 실행
     public void saveDevice(User user, UserDeviceRequestDto dto) {
@@ -58,12 +59,12 @@ public class UserDeviceService {
             .findByUser(user)
             .orElseGet(() -> UserDevice.builder() // (임시) 한 유저 당 하나의 기기만 등록
                 .user(user)
-                .fcmToken(token)
+                .fcmToken(testFcmToken)
                 .build());
 
         // 이미 있는 경우엔 토큰만 갱신
         if (device.getId() != null) {
-            device.updateToken(token);
+            device.updateToken(testFcmToken);
         }
         userDeviceRepository.save(device);
 
