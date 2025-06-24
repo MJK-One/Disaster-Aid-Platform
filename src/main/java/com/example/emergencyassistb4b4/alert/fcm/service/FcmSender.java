@@ -1,6 +1,8 @@
 package com.example.emergencyassistb4b4.alert.fcm.service;
 
 import com.example.emergencyassistb4b4.alert.fcm.dto.FcmMessageDto;
+import com.google.firebase.messaging.AndroidConfig;
+import com.google.firebase.messaging.AndroidNotification;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
@@ -23,6 +25,11 @@ public class FcmSender {
             .setNotification(Notification.builder()
                 .setTitle(messageDto.getTitle())
                 .setBody(messageDto.getBody())
+                .build())
+            .setAndroidConfig(AndroidConfig.builder()
+                .setNotification(AndroidNotification.builder()
+                    .setChannelId("default")
+                    .build())
                 .build())
             .build();
 
