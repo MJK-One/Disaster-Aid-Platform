@@ -52,12 +52,12 @@ const RootNavigator = () => {
       <Stack.Screen name="Welcome" component={withLayout(WelcomeScreen)} options={{ headerShown: false }} />
       <Stack.Screen name="VolunteerPosts" component={withLayout(VolunteerPostListScreen)} options={{ headerShown: false }} />
       <Stack.Screen name="PostCreate" component={withLayout(VolunteerPostCreateScreen)} options={{ headerShown: false }} />
-      <Stack.Screen name="PostDetail" component={withLayout(VolunteerPostDetailScreen)} options={{ headerShown: true }} />
-      <Stack.Screen name="MyActivities" component={withLayout(MyActivitiesScreen)} options={{ title: '나의 활동' }} />
-      <Stack.Screen name="ReportList" component={withLayout(ReportListPage)} options={{ title: '내 신고 목록' }} />
-      <Stack.Screen name="ReportScreen" component={withLayout(ReportScreen)} options={{ title: '신고 할께요' }} />
-      <Stack.Screen name="Dashboard" component={withLayout(DashboardScreen)} options={{ title: '대쉬보드'}} />
-      <Stack.Screen name="Alert" component={withLayout(AlertScreen)} options={{ title: '내 알림'}} /> 
+      <Stack.Screen name="PostDetail" component={withLayout(VolunteerPostDetailScreen)} options={{ headerShown: false }} />
+      <Stack.Screen name="MyActivities" component={withLayout(MyActivitiesScreen)} options={{ headerShown: false }} />
+      <Stack.Screen name="ReportList" component={withLayout(ReportListPage)} options={{ headerShown: false }} />
+      <Stack.Screen name="ReportScreen" component={withLayout(ReportScreen)} options={{ headerShown: false }} />
+      <Stack.Screen name="Dashboard" component={withLayout(DashboardScreen)} options={{ headerShown: false }} />
+      <Stack.Screen name="Alert" component={withLayout(AlertScreen)} options={{ headerShown: false }} /> 
     </Stack.Navigator>
   );
 };

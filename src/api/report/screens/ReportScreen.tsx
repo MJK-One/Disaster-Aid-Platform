@@ -55,7 +55,7 @@ const ReportScreen: React.FC = () => {
         granted['android.permission.ACCESS_COARSE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED
       );
     }
-    return true; // iOS는 Info.plist로 처리
+    return true;
   };
 
   useEffect(() => {
@@ -70,23 +70,28 @@ const ReportScreen: React.FC = () => {
       Geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
+          console.log('📍 현재 위치 위도/경도:', latitude, longitude);
+
           setLatitude(latitude);
           setLongitude(longitude);
 
           try {
             const res = await fetch(
-              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=YOUR_GOOGLE_API_KEY&language=ko`
+              `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${longitude}&y=${latitude}`,
+              {
+                method: 'GET',
+                headers: {
+                  Authorization: 'KakaoAK 카카오_API_키_넣기', // ← 여기에 키 넣기
+                },
+              }
             );
+
             const json = await res.json();
-            const addr = json.results?.[0]?.address_components || [];
+            console.log('📍 Kakao 주소 응답:', JSON.stringify(json, null, 2));
 
-            const siItem = addr.find((c: any) =>
-              c.types.includes('administrative_area_level_1'));
-            const guItem = addr.find((c: any) =>
-              c.types.includes('administrative_area_level_2'));
-
-            setSi(siItem?.long_name || '');
-            setGu(guItem?.long_name || '');
+            const region = json.documents?.[0];
+            setSi(region?.region_1depth_name || '');
+            setGu(region?.region_2depth_name || '');
           } catch (err) {
             console.error('역지오코딩 오류:', err);
           } finally {
