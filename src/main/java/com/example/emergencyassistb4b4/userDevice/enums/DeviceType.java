@@ -1,7 +1,7 @@
 package com.example.emergencyassistb4b4.userDevice.enums;
 
 public enum DeviceType {
-    PHONE,
+    HANDSET,
     TABLET,
     DESKTOP,
     UNKNOWN;
