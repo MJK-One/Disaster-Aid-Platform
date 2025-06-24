@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 
@@ -9,6 +10,7 @@ const ICON_SIZE = width * 0.20;
 
 const Header = () => {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
 
   return (
     <View style={[styles.header, { paddingTop: insets.top }]}>
@@ -21,7 +23,7 @@ const Header = () => {
 
       <View style={{ flex: 1 }} />
 
-      <TouchableOpacity style={{ marginTop: -12}}>
+      <TouchableOpacity style={{ marginTop: -12}} onPress={() => navigation.navigate('Alert' as never)} >
         <Image
           source={require('../img/alertoff.png')}
           style={styles.icon}
