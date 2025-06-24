@@ -1,22 +1,20 @@
 import React from 'react';
-import {
-  Text,
-  StyleSheet,
-} from 'react-native';
+import { TouchableOpacity, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const WelcomeScreen = () => {
+  const navigation = useNavigation();
+
   return (
-      <Text style={styles.title}>삐뽀B4</Text>
+    <View>
+      <TouchableOpacity onPress={() => navigation.navigate('ReportScreen' as never)}>
+        <Text>신고</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Dashboard' as never)}>
+        <Text>대쉬보드</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 40,
-    color: '#333',
-  },
-});
 
 export default WelcomeScreen;
