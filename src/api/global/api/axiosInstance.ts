@@ -2,8 +2,11 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// ✅ PC 로컬 IP
+const localIP = '192.168.0.12';
+
 const baseURL = Platform.OS === 'android'
-  ? 'http://10.0.2.2:8080/api'
+  ? `http://${localIP}:8080/api`
   : 'http://localhost:8080/api';
 
 const axiosInstance = axios.create({
