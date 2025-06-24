@@ -1,13 +1,19 @@
+// 📁 src/api/axiosInstance.ts
 import axios from 'axios';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// ✅ PC 로컬 IP
+// ✅ 상황별 baseURL 자동 분기
 const localIP = '192.168.0.12';
+const emulatorURL = 'http://10.0.2.2:8080/api';
+const localURL = `http://${localIP}:8080/api`;
 
-const baseURL = Platform.OS === 'android'
-  ? `http://${localIP}:8080/api`
-  : 'http://localhost:8080/api';
+const baseURL =
+  Platform.OS === 'android'
+    ? __DEV__
+      ? localURL // ✅ 실제 디바이스에서 개발 중
+      : emulatorURL // ✅ 개발자 실수 대비 fallback
+    : 'http://localhost:8080/api';
 
 const axiosInstance = axios.create({
   baseURL,
@@ -17,7 +23,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// ✅ 요청 인터셉터 - accessToken 자동 삽입
+// ✅ 요청 인터셉터: accessToken 자동 삽입
 axiosInstance.interceptors.request.use(async (config) => {
   const token = await AsyncStorage.getItem('accessToken');
   if (token) {
@@ -26,14 +32,15 @@ axiosInstance.interceptors.request.use(async (config) => {
   return config;
 });
 
-// ✅ 응답 인터셉터 - 401 시 refreshToken으로 accessToken 재발급
+// ✅ 응답 인터셉터: accessToken 만료 시 refreshToken으로 재발급
 axiosInstance.interceptors.response.use(
-  response => response,
-  async error => {
+  (response) => response,
+  async (error) => {
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
       try {
         const refreshToken = await AsyncStorage.getItem('refreshToken');
         if (!refreshToken) throw new Error('refreshToken 없음');
@@ -48,7 +55,8 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest); // 원래 요청 재시도
       } catch (reissueError) {
         console.error('🔴 Token 재발급 실패:', reissueError);
-        // 필요시 AsyncStorage.removeItem('accessToken'); AsyncStorage.removeItem('refreshToken');
+        await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
+        // 필요시 로그인 페이지로 강제 이동 처리
       }
     }
 
