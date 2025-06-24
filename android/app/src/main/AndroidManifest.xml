@@ -2,8 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.disasteraidplatform">
 
+    <!-- ✅ 인터넷 & 권한 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name=".MainApplication"
@@ -14,6 +17,7 @@
         android:theme="@style/AppTheme"
         android:supportsRtl="true">
 
+        <!-- ✅ FCM 메시지 서비스 등록 -->
         <service
             android:name="io.invertase.firebase.messaging.ReactNativeFirebaseMessagingService"
             android:exported="true"
