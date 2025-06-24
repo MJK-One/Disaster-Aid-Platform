@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { requestPushPermission } from './src/api/alert/fcm/fcmPermissions';
 import { getFcmToken } from './src/api/alert/fcm/fcmTokenManager';
+import { displayLocalNotification } from './src/api/alert/utils/showLocalNotification';
 
 const App = () => {
   useEffect(() => {
@@ -21,7 +22,7 @@ const App = () => {
     };
 
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('📩 새 알림', remoteMessage.notification?.body || '');
+      await displayLocalNotification(remoteMessage);
     });
 
     initFCM();
