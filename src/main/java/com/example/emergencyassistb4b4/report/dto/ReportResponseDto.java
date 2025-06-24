@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ReportResponseDto {
 
+    private final Long id;
+
     private final Long reporter;
 
     private final DisasterType disasterType;
@@ -34,11 +36,14 @@ public class ReportResponseDto {
 
     private final Double locationLng; // 경도
 
+    private final LocalDateTime createdAt;
+
     private final LocalDateTime updatedAt;
 
     public static ReportResponseDto from(Report report) {
 
         return ReportResponseDto.builder()
+                .id(report.getId())
                 .reporter(report.getReporter().getId())
                 .disasterType(report.getDisasterType())
                 .description(report.getDescription())
@@ -49,6 +54,7 @@ public class ReportResponseDto {
                 .gu(report.getGu())
                 .locationLat(report.getLocation().getY())
                 .locationLng(report.getLocation().getX())
+                .createdAt(report.getCreatedAt())
                 .updatedAt(report.getUpdatedAt())
                 .build();
     }

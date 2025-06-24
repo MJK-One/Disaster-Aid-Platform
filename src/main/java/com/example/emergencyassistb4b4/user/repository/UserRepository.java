@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findById(Long id);
 
-    Optional<User> findFirstByNicknameStartingWithAndUserRole(String Si, UserRole role);
+    Optional<User> findFirstBySiStartingWithAndUserRole(String Si, UserRole role);
 
     // UserRole.GOV, nicknamePrefix = "서울시" -> "서울시119" 유저 반환
     @Query("SELECT u.id FROM User u WHERE u.userRole = :role AND u.nickname LIKE CONCAT(:si, '%')")
