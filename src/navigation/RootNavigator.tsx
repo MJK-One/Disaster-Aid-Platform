@@ -13,6 +13,8 @@ import MyActivitiesScreen from '../api/report/screens/MyActivitiesScreen';
 import ReportListPage from '../api/report/screens/ReportListPage'
 import AlertScreen from '../api/alert/screens/AlertScreen';
 
+import MainScreen from '../api/location/screens/MainScreen';
+
 import Layout from '../components/Layout';
 import ReportScreen from '../api/report/screens/ReportScreen';
 import DashboardScreen from '../api/report/screens/DashboardScreen';
@@ -29,6 +31,7 @@ export type RootStackParamList = {
   ReportScreen: undefined;
   Dashboard: undefined;
   Alert: undefined;
+  MainScreen: undefined
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -50,6 +53,7 @@ const RootNavigator = () => {
 
       {/* ✅ Layout 적용 */}
       <Stack.Screen name="Welcome" component={withLayout(WelcomeScreen)} options={{ headerShown: false }} />
+      <Stack.Screen name="MainScreen" component={withLayout(MainScreen)} options={{ headerShown: false }} />
       <Stack.Screen name="VolunteerPosts" component={withLayout(VolunteerPostListScreen)} options={{ headerShown: false }} />
       <Stack.Screen name="PostCreate" component={withLayout(VolunteerPostCreateScreen)} options={{ headerShown: false }} />
       <Stack.Screen name="PostDetail" component={withLayout(VolunteerPostDetailScreen)} options={{ headerShown: false }} />

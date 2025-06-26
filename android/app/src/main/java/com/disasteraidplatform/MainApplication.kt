@@ -8,12 +8,11 @@ import android.os.Build
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
-import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
-
+import com.disasteraidplatform.auth.JwtPackage // ✅ 커스텀 패키지 import
 import com.disasteraidplatform.IntentLauncherPackage
 
 class MainApplication : Application(), ReactApplication {
@@ -22,7 +21,11 @@ class MainApplication : Application(), ReactApplication {
     object : DefaultReactNativeHost(this) {
       override fun getPackages(): List<ReactPackage> {
         val packages = PackageList(this).packages.toMutableList()
+
+        // ✅ 커스텀 패키지 추가
+        packages.add(JwtPackage())
         packages.add(IntentLauncherPackage())
+
         return packages
       }
 
@@ -48,6 +51,6 @@ class MainApplication : Application(), ReactApplication {
       manager.createNotificationChannel(channel)
     }
 
-    loadReactNative(this)
+    com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative(this)
   }
 }

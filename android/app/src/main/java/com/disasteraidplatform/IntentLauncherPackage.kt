@@ -1,3 +1,4 @@
+// IntentLauncherPackage.kt
 package com.disasteraidplatform
 
 import com.facebook.react.ReactPackage

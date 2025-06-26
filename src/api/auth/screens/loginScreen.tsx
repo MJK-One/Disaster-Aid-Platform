@@ -12,7 +12,7 @@ import { userApi } from '../api/userApi';
 import type { LoginRequestDto } from '../types/User';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { setJwtToken } from '../../../nativeModules/JwtModule';
 import { requestPushPermission } from '../../alert/fcm/fcmPermissions';
 import { getFcmToken } from '../../alert/fcm/fcmTokenManager';
 import { sendDeviceInfoToServer } from '../../alert/fcm/sendDeviceInfo';
@@ -33,7 +33,7 @@ const LoginScreen = () => {
       if (!accessToken) {
         throw new Error('accessToken이 존재하지 않습니다.');
       }
-
+      setJwtToken(accessToken);
       await AsyncStorage.setItem('accessToken', accessToken);
       console.log('🟢 accessToken 저장됨:', accessToken);
 

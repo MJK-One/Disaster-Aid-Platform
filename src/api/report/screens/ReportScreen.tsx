@@ -1,112 +1,19 @@
-import React, { useState, useEffect } from 'react';
+// src/screens/ReportScreen.tsx
+import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet,
   Alert, TouchableOpacity, ActivityIndicator,
-  PermissionsAndroid, Platform
 } from 'react-native';
-import Geolocation from 'react-native-geolocation-service';
 import { createReport } from '../api/report';
-
-enum DisasterType {
-  EARTHQUAKE = 'EARTHQUAKE',
-  FLOOD = 'FLOOD',
-  TYPHOON = 'TYPHOON',
-  WILDFIRE = 'WILDFIRE',
-  LANDSLIDE = 'LANDSLIDE',
-  POWER_OUTAGE = 'POWER_OUTAGE',
-  TERROR_ATTACK = 'TERROR_ATTACK',
-  BUILDING_COLLAPSE = 'BUILDING_COLLAPSE'
-}
-
-const disasterTypeNames: Record<DisasterType, string> = {
-  [DisasterType.EARTHQUAKE]: '지진',
-  [DisasterType.FLOOD]: '홍수',
-  [DisasterType.TYPHOON]: '태풍',
-  [DisasterType.WILDFIRE]: '산불',
-  [DisasterType.LANDSLIDE]: '산사태',
-  [DisasterType.POWER_OUTAGE]: '정전',
-  [DisasterType.TERROR_ATTACK]: '테러',
-  [DisasterType.BUILDING_COLLAPSE]: '건물 붕괴'
-};
-
-const B4_ORANGE = '#FF6B00';
-const B4_ORANGE_LIGHT = '#FFD4B3';
+import { DisasterType, disasterTypeNames, B4_ORANGE, B4_ORANGE_LIGHT } from '../types/disasterTypes';
+import { useCurrentLocation } from '../../location/hooks/useCurrentLocation';
 
 const ReportScreen: React.FC = () => {
   const [selectedType, setSelectedType] = useState<DisasterType | null>(null);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [latitude, setLatitude] = useState<number | null>(null);
-  const [longitude, setLongitude] = useState<number | null>(null);
-  const [si, setSi] = useState('');
-  const [gu, setGu] = useState('');
-  const [isLocating, setIsLocating] = useState(true);
-
-  const requestLocationPermission = async (): Promise<boolean> => {
-    if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-      ]);
-
-      return (
-        granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED ||
-        granted['android.permission.ACCESS_COARSE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED
-      );
-    }
-    return true;
-  };
-
-  useEffect(() => {
-    (async () => {
-      const hasPermission = await requestLocationPermission();
-      if (!hasPermission) {
-        Alert.alert('위치 권한이 거부되었습니다.');
-        setIsLocating(false);
-        return;
-      }
-
-      Geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          console.log('📍 현재 위치 위도/경도:', latitude, longitude);
-
-          setLatitude(latitude);
-          setLongitude(longitude);
-
-          try {
-            const res = await fetch(
-              `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${longitude}&y=${latitude}`,
-              {
-                method: 'GET',
-                headers: {
-                  Authorization: 'KakaoAK 카카오_API_키_넣기', // ← 여기에 키 넣기
-                },
-              }
-            );
-
-            const json = await res.json();
-            console.log('📍 Kakao 주소 응답:', JSON.stringify(json, null, 2));
-
-            const region = json.documents?.[0];
-            setSi(region?.region_1depth_name || '');
-            setGu(region?.region_2depth_name || '');
-          } catch (err) {
-            console.error('역지오코딩 오류:', err);
-          } finally {
-            setIsLocating(false);
-          }
-        },
-        (err) => {
-          console.error('위치 조회 실패:', err.code, err.message);
-          Alert.alert('위치 오류', `현재 위치를 가져올 수 없습니다. [${err.code}] ${err.message}`);
-          setIsLocating(false);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-      );
-    })();
-  }, []);
+  const { latitude, longitude, si, gu, loading } = useCurrentLocation();
 
   const handleReport = async () => {
     if (!selectedType || !description.trim() || !si || latitude == null || longitude == null) {
@@ -127,7 +34,8 @@ const ReportScreen: React.FC = () => {
 
       const response = await createReport(payload);
       Alert.alert('신고 완료', `재난 유형: ${response.disasterType}`);
-      resetForm();
+      setSelectedType(null);
+      setDescription('');
     } catch (err) {
       console.error('❌ 신고 실패:', err);
       Alert.alert('신고 실패', '서버 요청 중 문제가 발생했습니다.');
@@ -136,12 +44,7 @@ const ReportScreen: React.FC = () => {
     }
   };
 
-  const resetForm = () => {
-    setSelectedType(null);
-    setDescription('');
-  };
-
-  if (isLocating) {
+  if (loading) {
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color={B4_ORANGE} />
@@ -175,7 +78,7 @@ const ReportScreen: React.FC = () => {
         ))}
       </View>
 
-      <Text style={styles.locationLabel}>📍 위치: {si} {gu}</Text>
+      <Text style={styles.locationLabel}>📍 위치: {si} {gu || ''}</Text>
 
       <TextInput
         style={styles.input}

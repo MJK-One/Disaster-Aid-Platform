@@ -7,13 +7,23 @@ import RootNavigator from './src/navigation/RootNavigator';
 import { requestPushPermission } from './src/api/alert/fcm/fcmPermissions';
 import { getFcmToken } from './src/api/alert/fcm/fcmTokenManager';
 import { displayLocalNotification } from './src/api/alert/utils/showLocalNotification';
+import { requestLocationPermission } from './src/api/global/utils/PermissionUtil';
+
+
 
 const App = () => {
   useEffect(() => {
     const initFCM = async () => {
       const granted = await requestPushPermission();
+      const location = await requestLocationPermission();
       if (!granted) {
         console.warn('❌ FCM 권한 거부됨');
+        return;
+      }
+
+      if (!location) {
+        console.warn('❌ 위치 권한 거부됨');
+        Alert.alert('위치 권한이 필요합니다. 앱을 종료합니다.');
         return;
       }
 

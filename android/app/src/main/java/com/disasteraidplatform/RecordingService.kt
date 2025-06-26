@@ -1,20 +1,24 @@
+// android/app/src/main/java/com/disasteraidplatform/RecordingService.kt
 package com.disasteraidplatform
 
 import android.app.*
-import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.facebook.react.ReactApplication
+import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.google.android.gms.location.*
+import com.disasteraidplatform.location.LocationHandler
 
 class RecordingService : Service() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
-    private val TAG = "📍LocationService"
+
+    private val TAG = "📍RecordingService"
 
     override fun onCreate() {
         super.onCreate()
@@ -22,10 +26,9 @@ class RecordingService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == "START") {
-            startForegroundService()
-        } else if (intent?.action == "STOP") {
-            stopSelf()
+        when (intent?.action) {
+            "START" -> startForegroundService()
+            "STOP" -> stopSelf()
         }
         return START_STICKY
     }
@@ -46,15 +49,18 @@ class RecordingService : Service() {
 
         startForeground(1, notification)
 
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 60_000L)
-            .setWaitForAccurateLocation(false)
-            .build()
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            60_000L
+        ).setWaitForAccurateLocation(false).build()
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 val location: Location = result.lastLocation ?: return
                 Log.d(TAG, "위치: ${location.latitude}, ${location.longitude}")
-                // TODO: React Native로 전달하거나 서버로 전송
+
+                sendLocationToReactNative(location.latitude, location.longitude)
+                LocationHandler.handleLocationUpdate(applicationContext, location)
             }
         }
 
@@ -63,6 +69,12 @@ class RecordingService : Service() {
             locationCallback,
             Looper.getMainLooper()
         )
+    }
+
+    private fun sendLocationToReactNative(latitude: Double, longitude: Double) {
+        val reactContext = (application as ReactApplication).reactNativeHost.reactInstanceManager.currentReactContext
+        reactContext?.getJSModule(RCTDeviceEventEmitter::class.java)
+            ?.emit("onLocationUpdate", mapOf("latitude" to latitude, "longitude" to longitude))
     }
 
     override fun onDestroy() {
