@@ -4,6 +4,9 @@ import com.example.emergencyassistb4b4.alert.service.report.ReportImmediateAlert
 import com.example.emergencyassistb4b4.alert.service.report.ReportThresholdAlertTriggerService;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
 import com.example.emergencyassistb4b4.global.kafka.producer.DisasterAlertProducer;
+import com.example.emergencyassistb4b4.global.S3.S3Uploader;
+import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.dto.ReportDto;
 import com.example.emergencyassistb4b4.report.dto.ReportRequestDto;
@@ -24,7 +27,9 @@ import org.springframework.data.domain.Slice;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,10 +43,30 @@ public class ReportService {
     private final UserRepository userRepository;
     private final ReportImmediateAlertOrchestratorService reportImmediateAlertOrchestratorService;
     private final ReportThresholdAlertTriggerService reportThresholdAlertTriggerService;
+    private final S3Uploader s3Uploader;
 
     // (사용자) 재난 신고 기능
     @Transactional
-    public ReportResponseDto disasterReport(ReportRequestDto requestDto, User reporter) {
+    public ReportResponseDto disasterReport(ReportRequestDto requestDto, User reporter, MultipartFile image, MultipartFile video) throws IOException {
+
+        String imageUrl = null;
+        String videoUrl = null;
+
+        if (image != null && !image.isEmpty()) {
+            try {
+                imageUrl = s3Uploader.uploadFile(image, "images");
+            } catch (IOException e) {
+                throw new ApiException(ErrorStatus.S3_UPLOAD_ERROR); // 커스텀 예외
+            }
+        }
+
+        if (video != null && !video.isEmpty()) {
+            try {
+                videoUrl = s3Uploader.uploadFile(video, "videos");
+            } catch (IOException e) {
+                throw new ApiException(ErrorStatus.S3_UPLOAD_ERROR); // 커스텀 예외
+            }
+        }
 
         double latitude = requestDto.getLatitude();
         double longitude = requestDto.getLongitude();
@@ -61,8 +86,8 @@ public class ReportService {
                 .reporter(reporter)
                 .disasterType(requestDto.getDisasterType())
                 .description(requestDto.getDescription())
-                .imageUrl(requestDto.getImageUrl())
-                .videoUrl(requestDto.getVideoUrl())
+                .imageUrl(imageUrl)
+                .videoUrl(videoUrl)
                 .status(ReportStatus.PENDING)
                 .si(requestDto.getSi()) // 예시: 위치 서비스로 가져온 값
                 .gu(requestDto.getGu())

@@ -2,6 +2,8 @@ package com.example.emergencyassistb4b4.report.controller;
 
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
+import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.report.dto.ReportDto;
 import com.example.emergencyassistb4b4.report.dto.ReportRequestDto;
 import com.example.emergencyassistb4b4.report.dto.ReportResponseDto;
@@ -18,9 +20,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/reports")
@@ -28,19 +33,29 @@ import java.util.List;
 public class ReportController {
 
     private final ReportService reportService;
+    private final ObjectMapper objectMapper;
 
-    @PostMapping()
+    @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse<ReportResponseDto>> disasterReport(
-            @RequestBody ReportRequestDto requestDto,
+            // @RequestPart("request") ReportRequestDto requestDto,
+            @RequestPart("request") String rawJson,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestPart(value = "video", required = false) MultipartFile video,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-
-        // 로그인 사용자 정보 가져오기
         User currentUser = userDetails.getUser();
 
-        ReportResponseDto responseDto = reportService.disasterReport(requestDto, currentUser);
+        try {
+            ReportRequestDto requestDto = objectMapper.readValue(rawJson, ReportRequestDto.class); // text로 받은 것 객체화
 
-        return ApiResponse.onSuccess(SuccessStatus.REPORT_CREATE_SUCCESS, responseDto);
+            ReportResponseDto responseDto = reportService.disasterReport(requestDto, currentUser, image, video);
+
+            return ApiResponse.onSuccess(SuccessStatus.REPORT_CREATE_SUCCESS, responseDto);
+
+        } catch (IOException e) {
+            // 전역 처리기로 넘김
+            throw new ApiException(ErrorStatus.S3_UPLOAD_ERROR);
+        }
     }
 
     @GetMapping()

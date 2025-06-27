@@ -21,7 +21,6 @@ public enum ErrorStatus implements BaseErrorCode {
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AU005","리프레시 토큰을 찾을 수 없습니다."),
     TOKEN_USER_MISMATCH(HttpStatus.UNAUTHORIZED, "AU006","토큰의 사용자 정보가 일치하지 않습니다."),
 
-
     //회원가입 및 로그인
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "AU007", "이미 존재하는 이메일입니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "AU008", "비밀번호가 일치하지 않습니다."),
@@ -37,10 +36,10 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_OBJECT_TYPE(HttpStatus.BAD_REQUEST, "AU022", "역직렬화된 객체 타입이 일치하지 않음."),
     DESERIALIZATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AU023", "역직렬화 중 오류 발생"),
 
-
     // 로그아웃
     LOGOUT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AU001", "로그아웃 처리에 실패했습니다."),
     CUSTOM_ERROR_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "Custom Error"),
+
     // Redis
     REDIS_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R001", "Redis 에 토큰 저장 실패"),
     REDIS_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R002", "Redis 에서 토큰 삭제 실패"),
@@ -59,12 +58,11 @@ public enum ErrorStatus implements BaseErrorCode {
     ALERT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AL010", "Failed to send message."),
     NOT_FOUND_LOCATION(HttpStatus.NOT_FOUND,"LC004","위치를 찾지 못했습니다"),
     USER_DEVICE_NOT_FOUND(HttpStatus.NOT_FOUND, "RP004", "유저 디바이스가 존재하지 않습니다."),
-
+    S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "RP010", "S3 파일 업로드 중 오류가 발생했습니다."),
 
     KAKAO_API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 요청 실패"),
     KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
     KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답"),
-
 
     // 자원봉사
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "존재하지 않는 게시글입니다."),
@@ -74,9 +72,10 @@ public enum ErrorStatus implements BaseErrorCode {
     WEBSOCKET_MESSAGE_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "WebSocket 메시지 전송 실패"),
     ATTENDANCE_LOCATION_OR_POLICY_MISSING(HttpStatus.BAD_REQUEST, "VO004","위치 정보나 출석 정책이 설정되지 않았습니다."),
 
-    //카카오
+    // 카카오
     KAKAO_API_FAILED(HttpStatus.BAD_GATEWAY, "KAKAO001", "카카오 API 호출에 실패했습니다."),
     KAKAO_DATA_INVALID(HttpStatus.BAD_REQUEST, "KAKAO002", "카카오 사용자 정보가 올바르지 않습니다.");
+
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
