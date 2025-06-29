@@ -1,7 +1,7 @@
-
+// src/location/fetchRegionCode.ts
 import { KAKAO_REST_API_KEY } from '@env';
 
-type Region = {
+export type Region = {
   si: string;
   gu: string | null;
 };
@@ -18,54 +18,33 @@ export default async function fetchRegionCode(latitude: number, longitude: numbe
       }
     );
 
-    if (!res.ok) {
-      throw new Error(`카카오 API 에러: ${res.status}`);
-    }
-
+    if (!res.ok) throw new Error(`카카오 API 에러: ${res.status}`);
     const data = await res.json();
-
     if (data.documents && data.documents.length > 0) {
       const region = data.documents[0];
-      const parsed = parseSiGu(region.region_1depth_name, region.region_2depth_name);
-      return parsed; // ✅ 타입 안전
+      return parseSiGu(region.region_1depth_name, region.region_2depth_name);
     }
 
-    return { si: '', gu: null }; // 기본값 반환
+    return { si: '', gu: null };
   } catch (error) {
-    console.error('카카오 좌표→지역변환 오류:', error);
+    console.error('카카오 지역 변환 오류:', error);
     return { si: '', gu: null };
   }
 }
 
-function parseSiGu(region_1depth_name: string, region_2depth_name: string): Region {
-  let si = region_1depth_name;
-   let gu: string | null = region_2depth_name;
+function parseSiGu(region1: string, region2: string): Region {
+  let si = '';
+  let gu: string | null = null;
 
-  const provinces = [
-    '경기도',
-    '충청북도',
-    '충청남도',
-    '경상북도',
-    '경상남도',
-    '전라북도',
-    '전라남도',
-    '강원도',
-    '제주특별자치도',
-  ];
-
-  for (const province of provinces) {
-    if (si.startsWith(province)) {
-      const parts = si.split(' ');
-      if (parts.length > 1) {
-        si = parts[1];
-      }
-      break;
-    }
+  const siMatch = region2.match(/([가-힣]+[시군])/);
+  if (siMatch) {
+    si = siMatch[1];
+  } else {
+    si = region1.replace('특별시', '시').replace('광역시', '시');
   }
 
-  if (!gu.includes('구')) {
-    gu = null;
-  }
+  const guMatch = region2.match(/([가-힣]+구)$/);
+  gu = guMatch ? guMatch[1] : null;
 
   return { si, gu };
 }

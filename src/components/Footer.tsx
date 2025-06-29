@@ -12,7 +12,7 @@ const Footer = () => {
 
   return (
     <View style={[styles.footer]}>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('MainScreen' as never)}>
         <Image
           source={require('../img/home.png')}
           style={styles.icon}
@@ -28,7 +28,7 @@ const Footer = () => {
         />
       </TouchableOpacity>
 
-            <View style={{ flex: 1 }} />
+      <View style={{ flex: 1 }} />
 
       <TouchableOpacity onPress={() => navigation.navigate('MyActivities' as never)}>
         <Image

@@ -2,15 +2,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.disasteraidplatform">
 
-    <!-- ✅ 인터넷 & 권한 -->
+    <!-- 필수 권한 -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".MainApplication"
@@ -19,9 +18,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:allowBackup="false"
         android:theme="@style/AppTheme"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="28">
 
-        <!-- ✅ FCM 메시지 서비스 등록 -->
+        <!-- WebView 관련 보안 설정 (Android 9 이상용) -->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <!-- FCM 메시지 수신 서비스 -->
         <service
             android:name="io.invertase.firebase.messaging.ReactNativeFirebaseMessagingService"
             android:exported="true"
@@ -31,7 +37,7 @@
             </intent-filter>
         </service>
 
-        <!-- 서비스 등록 -->
+        <!-- 위치 추적 ForegroundService 등록 -->
         <service
             android:name=".RecordingService"
             android:enabled="true"
@@ -50,5 +56,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 </manifest>

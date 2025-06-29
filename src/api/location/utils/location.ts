@@ -1,40 +1,48 @@
-import Geolocation from 'react-native-geolocation-service';
-import { PermissionsAndroid, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { NativeEventEmitter, NativeModules } from 'react-native';
 
-export type LocationData = {
-  latitude: number;
-  longitude: number;
-  si: string;
-  gu: string | null;
-};
+const { IntentLauncher, LocationCache } = NativeModules;
 
-export async function requestLocationPermission(): Promise<boolean> {
-  if (Platform.OS === 'android') {
-    const granted = await PermissionsAndroid.requestMultiple([
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-    ]);
+export default function useLocation() {
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [startTime] = useState(Date.now());
 
-    return (
-      granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED ||
-      granted['android.permission.ACCESS_COARSE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED
-    );
-  }
-  return true;
-}
+  useEffect(() => {
+    const eventEmitter = new NativeEventEmitter(IntentLauncher);
 
-export async function getCurrentLocation(): Promise<{ latitude: number; longitude: number } | null> {
-  return new Promise((resolve) => {
-    Geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        resolve({ latitude, longitude });
-      },
-      (err) => {
-        console.warn('위치 가져오기 실패:', err);
-        resolve(null);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
-    );
-  });
+    const setLocationWithMinDelay = (lat: number, lng: number) => {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, 5000 - elapsed); // 최소 5초 보장
+      setTimeout(() => {
+        setLocation({ latitude: lat, longitude: lng });
+      }, remaining);
+    };
+
+    // 실시간 위치 이벤트 리스너
+    const subscription = eventEmitter.addListener('onLocationUpdate', (event) => {
+      console.log('📡 위치 이벤트 받음:', event);
+      if (event.latitude && event.longitude) {
+        setLocationWithMinDelay(event.latitude, event.longitude);
+      }
+    });
+
+    // 위치 캐시에서 읽기 (emit 이벤트가 없을 경우 대비)
+    async function fetchCachedLocation() {
+      try {
+        const cached = await LocationCache.getLastLocation();
+        console.log('🗂️ 캐시 위치 불러오기:', cached);
+        if (cached?.latitude && cached?.longitude) {
+          setLocationWithMinDelay(cached.latitude, cached.longitude);
+        }
+      } catch (e) {
+        console.warn('🚨 위치 캐시 불러오기 실패:', e);
+      }
+    }
+
+    fetchCachedLocation();
+
+    return () => subscription.remove();
+  }, []);
+
+  return location;
 }

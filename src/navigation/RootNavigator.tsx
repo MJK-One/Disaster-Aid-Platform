@@ -2,7 +2,6 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../api/auth/screens/loginScreen';
 import SignUpScreen from '../api/auth/screens/singupScreen';
-import WelcomeScreen from '../WelcomeScreen';
 
 import VolunteerPostListScreen from '../api/volunteer/screens/VolunteerPostListScreen';
 import VolunteerPostCreateScreen from '../api/volunteer/screens/VolunteerPostCreateScreen';
@@ -20,7 +19,6 @@ import ReportScreen from '../api/report/screens/ReportScreen';
 import DashboardScreen from '../api/report/screens/DashboardScreen';
 
 export type RootStackParamList = {
-  Welcome: undefined;
   Login: undefined;
   SignUp: undefined;
   VolunteerPosts: undefined;
@@ -52,7 +50,6 @@ const RootNavigator = () => {
       <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
 
       {/* ✅ Layout 적용 */}
-      <Stack.Screen name="Welcome" component={withLayout(WelcomeScreen)} options={{ headerShown: false }} />
       <Stack.Screen name="MainScreen" component={withLayout(MainScreen)} options={{ headerShown: false }} />
       <Stack.Screen name="VolunteerPosts" component={withLayout(VolunteerPostListScreen)} options={{ headerShown: false }} />
       <Stack.Screen name="PostCreate" component={withLayout(VolunteerPostCreateScreen)} options={{ headerShown: false }} />

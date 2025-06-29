@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, StyleSheet,
   Alert, TouchableOpacity, ActivityIndicator,
-  PermissionsAndroid, Platform
 } from 'react-native';
-import Geolocation from 'react-native-geolocation-service';
+import { useCurrentLocation } from '../../location/hooks/useCurrentLocation'; // 네이티브 위치 추적 훅
 import { createReport } from '../api/report';
 
 enum DisasterType {
@@ -37,72 +36,8 @@ const ReportScreen: React.FC = () => {
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [latitude, setLatitude] = useState<number | null>(null);
-  const [longitude, setLongitude] = useState<number | null>(null);
-  const [si, setSi] = useState('');
-  const [gu, setGu] = useState('');
-  const [isLocating, setIsLocating] = useState(true);
-
-  const requestLocationPermission = async (): Promise<boolean> => {
-    if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: '위치 권한 요청',
-          message: '위치 기반 서비스를 위해 위치 권한이 필요합니다.',
-          buttonPositive: '허용',
-          buttonNegative: '거부'
-        }
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
-    }
-    return true;
-  };
-
-  useEffect(() => {
-    (async () => {
-      const hasPermission = await requestLocationPermission();
-      if (!hasPermission) {
-        Alert.alert('위치 권한이 거부되었습니다.');
-        setIsLocating(false);
-        return;
-      }
-
-      Geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          setLatitude(latitude);
-          setLongitude(longitude);
-
-          try {
-            const res = await fetch(
-              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=YOUR_GOOGLE_API_KEY&language=ko`
-            );
-            const json = await res.json();
-            const addr = json.results?.[0]?.address_components || [];
-
-            const siItem = addr.find((c: any) =>
-              c.types.includes('administrative_area_level_1'));
-            const guItem = addr.find((c: any) =>
-              c.types.includes('administrative_area_level_2'));
-
-            setSi(siItem?.long_name || '');
-            setGu(guItem?.long_name || '');
-          } catch (err) {
-            console.error('역지오코딩 오류:', err);
-          } finally {
-            setIsLocating(false);
-          }
-        },
-        (err) => {
-          console.error('위치 조회 실패:', err);
-          Alert.alert('위치 오류', '현재 위치를 가져올 수 없습니다.');
-          setIsLocating(false);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-      );
-    })();
-  }, []);
+  // 네이티브 백그라운드 위치 추적 훅 사용
+  const { latitude, longitude, si, gu, loading: isLocating } = useCurrentLocation();
 
   const handleReport = async () => {
     if (!selectedType || !description.trim() || !si || latitude == null || longitude == null) {

@@ -2,23 +2,22 @@
 package com.disasteraidplatform.location
 
 object RegionParser {
-    private val provinces = listOf(
-        "경기도", "충청북도", "충청남도", "경상북도",
-        "경상남도", "전라북도", "전라남도", "강원도", "제주특별자치도"
-    )
+    fun parse(region1: String, region2: String): Region {
+        var si = ""
+        var gu: String? = null
 
-    fun parse(siRaw: String, guRaw: String): Region {
-        var si = siRaw
-        provinces.forEach { province ->
-            if (si.startsWith(province)) {
-                val parts = si.split(" ")
-                if (parts.size > 1) {
-                    si = parts[1]
-                }
-            }
+        // region2에서 "○○시", "○○군" 추출
+        val siMatch = Regex("([가-힣]+[시군])").find(region2)
+        if (siMatch != null) {
+            si = siMatch.groupValues[1]
+        } else {
+            // fallback: 특별시/광역시 처리
+            si = region1.replace("특별시", "시").replace("광역시", "시")
         }
 
-        val gu = if (guRaw.contains("구")) guRaw else null
+        // 구 단위 추출
+        val guMatch = Regex("([가-힣]+구)$").find(region2)
+        gu = guMatch?.groupValues?.get(1)
 
         return Region(si, gu)
     }

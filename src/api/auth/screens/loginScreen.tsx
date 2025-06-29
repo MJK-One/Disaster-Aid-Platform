@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { setJwtToken } from '../../../nativeModules/JwtModule';
 import { requestPushPermission } from '../../alert/fcm/fcmPermissions';
 import { getFcmToken } from '../../alert/fcm/fcmTokenManager';
 import { sendDeviceInfoToServer } from '../../alert/fcm/sendDeviceInfo';
+import { startLocationTrackingService } from '../../location/hooks/startLocationService'; // 추가
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -24,6 +25,32 @@ const LoginScreen = () => {
     password: '',
     loginType: 'LOCAL',
   });
+
+  // 자동 로그인 시도 (앱 시작 시 토큰 체크)
+  useEffect(() => {
+    const tryAutoLogin = async () => {
+      try {
+        const savedToken = await AsyncStorage.getItem('accessToken');
+        if (savedToken) {
+          setJwtToken(savedToken);
+          // 위치 추적 서비스 시작
+          startLocationTrackingService();
+
+          // FCM 토큰 갱신 및 서버 전송
+          const permissionGranted = await requestPushPermission();
+          if (permissionGranted) {
+            const token = await getFcmToken();
+            if (token) await sendDeviceInfoToServer(token);
+          }
+
+          navigation.navigate('MainScreen' as never);
+        }
+      } catch (e) {
+        console.log('자동 로그인 실패:', e);
+      }
+    };
+    tryAutoLogin();
+  }, []);
 
   const handleLogin = async () => {
     try {
@@ -48,8 +75,11 @@ const LoginScreen = () => {
         }
       }
 
+      // 위치 추적 서비스 시작
+      startLocationTrackingService();
+
       Alert.alert('로그인 성공');
-      navigation.navigate('Welcome' as never);
+      navigation.navigate('MainScreen' as never);
     } catch (error) {
       console.error(error);
       Alert.alert('로그인 실패', '이메일 또는 비밀번호를 확인해주세요');

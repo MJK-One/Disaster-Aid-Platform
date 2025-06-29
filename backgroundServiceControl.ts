@@ -13,18 +13,21 @@ export async function startBackgroundService() {
   // 2. 권한 요청
   const granted = await PermissionsAndroid.requestMultiple([fine, background]);
 
-  const allGranted =
-    granted[fine] === PermissionsAndroid.RESULTS.GRANTED &&
-    granted[background] === PermissionsAndroid.RESULTS.GRANTED;
+  const fineGranted = granted[fine] === PermissionsAndroid.RESULTS.GRANTED;
+  const backgroundGranted = granted[background] === PermissionsAndroid.RESULTS.GRANTED;
 
-  if (allGranted) {
+  if (fineGranted && backgroundGranted) {
     console.log('✅ 위치 권한 허용됨');
-    NativeModules.IntentLauncher.startService(
-      'com.disasteraidplatform.RecordingService',
-      'START'
-    );
+    try {
+      NativeModules.IntentLauncher.startService(
+        'com.disasteraidplatform.RecordingService',
+        'START'
+      );
+    } catch (e) {
+      console.error('startService error:', e);
+      Alert.alert('서비스 시작 오류', '서비스를 시작하는 중에 문제가 발생했습니다.');
+    }
   } else {
-    // 3. "다시 묻지 않음" 상태일 수 있음
     const neverAskAgain =
       granted[fine] === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN ||
       granted[background] === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN;

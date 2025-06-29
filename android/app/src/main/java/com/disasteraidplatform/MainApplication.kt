@@ -12,21 +12,20 @@ import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
-import com.disasteraidplatform.auth.JwtPackage // ✅ 커스텀 패키지 import
+import com.disasteraidplatform.auth.JwtPackage
 import com.disasteraidplatform.IntentLauncherPackage
 
 class MainApplication : Application(), ReactApplication {
 
+  // React Native 호스트 정의
   override val reactNativeHost: ReactNativeHost =
     object : DefaultReactNativeHost(this) {
       override fun getPackages(): List<ReactPackage> {
-        val packages = PackageList(this).packages.toMutableList()
-
-        // ✅ 커스텀 패키지 추가
-        packages.add(JwtPackage())
-        packages.add(IntentLauncherPackage())
-
-        return packages
+        return PackageList(this).packages.toMutableList().apply {
+          add(JwtPackage())               // ✅ JWT 관련 NativeModule 등록
+          add(IntentLauncherPackage())    // ✅ ForegroundService 실행용 Intent Module 등록
+          add(LocationCachePackage())
+        }
       }
 
       override fun getJSMainModuleName(): String = "index"
@@ -35,12 +34,14 @@ class MainApplication : Application(), ReactApplication {
       override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
     }
 
+  // ReactHost 설정
   override val reactHost: ReactHost
     get() = getDefaultReactHost(applicationContext, reactNativeHost)
 
   override fun onCreate() {
     super.onCreate()
 
+    // Android 8.0+ 알림 채널 등록 (포그라운드 서비스용)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       val channel = NotificationChannel(
         "foreground_channel",
@@ -51,6 +52,7 @@ class MainApplication : Application(), ReactApplication {
       manager.createNotificationChannel(channel)
     }
 
+    // React Native 초기화
     com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative(this)
   }
 }
