@@ -43,6 +43,10 @@ public class ReportController {
             @RequestPart(value = "video", required = false) MultipartFile video,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        System.out.println("📥 rawJson = " + rawJson);
+        System.out.println("🖼 image = " + (image != null ? image.getOriginalFilename() : "없음"));
+        System.out.println("🎞 video = " + (video != null ? video.getOriginalFilename() : "없음"));
+
         User currentUser = userDetails.getUser();
 
         try {
@@ -53,6 +57,7 @@ public class ReportController {
             return ApiResponse.onSuccess(SuccessStatus.REPORT_CREATE_SUCCESS, responseDto);
 
         } catch (IOException e) {
+            e.printStackTrace(); // ❗ 실제 예외 로그 보기
             // 전역 처리기로 넘김
             throw new ApiException(ErrorStatus.S3_UPLOAD_ERROR);
         }
