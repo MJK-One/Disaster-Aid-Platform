@@ -1,128 +1,108 @@
+// src/api/report/screens/ReportScreen.tsx
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, StyleSheet,
   Alert, TouchableOpacity, ActivityIndicator,
-  PermissionsAndroid, Platform
+  PermissionsAndroid,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import { createReport } from '../api/report';
 import axios from 'axios';
-
-enum DisasterType {
-  EARTHQUAKE = 'EARTHQUAKE',
-  FLOOD = 'FLOOD',
-  TYPHOON = 'TYPHOON',
-  WILDFIRE = 'WILDFIRE',
-  LANDSLIDE = 'LANDSLIDE',
-  POWER_OUTAGE = 'POWER_OUTAGE',
-  TERROR_ATTACK = 'TERROR_ATTACK',
-  BUILDING_COLLAPSE = 'BUILDING_COLLAPSE'
-}
-
-const disasterTypeNames: Record<DisasterType, string> = {
-  [DisasterType.EARTHQUAKE]: '지진',
-  [DisasterType.FLOOD]: '홍수',
-  [DisasterType.TYPHOON]: '태풍',
-  [DisasterType.WILDFIRE]: '산불',
-  [DisasterType.LANDSLIDE]: '산사태',
-  [DisasterType.POWER_OUTAGE]: '정전',
-  [DisasterType.TERROR_ATTACK]: '테러',
-  [DisasterType.BUILDING_COLLAPSE]: '건물 붕괴'
-};
+import { launchImageLibrary, Asset } from 'react-native-image-picker';
+import { createReport } from '../api/report';
 
 const B4_ORANGE = '#FF6B00';
 const B4_ORANGE_LIGHT = '#FFD4B3';
 
-const ReportScreen: React.FC = () => {
-  const [selectedType, setSelectedType] = useState<DisasterType | null>(null);
-  const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const disasterTypeNames = {
+  EARTHQUAKE: '지진', FLOOD: '홍수', TYPHOON: '태풍',
+  WILDFIRE: '산불', LANDSLIDE: '산사태', POWER_OUTAGE: '정전',
+  TERROR_ATTACK: '테러', BUILDING_COLLAPSE: '건물 붕괴'
+};
 
+const 광역단위 = [
+  '서울특별시', '부산광역시', '대구광역시', '인천광역시',
+  '광주광역시', '대전광역시', '울산광역시', '세종특별자치시'
+];
+
+const ReportScreen = () => {
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [description, setDescription] = useState('');
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [si, setSi] = useState('');
   const [gu, setGu] = useState('');
   const [isLocating, setIsLocating] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [image, setImage] = useState<Asset | null>(null);
+  const [video, setVideo] = useState<Asset | null>(null);
 
-  const 광역단위 = [
-    '서울특별시', '부산광역시', '대구광역시', '인천광역시',
-    '광주광역시', '대전광역시', '울산광역시', '세종특별자치시'
-  ];
-
-  const requestLocationPermission = async (): Promise<boolean> => {
-    if (Platform.OS === 'android') {
+  useEffect(() => {
+    (async () => {
       const granted = await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
       ]);
-      return (
-        granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED ||
-        granted['android.permission.ACCESS_COARSE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED
-      );
-    }
-    return true;
-  };
-
-  useEffect(() => {
-    (async () => {
-      const hasPermission = await requestLocationPermission();
-      if (!hasPermission) {
+      if (
+          granted['android.permission.ACCESS_FINE_LOCATION'] !== 'granted' &&
+          granted['android.permission.ACCESS_COARSE_LOCATION'] !== 'granted'
+      ) {
         Alert.alert('위치 권한이 거부되었습니다.');
         setIsLocating(false);
         return;
       }
 
       Geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          setLatitude(latitude);
-          setLongitude(longitude);
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            setLatitude(latitude);
+            setLongitude(longitude);
 
-          console.log('✅ 위치 좌표 수신:', latitude, longitude); // [1] 좌표 확인
+            try {
+              const res = await axios.get(
+                  `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${longitude}&y=${latitude}`,
+                  { headers: { Authorization: 'KakaoAK 3177f801ea28d24730bc07c693af3bd6' } }
+              );
+              const region = res.data.documents?.[0];
+              const depth1 = region?.region_1depth_name || '';
+              const depth2 = region?.region_2depth_name || '';
 
-          try {
-            const res = await axios.get(
-              `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${longitude}&y=${latitude}`,
-              {
-                method: 'GET',
-                headers: {
-                  Authorization: 'KakaoAK 3177f801ea28d24730bc07c693af3bd6', // ← 여기에 카카오 API 키 넣기
-                },
+              if (광역단위.includes(depth1)) {
+                setSi(depth1);
+                setGu('없음');
+              } else {
+                setSi(`${depth1} ${depth2}`);
+                setGu(depth2 || '없음');
               }
-            );
-
-            const json = await res.data;
-            console.log('✅ Kakao 응답:', json); // [2] 카카오 응답 전체 확인
-
-            const region = json.documents?.[0];
-            console.log('✅ 추출된 region:', region); // [3] region 객체 확인
-
-            const depth1 = region?.region_1depth_name || '';
-            const depth2 = region?.region_2depth_name || '';
-            console.log('✅ depth1:', depth1, 'depth2:', depth2); // [4] 지역명 확인
-
-            if (광역단위.includes(depth1)) {
-              setSi(depth1); // 서울특별시 등은 1depth만 사용
-            } else {
-              setSi(`${depth1} ${depth2}`); // 경기도 광주시 등
+            } catch (err) {
+              console.error('역지오코딩 오류:', err);
+            } finally {
+              setIsLocating(false);
             }
-
-            setGu(region?.region_2depth_name || '');
-          } catch (err) {
-            console.error('역지오코딩 오류:', err); // [5] fetch 또는 JSON 파싱 실패
-          } finally {
+          },
+          (err) => {
+            Alert.alert('위치 오류', `현재 위치를 가져올 수 없습니다. [${err.code}] ${err.message}`);
             setIsLocating(false);
-          }
-        },
-        (err) => {
-          console.error('위치 조회 실패:', err.code, err.message); // [6] Geolocation 오류
-          Alert.alert('위치 오류', `현재 위치를 가져올 수 없습니다. [${err.code}] ${err.message}`);
-          setIsLocating(false);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
       );
     })();
   }, []);
+
+  const pickMedia = async (type: 'photo' | 'video') => {
+    const result = await launchImageLibrary({ mediaType: type });
+    if (result.assets && result.assets.length > 0) {
+      const file = result.assets[0];
+      if (type === 'photo') setImage(file);
+      else setVideo(file);
+    }
+  };
+
+  const resetForm = () => {
+    setSelectedType(null);
+    setDescription('');
+    setImage(null);
+    setVideo(null);
+  };
 
   const handleReport = async () => {
     if (!selectedType || !description.trim() || !si || latitude == null || longitude == null) {
@@ -130,19 +110,33 @@ const ReportScreen: React.FC = () => {
       return;
     }
 
+    const requestPayload = {
+      disasterType: selectedType,
+      description,
+      si,
+      gu: gu || '없음',
+      latitude,
+      longitude,
+      image: image
+          ? {
+            uri: image.uri!,
+            type: image.type!,
+            fileName: image.fileName!,
+          }
+          : undefined,
+      video: video
+          ? {
+            uri: video.uri!,
+            type: video.type!,
+            fileName: video.fileName!,
+          }
+          : undefined,
+    };
+
     setIsSubmitting(true);
     try {
-      const payload = {
-        disasterType: selectedType,
-        description,
-        si,
-        gu: gu || '없음',
-        latitude,
-        longitude,
-      };
-
-      const response = await createReport(payload);
-      Alert.alert('신고 완료', `재난 유형: ${response.disasterType}`);
+      const res = await createReport(requestPayload);
+      Alert.alert('신고 완료', `재난 유형: ${res.disasterType}`);
       resetForm();
     } catch (err) {
       console.error('❌ 신고 실패:', err);
@@ -152,77 +146,86 @@ const ReportScreen: React.FC = () => {
     }
   };
 
-  const resetForm = () => {
-    setSelectedType(null);
-    setDescription('');
-  };
-
   if (isLocating) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={B4_ORANGE} />
-        <Text style={{ marginTop: 20 }}>위치 정보를 가져오는 중...</Text>
-      </View>
-    );
+    return <View style={styles.container}><ActivityIndicator size="large" color={B4_ORANGE} /><Text>위치 정보를 가져오는 중...</Text></View>;
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>재난 신고</Text>
+      <View style={styles.container}>
+        <View style={styles.headerBar}><Text style={styles.headerText}>재난 신고</Text></View>
 
-      <Text style={styles.subheader}>재난 유형 선택</Text>
-      <View style={styles.typeContainer}>
-        {Object.entries(disasterTypeNames).map(([key, label]) => (
-          <TouchableOpacity
-            key={key}
-            onPress={() => setSelectedType(key as DisasterType)}
-            style={[
-              styles.typeButton,
-              selectedType === key && styles.typeButtonSelected
-            ]}
-          >
-            <Text style={{
-              color: selectedType === key ? 'white' : 'black',
-              fontWeight: '600'
-            }}>
-              {label}
-            </Text>
+        <View style={{ marginBottom: 28 }}>
+          <Text style={[styles.subheader, { marginBottom: 16 }]}>재난 유형 선택</Text>
+          <View style={styles.typeContainer}>
+            {Object.entries(disasterTypeNames).map(([key, label]) => (
+                <TouchableOpacity
+                    key={key}
+                    onPress={() => setSelectedType(key)}
+                    style={[styles.typeButton, selectedType === key && styles.typeButtonSelected]}
+                >
+                  <Text style={{ color: selectedType === key ? B4_ORANGE : 'black', fontWeight: '600' }}>{label}</Text>
+                </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <Text style={[styles.subheader, { marginBottom: 16 }]}>미디어 첨부</Text>
+        <View style={styles.mediaBoxWrapper}>
+          <TouchableOpacity onPress={() => pickMedia('photo')} style={styles.mediaBox}>
+            <Text style={styles.mediaIcon}>📷</Text>
+            <Text style={styles.mediaLabel}>사진</Text>
           </TouchableOpacity>
-        ))}
+          <TouchableOpacity onPress={() => pickMedia('video')} style={styles.mediaBox}>
+            <Text style={styles.mediaIcon}>🎥</Text>
+            <Text style={styles.mediaLabel}>영상</Text>
+          </TouchableOpacity>
+        </View>
+
+        {image && <Text style={styles.fileText}>📷 선택된 이미지: {image.fileName}</Text>}
+        {video && <Text style={styles.fileText}>🎞 선택된 영상: {video.fileName}</Text>}
+
+        <Text style={styles.locationLabel}>📍 위치: {si} {gu}</Text>
+        <View style={styles.inputWrapper}>
+          <TextInput
+              style={styles.input}
+              multiline
+              placeholder="상황 설명을 입력하세요 (최대 1000자)"
+              value={description}
+              maxLength={1000}
+              onChangeText={setDescription}
+          />
+        </View>
+
+        <Text style={styles.charCount}>{description.length}/1000</Text>
+
+        <TouchableOpacity
+            style={[styles.submitButton, isSubmitting && styles.buttonDisabled]}
+            onPress={handleReport}
+            disabled={isSubmitting}
+        >
+          <Text style={styles.submitButtonText}>{isSubmitting ? '접수중...' : '신고하기'}</Text>
+        </TouchableOpacity>
       </View>
-
-      <Text style={styles.locationLabel}>📍 위치: {si} {gu}</Text>
-
-      <TextInput
-        style={styles.input}
-        multiline
-        placeholder="상황 설명을 입력하세요 (최대 1000자)"
-        value={description}
-        maxLength={1000}
-        onChangeText={setDescription}
-      />
-      <Text style={styles.charCount}>{description.length}/1000</Text>
-
-      <TouchableOpacity
-        style={[styles.submitButton, isSubmitting && styles.buttonDisabled]}
-        onPress={handleReport}
-        disabled={isSubmitting}
-      >
-        <Text style={styles.submitButtonText}>
-          {isSubmitting ? '신고 접수 중...' : '긴급 신고하기'}
-        </Text>
-      </TouchableOpacity>
-    </View>
   );
 };
 
 export default ReportScreen;
 
-// 스타일 정의는 기존과 동일
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#f9f9f9', justifyContent: 'center' },
-  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  subheader: { fontSize: 16, fontWeight: '600', marginBottom: 10 },
+  container: { flex: 1, padding: 20, backgroundColor: '#f9f9f9' },
+  headerBar: {
+    backgroundColor: B4_ORANGE,
+    paddingVertical: 18,
+    width: '100%',
+    marginBottom: 24,
+  },
+  headerText: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  subheader: { fontSize: 16, fontWeight: '600' },
   typeContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   typeButton: {
     paddingVertical: 8,
@@ -237,41 +240,44 @@ const styles = StyleSheet.create({
     backgroundColor: B4_ORANGE_LIGHT,
     borderColor: B4_ORANGE,
   },
-  locationLabel: {
-    fontSize: 14,
-    marginTop: 10,
-    marginBottom: 5,
-    color: '#555'
+  locationLabel: { fontSize: 13, color: '#777', marginTop: 16, marginLeft: 4 },
+  mediaBoxWrapper: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 16,
   },
+  mediaBox: {
+    flex: 1,
+    height: 80,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f0f0f0',
+  },
+  mediaIcon: { fontSize: 28 },
+  mediaLabel: { marginTop: 6, fontSize: 13, fontWeight: '600' },
+  fileText: { fontSize: 14, marginBottom: 6, color: '#333' },
+  inputWrapper: { marginTop: 8 },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 10,
     minHeight: 100,
-    marginTop: 16,
     backgroundColor: 'white',
   },
-  charCount: {
-    textAlign: 'right',
-    fontSize: 12,
-    color: '#888',
-    marginBottom: 12,
-  },
+  charCount: { textAlign: 'right', fontSize: 12, color: '#888', marginBottom: 12, marginTop: 4 },
   submitButton: {
     backgroundColor: B4_ORANGE,
     borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
     alignItems: 'center',
-    marginTop: 20
+    marginTop: 20,
+    alignSelf: 'center',
   },
-  submitButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16
-  },
-  buttonDisabled: {
-    opacity: 0.6
-  }
+  submitButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  buttonDisabled: { opacity: 0.6 },
 });

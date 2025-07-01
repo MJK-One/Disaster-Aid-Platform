@@ -1,3 +1,4 @@
+// src/api/report/types/api.ts
 export type ApiResponse<T> = {
     status: string;
     message: string;
