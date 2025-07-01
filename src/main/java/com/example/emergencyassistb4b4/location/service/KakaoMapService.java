@@ -1,13 +1,11 @@
 package com.example.emergencyassistb4b4.location.service;
 
-import com.example.emergencyassistb4b4.alert.enums.DisasterType;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.location.dto.response.DisasterReportSimpleDto;
 import com.example.emergencyassistb4b4.location.dto.response.DisasterSummaryDto;
 import com.example.emergencyassistb4b4.location.dto.response.ShelterResponseDto;
 import com.example.emergencyassistb4b4.location.util.KakaoApiUtils;
-import com.example.emergencyassistb4b4.report.enums.ReportStatus;
 import com.example.emergencyassistb4b4.report.repository.ReportRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

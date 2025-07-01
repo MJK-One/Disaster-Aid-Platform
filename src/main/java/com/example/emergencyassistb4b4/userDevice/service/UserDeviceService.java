@@ -1,22 +1,16 @@
 package com.example.emergencyassistb4b4.userDevice.service;
 
-import static com.example.emergencyassistb4b4.global.status.ErrorStatus.CUSTOM_ERROR_STATUS;
 
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.repository.UserRepository;
 import com.example.emergencyassistb4b4.userDevice.domain.UserDevice;
 import com.example.emergencyassistb4b4.userDevice.dto.UserDeviceRequestDto;
 import com.example.emergencyassistb4b4.userDevice.enums.DeviceOs;
 import com.example.emergencyassistb4b4.userDevice.enums.DeviceType;
 import com.example.emergencyassistb4b4.userDevice.repository.UserDeviceRepository;
-import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;

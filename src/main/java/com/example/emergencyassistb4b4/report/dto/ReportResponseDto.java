@@ -1,6 +1,6 @@
 package com.example.emergencyassistb4b4.report.dto;
 
-import com.example.emergencyassistb4b4.alert.enums.DisasterType;
+import com.example.emergencyassistb4b4.report.enums.DisasterType;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.enums.ReportStatus;
 import lombok.AllArgsConstructor;

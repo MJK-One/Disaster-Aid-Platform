@@ -1,11 +1,10 @@
 package com.example.emergencyassistb4b4;
 
-import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
+import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
@@ -30,7 +29,7 @@ class DisasterAlertKafkaTest { // Kafka Producer -> Kafka Broker (Kafka Producer
     void testKafkaSend() throws Exception {
 
         // 테스트용 메시지 생성 (DisasterAlertMessage 객체 수동 생성)
-        DisasterAlertMessage message = DisasterAlertMessage.builder()
+        DisasterReportedEvent message = DisasterReportedEvent.builder()
                 .reportId(123L)
                 .disasterType("EARTHQUAKE")
                 .location("서울 강남구")

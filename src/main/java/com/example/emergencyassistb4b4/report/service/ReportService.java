@@ -1,9 +1,7 @@
 package com.example.emergencyassistb4b4.report.service;
 
-import com.example.emergencyassistb4b4.alert.service.report.ReportImmediateAlertOrchestratorService;
-import com.example.emergencyassistb4b4.alert.service.report.ReportThresholdAlertTriggerService;
-import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
-import com.example.emergencyassistb4b4.global.kafka.producer.DisasterAlertProducer;
+import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
+import com.example.emergencyassistb4b4.report.kafka.producer.DisasterReportedEventProducer;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.dto.ReportDto;
 import com.example.emergencyassistb4b4.report.dto.ReportRequestDto;
@@ -34,10 +32,8 @@ import java.util.stream.Collectors;
 public class ReportService {
 
     private final ReportRepository reportRepository;
-    private final DisasterAlertProducer disasterAlertProducer;
+    private final DisasterReportedEventProducer disasterAlertProducer;
     private final UserRepository userRepository;
-    private final ReportImmediateAlertOrchestratorService reportImmediateAlertOrchestratorService;
-    private final ReportThresholdAlertTriggerService reportThresholdAlertTriggerService;
 
     // (사용자) 재난 신고 기능
     @Transactional
@@ -73,15 +69,8 @@ public class ReportService {
         Report savedReport = reportRepository.save(report);
 
         // kafka 메세지 발행
-        DisasterAlertMessage alertMessage = DisasterAlertMessage.from(savedReport);
-
-        disasterAlertProducer.sendDisasterAlert(alertMessage);
-
-        // FCM 즉시 알림
-        reportImmediateAlertOrchestratorService.process(alertMessage);
-
-        // FCM 누적 알림
-        reportThresholdAlertTriggerService.checkReportThreshold(alertMessage);
+        DisasterReportedEvent alertMessage = DisasterReportedEvent.from(savedReport);
+        disasterAlertProducer.sendDisasterReportedEvent(alertMessage);
 
         // Dto 반환
         return ReportResponseDto.from(savedReport);

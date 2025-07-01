@@ -1,6 +1,6 @@
 package com.example.emergencyassistb4b4.report.domain;
 
-import com.example.emergencyassistb4b4.alert.enums.DisasterType;
+import com.example.emergencyassistb4b4.report.enums.DisasterType;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import com.example.emergencyassistb4b4.report.enums.ReportStatus;
 import com.example.emergencyassistb4b4.user.domain.User;

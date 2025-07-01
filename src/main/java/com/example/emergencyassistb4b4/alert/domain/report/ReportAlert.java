@@ -1,6 +1,6 @@
 package com.example.emergencyassistb4b4.alert.domain.report;
 
-import com.example.emergencyassistb4b4.alert.enums.DisasterType;
+import com.example.emergencyassistb4b4.report.enums.DisasterType;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,7 +40,6 @@ public class ReportAlert extends BaseEntity {
     @Column(nullable = false)
     private String si;
 
-    @Column(nullable = false)
     private String gu;
 
     @Column(nullable = false)

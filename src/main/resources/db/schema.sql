@@ -157,16 +157,16 @@ CREATE TABLE report_response (
                                  CONSTRAINT fk_response_user FOREIGN KEY (responder_id) REFERENCES users(id)
 );
 
--- 알림 실패 로그
-CREATE TABLE alert_failure_log (
-                                   id BIGSERIAL PRIMARY KEY,
-                                   report_id BIGINT,
-                                   alert_message TEXT,
-                                   failure_reason VARCHAR(255),
-                                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                   CONSTRAINT fk_failure_report FOREIGN KEY (report_id) REFERENCES report(id)
-);
+-- -- 알림 실패 로그
+-- CREATE TABLE alert_failure_log (
+--                                    id BIGSERIAL PRIMARY KEY,
+--                                    report_id BIGINT,
+--                                    alert_message TEXT,
+--                                    failure_reason VARCHAR(255),
+--                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--                                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--                                    CONSTRAINT fk_failure_report FOREIGN KEY (report_id) REFERENCES report(id)
+-- );
 
 -- 자원봉사 알림 (실시간)
 CREATE TABLE volunteer_alert (

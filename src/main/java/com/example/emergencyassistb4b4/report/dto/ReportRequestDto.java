@@ -1,8 +1,6 @@
 package com.example.emergencyassistb4b4.report.dto;
 
-import com.example.emergencyassistb4b4.alert.enums.DisasterType;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.example.emergencyassistb4b4.report.enums.DisasterType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

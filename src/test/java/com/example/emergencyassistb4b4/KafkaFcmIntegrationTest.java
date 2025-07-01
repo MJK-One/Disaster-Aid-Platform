@@ -1,9 +1,9 @@
 package com.example.emergencyassistb4b4;
 
-import com.example.emergencyassistb4b4.alert.fcm.FcmFailureService;
+import com.example.emergencyassistb4b4.alert.todo.FcmFailureService;
 import com.example.emergencyassistb4b4.alert.repository.AlertFailureLogRepository;
-import com.example.emergencyassistb4b4.global.kafka.consumer.DisasterAlertConsumer;
-import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
+import com.example.emergencyassistb4b4.alert.kafka.consumer.consumer.DisasterAlertConsumer;
+import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
@@ -49,7 +49,7 @@ public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (
     @Test
     void testKafkaConsumerReceivesMessage() throws Exception {
         // given: 테스트용 메시지 준비
-        DisasterAlertMessage message = DisasterAlertMessage.builder()
+        DisasterReportedEvent message = DisasterReportedEvent.builder()
                 .reportId(1L)
                 .disasterType("FIRE")
                 .location("서울시 종로구")
@@ -75,7 +75,7 @@ public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (
     @Test
     void testKafkaConsumerAndFcmServiceIntegration() throws Exception {
         // given: 메시지 생성
-        DisasterAlertMessage message = DisasterAlertMessage.builder()
+        DisasterReportedEvent message = DisasterReportedEvent.builder()
                 .reportId(2L)
                 .disasterType("EARTHQUAKE")
                 .location("서울시 강남구")
@@ -101,7 +101,7 @@ public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (
     @Test
     void testDLQAfterFailure() throws Exception {
         // given: 실패 유도용 메시지 생성 (force-fail: true 환경에서만 실패)
-        DisasterAlertMessage message = DisasterAlertMessage.builder()
+        DisasterReportedEvent message = DisasterReportedEvent.builder()
                 .reportId(3L)
                 .disasterType("TSUNAMI")
                 .location("부산 해운대구")
