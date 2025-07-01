@@ -7,9 +7,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Image,
 } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { getReports, updateReportStatus } from '../api/report';
 import { ReportResponse } from '../../../api/report/types/api';
+import { Dimensions } from 'react-native';
 
 const disasterTypeToKorean: Record<string, string> = {
   EARTHQUAKE: '지진',
@@ -92,6 +95,34 @@ const DashboardScreen: React.FC = () => {
         <Text>위도/경도: {item.locationLat}, {item.locationLng}</Text>
         <Text>신고 시각: {new Date(item.createdAt).toLocaleString()}</Text>
         <Text>업데이트 시각: {new Date(item.updatedAt).toLocaleString()}</Text>
+
+        {item.imageUrl && (
+          <View style={{ alignItems: 'center', marginTop: 8 }}>
+            <Image
+              source={{ uri: item.imageUrl }}
+              style={{
+                width: '90%',
+                aspectRatio: 1038 / 2048, // 실제 세로 이미지 비율 (0.507)
+                borderRadius: 8,
+              }}
+              resizeMode="contain"
+            />
+          </View>
+        )}
+
+        {item.videoUrl && (
+          <View style={{ alignItems: 'center', marginTop: 8 }}>
+            <View style={{ width: '90%', aspectRatio: 1038 / 2048 }}>
+              <WebView
+                source={{ uri: item.videoUrl }}
+                style={{ flex: 1, borderRadius: 8 }}
+                allowsInlineMediaPlayback
+                mediaPlaybackRequiresUserAction={false}
+              />
+            </View>
+          </View>
+        )}
+
 
         {item.status !== 'CLOSED' && (
           <View style={styles.statusButtons}>
