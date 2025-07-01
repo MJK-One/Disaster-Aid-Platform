@@ -28,7 +28,7 @@ public class DisasterReportedEvent {
             .reportId(report.getId())
             .reporterId(report.getReporter().getId())
             .responderId(report.getResponder().getId())
-            .disasterType(report.getDisasterType().name())
+            .disasterType(report.getDisasterType().getName())
             .description(report.getDescription())
             .si(report.getSi())
             .gu(report.getGu())
