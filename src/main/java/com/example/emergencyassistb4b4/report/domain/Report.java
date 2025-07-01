@@ -48,6 +48,7 @@ public class Report extends BaseEntity {
     private String videoUrl;
 
     // 상태
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ReportStatus status = ReportStatus.PENDING;  // 생성 시 기본값

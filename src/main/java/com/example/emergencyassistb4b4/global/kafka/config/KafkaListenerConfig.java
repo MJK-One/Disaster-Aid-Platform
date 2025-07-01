@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.global.kafka.config;
 
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -8,7 +9,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
@@ -17,7 +18,6 @@ import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.kafka.common.serialization.StringDeserializer;
 
 @EnableKafka // Kafka 리스너 활성화
 @Configuration
@@ -46,8 +46,13 @@ public class KafkaListenerConfig { // Consumer 전용 설정(ListenerFactory, DL
 
         factory.setConsumerFactory(consumerFactory);
 
+        // 레코드 단위로 ACK 처리 -> DLQ 전송 보장
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
+
         // Retry 설정 -> 최대 3번 시도 후 DLQ로 보냄
-        factory.setCommonErrorHandler(new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate), new FixedBackOff(1000L, 3))); // 1초 간격으로 최대 3회 재시도 후 DLQ
+        factory.setCommonErrorHandler(new DefaultErrorHandler(
+                new DeadLetterPublishingRecoverer(kafkaTemplate),
+                new FixedBackOff(1000L, 3))); // 1초 간격으로 최대 3회 재시도 후 DLQ
 
         return factory;
     }

@@ -29,6 +29,7 @@ public class VolunteerTeam {
     private int teamNumber;
     private int maxCapacity;
 
+    @Builder.Default
     @OneToMany(mappedBy = "volunteerTeam", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<VolunteerParticipant> participants = new ArrayList<>();
 

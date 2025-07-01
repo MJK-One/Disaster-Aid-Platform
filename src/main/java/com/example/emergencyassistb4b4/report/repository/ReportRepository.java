@@ -9,11 +9,11 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, Long>,ReportRepositoryCustom {
 
-    List<Report> findAllByResponder(User responder);
+    // responder 기준으로 createdAt 내림차순 정렬
+    List<Report> findAllByResponderOrderByCreatedAtDesc(User responder);
 
     @Query(value = """
     SELECT

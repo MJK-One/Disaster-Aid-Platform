@@ -38,10 +38,11 @@ public class GeneralLoginStrategy implements LoginStrategy {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         UserResponseDto userDto = UserResponseDto.from(userDetails.getUser()); // 이미 DTO 타입이면 바로 사용
 
+        userDeviceService.testSaveDevice(userDetails.getUser());
         // 3. GOV, NGO -> 본인 PC FCM 토큰 저장
-        if (userDetails.getUser().getUserRole() != IND) {
-            userDeviceService.testSaveDevice(userDetails.getUser());
-        }
+//        if (userDetails.getUser().getUserRole() != IND) {
+//            userDeviceService.testSaveDevice(userDetails.getUser());
+//        }
 
         // 4. 토큰 발급은 TokenService가 함
         return tokenService.issueToken(userDto);

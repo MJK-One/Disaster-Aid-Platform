@@ -4,6 +4,9 @@ import com.example.emergencyassistb4b4.alert.service.report.ReportImmediateAlert
 import com.example.emergencyassistb4b4.alert.service.report.ReportThresholdAlertTriggerService;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
 import com.example.emergencyassistb4b4.global.kafka.producer.DisasterAlertProducer;
+import com.example.emergencyassistb4b4.global.S3.S3Uploader;
+import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.dto.ReportDto;
 import com.example.emergencyassistb4b4.report.dto.ReportRequestDto;
@@ -24,7 +27,9 @@ import org.springframework.data.domain.Slice;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,33 +43,60 @@ public class ReportService {
     private final UserRepository userRepository;
     private final ReportImmediateAlertOrchestratorService reportImmediateAlertOrchestratorService;
     private final ReportThresholdAlertTriggerService reportThresholdAlertTriggerService;
+    private final S3Uploader s3Uploader;
 
     // (사용자) 재난 신고 기능
     @Transactional
-    public ReportResponseDto disasterReport(ReportRequestDto requestDto, User reporter) {
+    public ReportResponseDto disasterReport(ReportRequestDto requestDto, User reporter, MultipartFile image, MultipartFile video) throws IOException {
+
+        String imageUrl = null;
+        String videoUrl = null;
+
+        if (image != null && !image.isEmpty()) {
+            try {
+                imageUrl = s3Uploader.uploadFile(image, "images");
+            } catch (IOException e) {
+                throw new ApiException(ErrorStatus.S3_UPLOAD_ERROR); // 커스텀 예외
+            }
+        }
+
+        if (video != null && !video.isEmpty()) {
+            try {
+                videoUrl = s3Uploader.uploadFile(video, "videos");
+            } catch (IOException e) {
+                throw new ApiException(ErrorStatus.S3_UPLOAD_ERROR); // 커스텀 예외
+            }
+        }
 
         double latitude = requestDto.getLatitude();
         double longitude = requestDto.getLongitude();
-        String si = requestDto.getSi(); // 신고자가 속한 시 정보
+        String si = requestDto.getSi(); // 신고자가 속한 시 정보 (ex. 세종특별자치시, 세종시, 세종 등)
 
         // 위도, 경도 -> point
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Point location = geometryFactory.createPoint(new Coordinate(longitude, latitude));
 
         // 시 이름을 포함한 GOV 유저 중 첫 번째를 responder로 선택
-        String keyword = si.replace("특별시", "").replace("광역시", "").replace("자치시", "").replace("도", "");
-        User responder = userRepository.findFirstByUserRoleAndNicknameContaining(UserRole.GOV, keyword)
+//        String keyword = si.replace("특별시", "").replace("광역시", "").replace("자치시", "").replace("도", "");
+//        User responder = userRepository.findFirstByUserRoleAndNicknameContaining(UserRole.GOV, keyword)
+//                .orElseThrow(() -> new IllegalStateException(si + " 지역 공공기관이 존재하지 않습니다."));
+
+        // 앞 2글자 추출 (길이가 2보다 짧으면 원본 그대로)
+        String siPrefix = si.length() >= 2 ? si.substring(0, 2) : si;
+
+        User responder = userRepository.findFirstBySiStartingWithAndUserRole(siPrefix, UserRole.GOV)
                 .orElseThrow(() -> new IllegalStateException(si + " 지역 공공기관이 존재하지 않습니다."));
+
 
         // 신고 저장
         Report report = Report.builder()
                 .reporter(reporter)
                 .disasterType(requestDto.getDisasterType())
                 .description(requestDto.getDescription())
-                .imageUrl(requestDto.getImageUrl())
-                .videoUrl(requestDto.getVideoUrl())
+                .imageUrl(imageUrl)
+                .videoUrl(videoUrl)
                 .status(ReportStatus.PENDING)
-                .si(requestDto.getSi()) // 예시: 위치 서비스로 가져온 값
+                .si(si) // 예시: 위치 서비스로 가져온 값
                 .gu(requestDto.getGu())
                 .location(location)
                 .responder(responder)
@@ -91,7 +123,7 @@ public class ReportService {
     @Transactional(readOnly = true)
     public List<ReportResponseDto> getReportList(User responder) {
 
-        List<Report> reports = reportRepository.findAllByResponder(responder);
+        List<Report> reports = reportRepository.findAllByResponderOrderByCreatedAtDesc(responder);
 
         return reports.stream()
                 .map(ReportResponseDto::from)
