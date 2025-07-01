@@ -55,6 +55,7 @@ public enum ErrorStatus implements BaseErrorCode {
     // 신고
     REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "Do not found."),
     REPORT_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "RP005", "No permissions on this report."),
+    REPORT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "RP003", "위도 또는 경도가 누락되었습니다."),
     ALERT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AL010", "Failed to send message."),
     NOT_FOUND_LOCATION(HttpStatus.NOT_FOUND,"LC004","위치를 찾지 못했습니다"),
     USER_DEVICE_NOT_FOUND(HttpStatus.NOT_FOUND, "RP004", "유저 디바이스가 존재하지 않습니다."),
