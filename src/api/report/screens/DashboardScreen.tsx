@@ -1,256 +1,182 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TextInput, StyleSheet,
-  Alert, TouchableOpacity, ActivityIndicator,
-  PermissionsAndroid, Platform
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
-import Geolocation from 'react-native-geolocation-service';
-import { createReport } from '../api/report';
+import { getReports, updateReportStatus } from '../api/report';
+import { ReportResponse } from '../../../api/report/types/api';
 
-enum DisasterType {
-  EARTHQUAKE = 'EARTHQUAKE',
-  FLOOD = 'FLOOD',
-  TYPHOON = 'TYPHOON',
-  WILDFIRE = 'WILDFIRE',
-  LANDSLIDE = 'LANDSLIDE',
-  POWER_OUTAGE = 'POWER_OUTAGE',
-  TERROR_ATTACK = 'TERROR_ATTACK',
-  BUILDING_COLLAPSE = 'BUILDING_COLLAPSE'
-}
-
-const disasterTypeNames: Record<DisasterType, string> = {
-  [DisasterType.EARTHQUAKE]: '지진',
-  [DisasterType.FLOOD]: '홍수',
-  [DisasterType.TYPHOON]: '태풍',
-  [DisasterType.WILDFIRE]: '산불',
-  [DisasterType.LANDSLIDE]: '산사태',
-  [DisasterType.POWER_OUTAGE]: '정전',
-  [DisasterType.TERROR_ATTACK]: '테러',
-  [DisasterType.BUILDING_COLLAPSE]: '건물 붕괴'
+const disasterTypeToKorean: Record<string, string> = {
+  EARTHQUAKE: '지진',
+  FLOOD: '홍수',
+  TYPHOON: '태풍',
+  WILDFIRE: '산불',
+  LANDSLIDE: '산사태',
+  POWER_OUTAGE: '정전',
+  TERROR_ATTACK: '테러',
+  BUILDING_COLLAPSE: '건물 붕괴',
 };
 
-const B4_ORANGE = '#FF6B00';
-const B4_ORANGE_LIGHT = '#FFD4B3';
+const statusToKorean: Record<string, string> = {
+  PENDING: '대기중',
+  RECEIVED: '접수 완료',
+  CLOSED: '상황 종료',
+};
 
-const ReportScreen: React.FC = () => {
-  const [selectedType, setSelectedType] = useState<DisasterType | null>(null);
-  const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const statusColor: Record<string, string> = {
+  PENDING: '#FFB74D',
+  RECEIVED: '#EF6C00',
+  CLOSED: '#6D4C41',
+};
 
-  const [latitude, setLatitude] = useState<number | null>(null);
-  const [longitude, setLongitude] = useState<number | null>(null);
-  const [si, setSi] = useState('');
-  const [gu, setGu] = useState('');
-  const [isLocating, setIsLocating] = useState(true);
-
-  const requestLocationPermission = async (): Promise<boolean> => {
-    if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: '위치 권한 요청',
-          message: '위치 기반 서비스를 위해 위치 권한이 필요합니다.',
-          buttonPositive: '허용',
-          buttonNegative: '거부'
-        }
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
-    }
-    return true;
-  };
+const DashboardScreen: React.FC = () => {
+  const [reports, setReports] = useState<ReportResponse[]>([]);
+  const [loadingMap, setLoadingMap] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
-    (async () => {
-      const hasPermission = await requestLocationPermission();
-      if (!hasPermission) {
-        Alert.alert('위치 권한이 거부되었습니다.');
-        setIsLocating(false);
-        return;
-      }
-
-      Geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          setLatitude(latitude);
-          setLongitude(longitude);
-
-          try {
-            const res = await fetch(
-              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=YOUR_GOOGLE_API_KEY&language=ko`
-            );
-            const json = await res.json();
-            const addr = json.results?.[0]?.address_components || [];
-
-            const siItem = addr.find((c: any) =>
-              c.types.includes('administrative_area_level_1'));
-            const guItem = addr.find((c: any) =>
-              c.types.includes('administrative_area_level_2'));
-
-            setSi(siItem?.long_name || '');
-            setGu(guItem?.long_name || '');
-          } catch (err) {
-            console.error('역지오코딩 오류:', err);
-          } finally {
-            setIsLocating(false);
-          }
-        },
-        (err) => {
-          console.error('위치 조회 실패:', err);
-          Alert.alert('위치 오류', '현재 위치를 가져올 수 없습니다.');
-          setIsLocating(false);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-      );
-    })();
+    fetchReports();
   }, []);
 
-  const handleReport = async () => {
-    if (!selectedType || !description.trim() || !si || latitude == null || longitude == null) {
-      Alert.alert('오류', '재난 유형, 설명, 위치 정보가 모두 필요합니다.');
-      return;
-    }
-
-    setIsSubmitting(true);
+  const fetchReports = async () => {
     try {
-      const payload = {
-        disasterType: selectedType,
-        description,
-        si,
-        gu: gu || '없음',
-        latitude,
-        longitude,
-      };
-
-      const response = await createReport(payload);
-      Alert.alert('신고 완료', `재난 유형: ${response.disasterType}`);
-      resetForm();
-    } catch (err) {
-      console.error('❌ 신고 실패:', err);
-      Alert.alert('신고 실패', '서버 요청 중 문제가 발생했습니다.');
-    } finally {
-      setIsSubmitting(false);
+      const response = await getReports();
+      const sorted = [...(response || [])].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setReports(sorted);
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const resetForm = () => {
-    setSelectedType(null);
-    setDescription('');
+  const handleChangeStatus = async (reportId: number, newStatus: string) => {
+    try {
+      setLoadingMap((prev) => ({ ...prev, [reportId]: true }));
+      await updateReportStatus(reportId, newStatus);
+      await fetchReports();
+    } catch (err) {
+      console.error(err);
+      Alert.alert('오류', '상태 변경 중 문제가 발생했습니다.');
+    } finally {
+      setLoadingMap((prev) => ({ ...prev, [reportId]: false }));
+    }
   };
 
-  if (isLocating) {
+  const renderItem = ({ item }: { item: ReportResponse }) => {
+    const reportId = item.id;
+    if (!reportId) return null;
+
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={B4_ORANGE} />
-        <Text style={{ marginTop: 20 }}>위치 정보를 가져오는 중...</Text>
+      <View style={styles.item}>
+        <View style={styles.headerRow}>
+          <Text style={styles.disasterType}>
+            {disasterTypeToKorean[item.disasterType] || item.disasterType}
+          </Text>
+          <Text
+            style={[
+              styles.statusBadge,
+              { backgroundColor: statusColor[item.status] || '#d1d5db' },
+            ]}
+          >
+            {statusToKorean[item.status] || item.status}
+          </Text>
+        </View>
+        <Text>신고자 ID: {item.reporter}</Text>
+        <Text>설명: {item.description}</Text>
+        <Text>위치: {item.si} {item.gu}</Text>
+        <Text>위도/경도: {item.locationLat}, {item.locationLng}</Text>
+        <Text>신고 시각: {new Date(item.createdAt).toLocaleString()}</Text>
+        <Text>업데이트 시각: {new Date(item.updatedAt).toLocaleString()}</Text>
+
+        {item.status !== 'CLOSED' && (
+          <View style={styles.statusButtons}>
+            {item.status === 'PENDING' && (
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => handleChangeStatus(reportId, 'RECEIVED')}
+                disabled={loadingMap[reportId]}
+              >
+                <Text style={styles.buttonText}>접수 완료</Text>
+              </TouchableOpacity>
+            )}
+            {item.status === 'RECEIVED' && (
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => handleChangeStatus(reportId, 'CLOSED')}
+                disabled={loadingMap[reportId]}
+              >
+                <Text style={styles.buttonText}>상황 종료</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </View>
     );
-  }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>재난 신고</Text>
-
-      <Text style={styles.subheader}>재난 유형 선택</Text>
-      <View style={styles.typeContainer}>
-        {Object.entries(disasterTypeNames).map(([key, label]) => (
-          <TouchableOpacity
-            key={key}
-            onPress={() => setSelectedType(key as DisasterType)}
-            style={[
-              styles.typeButton,
-              selectedType === key && styles.typeButtonSelected
-            ]}
-          >
-            <Text style={{
-              color: selectedType === key ? 'white' : 'black',
-              fontWeight: '600'
-            }}>
-              {label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <Text style={styles.locationLabel}>📍 위치: {si} {gu}</Text>
-
-      <TextInput
-        style={styles.input}
-        multiline
-        placeholder="상황 설명을 입력하세요 (최대 1000자)"
-        value={description}
-        maxLength={1000}
-        onChangeText={setDescription}
+      <Text style={styles.header}>신고 내역</Text>
+      <FlatList
+        data={reports}
+        keyExtractor={(item) => item.id?.toString() ?? `${item.reporter}-${item.createdAt}`}
+        renderItem={renderItem}
       />
-      <Text style={styles.charCount}>{description.length}/1000</Text>
-
-      <TouchableOpacity
-        style={[styles.submitButton, isSubmitting && styles.buttonDisabled]}
-        onPress={handleReport}
-        disabled={isSubmitting}
-      >
-        <Text style={styles.submitButtonText}>
-          {isSubmitting ? '신고 접수 중...' : '긴급 신고하기'}
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 };
 
-export default ReportScreen;
+export default DashboardScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#f9f9f9', justifyContent: 'center' },
-  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  subheader: { fontSize: 16, fontWeight: '600', marginBottom: 10 },
-  typeContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  typeButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+  container: { flex: 1, padding: 20 },
+  header: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
+  item: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    margin: 4,
-    backgroundColor: '#fff',
-  },
-  typeButtonSelected: {
-    backgroundColor: B4_ORANGE_LIGHT,
-    borderColor: B4_ORANGE,
-  },
-  locationLabel: {
-    fontSize: 14,
-    marginTop: 10,
-    marginBottom: 5,
-    color: '#555'
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 10,
-    minHeight: 100,
-    marginTop: 16,
-    backgroundColor: 'white',
-  },
-  charCount: {
-    textAlign: 'right',
-    fontSize: 12,
-    color: '#888',
+    borderColor: '#FFCC80',
+    borderRadius: 10,
+    padding: 15,
     marginBottom: 12,
+    backgroundColor: '#FFF3E0',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
   },
-  submitButton: {
-    backgroundColor: B4_ORANGE,
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    marginTop: 20
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
-  submitButtonText: {
+  disasterType: { fontSize: 16, fontWeight: 'bold', color: '#EF6C00' },
+  statusBadge: {
+    fontSize: 12,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 12,
     color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16
+    overflow: 'hidden',
   },
-  buttonDisabled: {
-    opacity: 0.6
-  }
+  statusButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+    gap: 10,
+  },
+  actionButton: {
+    backgroundColor: '#ffffff',
+    borderColor: '#FB8C00',
+    borderWidth: 1.5,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 6,
+  },
+  buttonText: {
+    color: '#FB8C00',
+    fontWeight: 'bold',
+  },
 });

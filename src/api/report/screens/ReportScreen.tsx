@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import { createReport } from '../api/report';
+import axios from 'axios';
 
 enum DisasterType {
   EARTHQUAKE = 'EARTHQUAKE',
@@ -43,13 +44,17 @@ const ReportScreen: React.FC = () => {
   const [gu, setGu] = useState('');
   const [isLocating, setIsLocating] = useState(true);
 
+  const 광역단위 = [
+    '서울특별시', '부산광역시', '대구광역시', '인천광역시',
+    '광주광역시', '대전광역시', '울산광역시', '세종특별자치시'
+  ];
+
   const requestLocationPermission = async (): Promise<boolean> => {
     if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
       ]);
-
       return (
         granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED ||
         granted['android.permission.ACCESS_COARSE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED
@@ -70,36 +75,47 @@ const ReportScreen: React.FC = () => {
       Geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          console.log('📍 현재 위치 위도/경도:', latitude, longitude);
-
           setLatitude(latitude);
           setLongitude(longitude);
 
+          console.log('✅ 위치 좌표 수신:', latitude, longitude); // [1] 좌표 확인
+
           try {
-            const res = await fetch(
+            const res = await axios.get(
               `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${longitude}&y=${latitude}`,
               {
                 method: 'GET',
                 headers: {
-                  Authorization: 'KakaoAK 카카오_API_키_넣기', // ← 여기에 키 넣기
+                  Authorization: 'KakaoAK 3177f801ea28d24730bc07c693af3bd6', // ← 여기에 카카오 API 키 넣기
                 },
               }
             );
 
-            const json = await res.json();
-            console.log('📍 Kakao 주소 응답:', JSON.stringify(json, null, 2));
+            const json = await res.data;
+            console.log('✅ Kakao 응답:', json); // [2] 카카오 응답 전체 확인
 
             const region = json.documents?.[0];
-            setSi(region?.region_1depth_name || '');
+            console.log('✅ 추출된 region:', region); // [3] region 객체 확인
+
+            const depth1 = region?.region_1depth_name || '';
+            const depth2 = region?.region_2depth_name || '';
+            console.log('✅ depth1:', depth1, 'depth2:', depth2); // [4] 지역명 확인
+
+            if (광역단위.includes(depth1)) {
+              setSi(depth1); // 서울특별시 등은 1depth만 사용
+            } else {
+              setSi(`${depth1} ${depth2}`); // 경기도 광주시 등
+            }
+
             setGu(region?.region_2depth_name || '');
           } catch (err) {
-            console.error('역지오코딩 오류:', err);
+            console.error('역지오코딩 오류:', err); // [5] fetch 또는 JSON 파싱 실패
           } finally {
             setIsLocating(false);
           }
         },
         (err) => {
-          console.error('위치 조회 실패:', err.code, err.message);
+          console.error('위치 조회 실패:', err.code, err.message); // [6] Geolocation 오류
           Alert.alert('위치 오류', `현재 위치를 가져올 수 없습니다. [${err.code}] ${err.message}`);
           setIsLocating(false);
         },
@@ -202,6 +218,7 @@ const ReportScreen: React.FC = () => {
 
 export default ReportScreen;
 
+// 스타일 정의는 기존과 동일
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#f9f9f9', justifyContent: 'center' },
   header: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },

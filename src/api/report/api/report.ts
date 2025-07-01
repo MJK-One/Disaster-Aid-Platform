@@ -7,18 +7,40 @@ export const getReports = async () => {
 };
 
 export const createReport = async (payload: {
-    disasterType: string;
-    description: string;
-    imageUrl?: string;
-    videoUrl?: string;
-    si: string;
-    gu: string;
-    latitude: number;
-    longitude: number;
+  disasterType: string;
+  description: string;
+  imageUrl?: string; // 사용 안 할 경우 제거 가능
+  videoUrl?: string;
+  si: string;
+  gu: string;
+  latitude: number;
+  longitude: number;
 }) => {
-    const res = await axiosInstance.post<ApiResponse<ReportResponse>>('/reports', payload);
-    console.log('📥 신고 응답:', res.data); // 디버깅용
-    return res.data.payload;
+  const formData = new FormData();
+
+  const jsonPayload = {
+    disasterType: payload.disasterType,
+    description: payload.description,
+    si: payload.si,
+    gu: payload.gu,
+    latitude: payload.latitude,
+    longitude: payload.longitude
+  };
+
+  formData.append('request', JSON.stringify(jsonPayload));
+
+  // 이미지나 비디오가 실제 파일 객체일 경우에만 append
+  // formData.append('image', imageFile); 
+  // formData.append('video', videoFile);
+
+  const res = await axiosInstance.post('/reports', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  console.log('📥 신고 응답:', res.data);
+  return res.data.payload;
 };
 
 export const updateReportStatus = async (id: number, newStatus: string) => {
