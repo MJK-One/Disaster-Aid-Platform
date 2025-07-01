@@ -12,7 +12,6 @@ import {
 import { WebView } from 'react-native-webview';
 import { getReports, updateReportStatus } from '../api/report';
 import { ReportResponse } from '../../../api/report/types/api';
-import { Dimensions } from 'react-native';
 
 const disasterTypeToKorean: Record<string, string> = {
   EARTHQUAKE: '지진',
