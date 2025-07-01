@@ -24,6 +24,7 @@ public class ReportThresholdAlertOrchestratorService {
     private final FcmSender fcmSender;
 
     public void process(String notifyKey) {
+
         ReportThresholdAlertDto info = ReportThresholdAlertDto.fromKey(notifyKey);
         FcmMessageDto message = FcmMessageDto.fromReportThresholdAlert(info);
 

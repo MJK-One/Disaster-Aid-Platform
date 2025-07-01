@@ -8,6 +8,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.listener.ContainerProperties;
 
 @Configuration
 @RequiredArgsConstructor
@@ -28,6 +29,7 @@ public class ThresholdAlertKafkaConfig {
         var factory = new ConcurrentKafkaListenerContainerFactory<String, DisasterReportedEvent>();
         factory.setConsumerFactory(thresholdConsumerFactory());
         factory.setConcurrency(3);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
         factory.setCommonErrorHandler(kafkaBaseConfig.defaultErrorHandler(kafkaTemplate));
         return factory;
     }

@@ -75,6 +75,19 @@ spring:
 
   main:
     allow-bean-definition-overriding: true
+
+cloud:
+  aws:
+    s3:
+      bucket: your-bucket-name
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
 kakao:
   api:
     key: ${KAKAO_API_KEY}
