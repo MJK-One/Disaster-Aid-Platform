@@ -16,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findById(Long id);
 
+    // 지역명과 역할로 정확히 매칭되는 공공기관 유저 검색
+    Optional<User> findFirstByUserRoleAndSi(UserRole userRole, String si);
 }

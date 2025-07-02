@@ -2,9 +2,10 @@ package com.example.emergencyassistb4b4.report.service;
 
 import com.example.emergencyassistb4b4.global.S3.S3Uploader;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
+import com.example.emergencyassistb4b4.global.kafka.producer.DisasterAlertProducer;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
-import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
-import com.example.emergencyassistb4b4.report.kafka.producer.DisasterReportedEventProducer;
+import com.example.emergencyassistb4b4.global.util.RegionUtils;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.dto.ReportDto;
 import com.example.emergencyassistb4b4.report.dto.ReportRequestDto;
@@ -66,22 +67,15 @@ public class ReportService {
 
         double latitude = requestDto.getLatitude();
         double longitude = requestDto.getLongitude();
-        String si = requestDto.getSi(); // 신고자가 속한 시 정보 (ex. 세종특별자치시, 세종시, 세종 등)
+        String rawRegion = requestDto.getSi(); // ex. 경기도 광주시, 광주광역시, 서울특별시 등
+        String normalizedRegion = RegionUtils.normalizeSi(rawRegion); // 정규화 적용
 
         // 위도, 경도 -> point
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Point location = geometryFactory.createPoint(new Coordinate(longitude, latitude));
 
-        // 시 이름을 포함한 GOV 유저 중 첫 번째를 responder로 선택
-//        String keyword = si.replace("특별시", "").replace("광역시", "").replace("자치시", "").replace("도", "");
-//        User responder = userRepository.findFirstByUserRoleAndNicknameContaining(UserRole.GOV, keyword)
-//                .orElseThrow(() -> new IllegalStateException(si + " 지역 공공기관이 존재하지 않습니다."));
-
-        // 앞 2글자 추출 (길이가 2보다 짧으면 원본 그대로)
-        String siPrefix = si.length() >= 2 ? si.substring(0, 2) : si;
-
-        User responder = userRepository.findFirstBySiStartingWithAndUserRole(siPrefix, UserRole.GOV)
-                .orElseThrow(() -> new IllegalStateException(si + " 지역 공공기관이 존재하지 않습니다."));
+        User responder = userRepository.findFirstByUserRoleAndSi(UserRole.GOV, normalizedRegion)
+                .orElseThrow(() -> new ApiException(ErrorStatus.GOV_NOT_FOUND));
 
         // 신고 저장
         Report report = Report.builder()
@@ -91,7 +85,7 @@ public class ReportService {
                 .imageUrl(imageUrl)
                 .videoUrl(videoUrl)
                 .status(ReportStatus.PENDING)
-                .si(si) // 예시: 위치 서비스로 가져온 값
+                .si(normalizedRegion) // 예시: 위치 서비스로 가져온 값
                 .gu(requestDto.getGu())
                 .location(location)
                 .responder(responder)
@@ -107,7 +101,7 @@ public class ReportService {
         return ReportResponseDto.from(savedReport);
     }
 
-    // (공공기관) 재난 신고 내역 조회 기능
+    // (공공기관) 신고 내역 조회 기능
     @Transactional(readOnly = true)
     public List<ReportResponseDto> getReportList(User responder) {
 
@@ -117,7 +111,6 @@ public class ReportService {
                 .map(ReportResponseDto::from)
                 .collect(Collectors.toList());
     }
-
 
     /** 공공기관 단건 상태변경 */
     @PreAuthorize("hasRole('GOV')")
@@ -129,6 +122,7 @@ public class ReportService {
 
         /* 공공기관인지 검증 */
         User goverment = userRepository.findById(publicId).orElseThrow(); //user error 넣기
+
         // Report 조회
         Report r = reportRepository.findById(reportId).orElseThrow(
                 ()->new IllegalStateException("조회된 신고가 없습니다.")); //예외 컨벤션 만들기
