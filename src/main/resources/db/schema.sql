@@ -1,11 +1,11 @@
 CREATE EXTENSION IF NOT EXISTS postgis;
 
 -- 테이블 삭제 (의존성 역순으로)
+DROP TABLE IF EXISTS kafka_fail_log CASCADE;
 DROP TABLE IF EXISTS user_report_alert CASCADE;
 DROP TABLE IF EXISTS user_volunteer_alert CASCADE;
 DROP TABLE IF EXISTS volunteer_alert CASCADE;
 DROP TABLE IF EXISTS report_response CASCADE;
-DROP TABLE IF EXISTS alert_failure_log CASCADE;
 DROP TABLE IF EXISTS report CASCADE;
 DROP TABLE IF EXISTS attendance_policy CASCADE;
 DROP TABLE IF EXISTS volunteer_participant CASCADE;
@@ -157,15 +157,18 @@ CREATE TABLE report_response (
                                  CONSTRAINT fk_response_user FOREIGN KEY (responder_id) REFERENCES users(id)
 );
 
--- 알림 실패 로그
-CREATE TABLE alert_failure_log (
-                                   id BIGSERIAL PRIMARY KEY,
-                                   report_id BIGINT,
-                                   alert_message TEXT,
-                                   failure_reason VARCHAR(255),
-                                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                   CONSTRAINT fk_failure_report FOREIGN KEY (report_id) REFERENCES report(id)
+-- Kafka DLQ 로그
+CREATE SEQUENCE IF NOT EXISTS kafka_fail_log_seq START WITH 1 INCREMENT BY 1;
+
+CREATE TABLE kafka_fail_log (
+                                id BIGSERIAL PRIMARY KEY,
+                                topic VARCHAR(255),
+                                consumer_group VARCHAR(255),
+                                payload TEXT,
+                                reason VARCHAR(1000),
+                                listener VARCHAR(255),
+                                exception VARCHAR(255),
+                                failed_at TIMESTAMP
 );
 
 -- 자원봉사 알림 (실시간)

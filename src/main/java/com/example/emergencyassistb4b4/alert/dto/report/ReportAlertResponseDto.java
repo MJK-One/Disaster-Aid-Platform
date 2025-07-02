@@ -3,7 +3,6 @@ package com.example.emergencyassistb4b4.alert.dto.report;
 import com.example.emergencyassistb4b4.alert.domain.report.ReportAlert;
 import com.example.emergencyassistb4b4.alert.domain.report.UserReportAlert;
 import com.example.emergencyassistb4b4.alert.dto.response.UserAlert;
-import com.example.emergencyassistb4b4.alert.enums.DisasterType;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

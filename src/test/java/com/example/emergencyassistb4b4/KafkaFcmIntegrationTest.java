@@ -1,9 +1,9 @@
 package com.example.emergencyassistb4b4;
 
-import com.example.emergencyassistb4b4.alert.fcm.FcmFailureService;
-import com.example.emergencyassistb4b4.alert.repository.AlertFailureLogRepository;
-import com.example.emergencyassistb4b4.global.kafka.consumer.DisasterAlertConsumer;
-import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
+import com.example.emergencyassistb4b4.alert.kafka.consumer.listener.ImmediateAlertEventListener;
+import com.example.emergencyassistb4b4.alert.kafka.repository.KafkaDlqLogRepository;
+import com.example.emergencyassistb4b4.alert.todo.FcmFailureService;
+import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
@@ -17,6 +17,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -24,7 +25,9 @@ import static org.mockito.Mockito.verify;
 @ActiveProfiles("test") // 테스트용 application-test.yml 설정 사용
 @SpringBootTest // 통합 테스트로 전체 Spring Context 로딩
 @DirtiesContext // 테스트마다 Context 초기화
-@EmbeddedKafka(partitions = 1, topics = {"disaster-alert", "disaster-alert.DLT"}, brokerProperties = {"listeners=PLAINTEXT://localhost:0"}) // 임베디드 Kafka 브로커 설정
+@EmbeddedKafka(partitions = 1, topics = {"disaster-alert",
+    "disaster-alert.DLT"}, brokerProperties = {"listeners=PLAINTEXT://localhost:0"})
+// 임베디드 Kafka 브로커 설정
 public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (수신, FCM, 실패 처리까지)
 
     @Autowired
@@ -34,13 +37,13 @@ public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (
     private ObjectMapper objectMapper; // 객체를 JSON 문자열로 변환
 
     @MockitoSpyBean
-    private DisasterAlertConsumer consumer; // Kafka 메시지 Consumer -> 실제 사용 + 호출 감시
+    private ImmediateAlertEventListener consumer; // Kafka 메시지 Consumer -> 실제 사용 + 호출 감시
 
     @MockitoSpyBean
     private FcmFailureService fcmFailureService; // FCM 발송 서비스 -> 실제 사용 + 호출 감시
 
     @Autowired
-    private AlertFailureLogRepository alertFailureLogRepository; // DLQ 로그 저장소
+    private KafkaDlqLogRepository kafkaDlqLogRepository; // DLQ 로그 저장소
 
     /*
     테스트 1: Kafka 메시지가 정상적으로 Consumer에게 도달하는지 검증하는 테스트
@@ -49,18 +52,20 @@ public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (
     @Test
     void testKafkaConsumerReceivesMessage() throws Exception {
         // given: 테스트용 메시지 준비
-        DisasterAlertMessage message = DisasterAlertMessage.builder()
-                .reportId(1L)
-                .disasterType("FIRE")
-                .location("서울시 종로구")
-                .reporterId(100L)
-                .reportedAt(LocalDateTime.now())
-                .build();
+        DisasterReportedEvent event = DisasterReportedEvent.builder()
+            .reportId(1L)
+            .reporterId(100L)
+            .responderId(999L)
+            .disasterType("홍수")
+            .si("서울시")
+            .gu("종로구")
+            .reportedAt(LocalDateTime.now())
+            .build();
 
-        String json = objectMapper.writeValueAsString(message);
+        String json = objectMapper.writeValueAsString(event);
 
         // when: Kafka에 메시지 발행
-        kafkaTemplate.send("disaster-alert", json);
+        kafkaTemplate.send("report-reported", json);
 
         // then - consumer의 consumeDisasterAlert()가 호출되었는지 검증
         Thread.sleep(2000); // 메시지가 소비될 시간 잠시 기다림
@@ -75,13 +80,15 @@ public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (
     @Test
     void testKafkaConsumerAndFcmServiceIntegration() throws Exception {
         // given: 메시지 생성
-        DisasterAlertMessage message = DisasterAlertMessage.builder()
-                .reportId(2L)
-                .disasterType("EARTHQUAKE")
-                .location("서울시 강남구")
-                .reporterId(200L)
-                .reportedAt(LocalDateTime.now())
-                .build();
+        DisasterReportedEvent message = DisasterReportedEvent.builder()
+            .reportId(2L)
+            .reporterId(200L)
+            .responderId(9999L)
+            .disasterType("지진")
+            .si("서울시")
+            .gu("강남구")
+            .reportedAt(LocalDateTime.now())
+            .build();
 
         String json = objectMapper.writeValueAsString(message);
 
@@ -89,7 +96,8 @@ public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (
         kafkaTemplate.send("disaster-alert", json);
 
         // then: FCM 발송 메서드가 정확한 파라미터로 호출되었는지 검증
-        verify(fcmFailureService, timeout(3000)).sendAlert(refEq(message)); // refEq()는 동일한 필드값을 가진 객체면 통과시킴
+        verify(fcmFailureService, timeout(3000)).sendAlert(
+            refEq(message)); // refEq()는 동일한 필드값을 가진 객체면 통과시킴
     }
 
     /*
@@ -101,23 +109,25 @@ public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (
     @Test
     void testDLQAfterFailure() throws Exception {
         // given: 실패 유도용 메시지 생성 (force-fail: true 환경에서만 실패)
-        DisasterAlertMessage message = DisasterAlertMessage.builder()
-                .reportId(3L)
-                .disasterType("TSUNAMI")
-                .location("부산 해운대구")
-                .reporterId(1L)
-                .reportedAt(LocalDateTime.now())
-                .build();
+        DisasterReportedEvent message = DisasterReportedEvent.builder()
+            .reportId(3L)
+            .reporterId(1L)
+            .responderId(9999L)
+            .disasterType("TSUNAMI")
+            .si("부산")
+            .gu("해운대구")
+            .reportedAt(LocalDateTime.now())
+            .build();
 
         String json = objectMapper.writeValueAsString(message);
 
         // when: Kafka에 메시지 발행
-        kafkaTemplate.send("disaster-alert", json);
+        kafkaTemplate.send("report-reported", json);
 
         // then: Awaitility로 DLQ 처리까지 기다리며 실패 로그 저장 여부 확인
         Awaitility.await()
-                .atMost(Duration.ofSeconds(10)) // 최대 10초 대기
-                .pollInterval(Duration.ofMillis(500)) // 0.5초마다 확인
-                .until(() -> alertFailureLogRepository.existsByReportId(3L)); // DB에 저장되었는지 확인
+            .atMost(Duration.ofSeconds(10)) // 최대 10초 대기
+            .pollInterval(Duration.ofMillis(500)) // 0.5초마다 확인
+            .until(() -> kafkaDlqLogRepository.existsByReportId(3L)); // DB에 저장되었는지 확인
     }
 }

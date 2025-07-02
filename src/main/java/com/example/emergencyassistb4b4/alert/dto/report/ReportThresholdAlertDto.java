@@ -3,7 +3,7 @@ package com.example.emergencyassistb4b4.alert.dto.report;
 import static com.example.emergencyassistb4b4.global.status.ErrorStatus.CUSTOM_ERROR_STATUS;
 
 import com.example.emergencyassistb4b4.alert.domain.report.ReportAlert;
-import com.example.emergencyassistb4b4.alert.enums.DisasterType;
+import com.example.emergencyassistb4b4.report.enums.DisasterType;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import lombok.Builder;
 import lombok.Getter;
