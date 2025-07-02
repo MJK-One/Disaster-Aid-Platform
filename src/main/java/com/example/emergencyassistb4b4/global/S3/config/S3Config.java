@@ -8,6 +8,8 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
+import java.net.URI;
+
 @Configuration
 public class S3Config {
 
@@ -26,6 +28,7 @@ public class S3Config {
 
         return S3Client.builder()
                 .region(Region.of(region))
+                .endpointOverride(URI.create("https://s3.ap-northeast-2.amazonaws.com"))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
     }
