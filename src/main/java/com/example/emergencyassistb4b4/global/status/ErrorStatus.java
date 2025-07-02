@@ -60,6 +60,7 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_LOCATION(HttpStatus.NOT_FOUND,"LC004","위치를 찾지 못했습니다"),
     USER_DEVICE_NOT_FOUND(HttpStatus.NOT_FOUND, "RP004", "유저 디바이스가 존재하지 않습니다."),
     S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "RP010", "S3 파일 업로드 중 오류가 발생했습니다."),
+    GOV_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "해당 지역 공공기관을 찾을 수 없습니다."),
 
     KAKAO_API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 요청 실패"),
     KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),

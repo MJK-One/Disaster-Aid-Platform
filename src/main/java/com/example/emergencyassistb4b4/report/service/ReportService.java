@@ -78,13 +78,8 @@ public class ReportService {
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Point location = geometryFactory.createPoint(new Coordinate(longitude, latitude));
 
-        // 시 이름을 포함한 GOV 유저 중 첫 번째를 responder로 선택
-//        String keyword = si.replace("특별시", "").replace("광역시", "").replace("자치시", "").replace("도", "");
-//        User responder = userRepository.findFirstByUserRoleAndNicknameContaining(UserRole.GOV, keyword)
-//                .orElseThrow(() -> new IllegalStateException(si + " 지역 공공기관이 존재하지 않습니다."));
-
         User responder = userRepository.findFirstByUserRoleAndSi(UserRole.GOV, normalizedRegion)
-                .orElseThrow(() -> new IllegalStateException(normalizedRegion + " 지역 공공기관이 존재하지 않습니다."));
+                .orElseThrow(() -> new ApiException(ErrorStatus.GOV_NOT_FOUND));
 
         // 신고 저장
         Report report = Report.builder()
@@ -117,7 +112,7 @@ public class ReportService {
         return ReportResponseDto.from(savedReport);
     }
 
-    // (공공기관) 재난 신고 내역 조회 기능
+    // (공공기관) 신고 내역 조회 기능
     @Transactional(readOnly = true)
     public List<ReportResponseDto> getReportList(User responder) {
 
@@ -127,7 +122,6 @@ public class ReportService {
                 .map(ReportResponseDto::from)
                 .collect(Collectors.toList());
     }
-
 
     /** 공공기관 단건 상태변경 */
     @PreAuthorize("hasRole('GOV')")
@@ -139,6 +133,7 @@ public class ReportService {
 
         /* 공공기관인지 검증 */
         User goverment = userRepository.findById(publicId).orElseThrow(); //user error 넣기
+
         // Report 조회
         Report r = reportRepository.findById(reportId).orElseThrow(
                 ()->new IllegalStateException("조회된 신고가 없습니다.")); //예외 컨벤션 만들기
