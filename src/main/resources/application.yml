@@ -64,22 +64,6 @@ spring:
       port: ${REDIS_PORT:6379}
   kafka:
     bootstrap-servers: localhost:9092
-    admin:
-      properties:
-        bootstrap.servers: localhost:9092
-    consumer:
-      group-id: alert-service-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring:
-          json:
-            trusted:
-              packages: '*'
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
   rabbitmq:
     host: localhost
@@ -119,7 +103,8 @@ logging:
   level:
     root: INFO
     org.springframework.data.redis: WARN
-    org.springframework.kafka: INFO
+    org.springframework.kafka: WARN
+    org.apache.kafka: WARN
 
     org.springframework.security : DEBUG
     org.springframework.security.oauth2 : DEBUG

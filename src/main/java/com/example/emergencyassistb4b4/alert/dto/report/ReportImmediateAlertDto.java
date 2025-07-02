@@ -1,8 +1,6 @@
 package com.example.emergencyassistb4b4.alert.dto.report;
 
-import com.example.emergencyassistb4b4.alert.enums.DisasterType;
-import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
-import com.example.emergencyassistb4b4.report.domain.Report;
+import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,16 +10,14 @@ public class ReportImmediateAlertDto {
 
     private String si;
     private String gu;
-    private DisasterType disasterType;
+    private String disasterType;
 
-    public static ReportImmediateAlertDto fromReport(DisasterAlertMessage kafkaDto) {
-
-        String[] location = kafkaDto.getLocation().split(" ");
+    public static ReportImmediateAlertDto fromEvent(DisasterReportedEvent event) {
 
         return ReportImmediateAlertDto.builder()
-            .si(location[0])
-            .gu(location[1])
-            .disasterType(DisasterType.from(kafkaDto.getDisasterType()))
+            .si(event.getSi())
+            .gu(event.getGu())
+            .disasterType(event.getDisasterType())
             .build();
     }
 }

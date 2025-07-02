@@ -1,13 +1,11 @@
 package com.example.emergencyassistb4b4.volunteer.service;
 
-import com.example.emergencyassistb4b4.alert.service.volunteer.VolunteerUpdateAlertOrchestratorService;
+import com.example.emergencyassistb4b4.alert.orchestrator.VolunteerUpdateAlertOrchestratorService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
-import com.example.emergencyassistb4b4.volunteer.domain.AttendancePolicy;
 import com.example.emergencyassistb4b4.volunteer.domain.Post;
-import com.example.emergencyassistb4b4.volunteer.domain.VolunteerLocation;
 import com.example.emergencyassistb4b4.volunteer.domain.VolunteerTeam;
 import com.example.emergencyassistb4b4.volunteer.dto.Join.TeamStatusDto;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.*;
