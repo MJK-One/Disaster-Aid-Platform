@@ -14,9 +14,9 @@ public enum SuccessStatus implements BaseCode {
     SIGNUP_SUCCESS(HttpStatus.OK, "S1009" ,"회원가입에 성공했습니다"),
     TOKEN_REISSUE_SUCCESS(HttpStatus.CREATED, "S1003", "액세스 토큰 재발급에 성공했습니다."),
 
-    REPORT_CREATE_SUCCESS(HttpStatus.CREATED, "RP002", "Report completed"),
-    REPORT_GET_SUCCESS(HttpStatus.OK, "RP001", "Report inquiry completed"),
-    REPORT_REPORTER_GET_SUCCESS(HttpStatus.OK, "RP001", "Reporter inquiry completed"),
+    REPORT_CREATE_SUCCESS(HttpStatus.CREATED, "RP002", "재난 신고가 접수되었습니다."),
+    REPORT_GET_SUCCESS(HttpStatus.OK, "RP001", "페이지 조회가 완료되었습니다."),
+    REPORT_REPORTER_GET_SUCCESS(HttpStatus.OK, "RP001", "신고자 조회가 완료되었습니다."),
 
     // Volunteer
     VOLUNTEER_CREATE_SUCCESS(HttpStatus.CREATED, "VO001", "자원봉사 모집글이 성공적으로 생성되었습니다."),
