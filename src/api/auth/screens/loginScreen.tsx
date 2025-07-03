@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  Linking,
 } from 'react-native';
 import { userApi } from '../api/userApi';
 import type { LoginRequestDto } from '../types/User';
@@ -25,7 +26,7 @@ const LoginScreen = () => {
     loginType: 'LOCAL',
   });
 
-  const handleLogin = async () => {
+   const handleLogin = async () => {
     try {
       const response = await userApi.login(form);
       const accessToken = response.data?.payload?.accessToken;
@@ -65,6 +66,10 @@ const LoginScreen = () => {
     }
   };
 
+  const handleKakaoLogin = () => {
+    Linking.openURL('http://10.0.2.2:8080/api/oauth2/authorization/kakao');
+    // ↳ 실제 배포 시엔 your-domain.com 으로 교체
+  };
 
   return (
     <View style={styles.container}>
@@ -85,10 +90,21 @@ const LoginScreen = () => {
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.loginButtonText}>로그인</Text>
       </TouchableOpacity>
+
+      {/* ✅ 소셜 로그인 영역 */}
+      <View style={styles.socialContainer}>
+        <TouchableOpacity style={styles.kakaoButton} onPress={handleKakaoLogin}>
+          <Image
+            source={require('../../../img/kakao_icon.png')}
+            style={styles.kakaoIcon}
+          />
+        </TouchableOpacity>
+      </View>
+
       <TouchableOpacity
         style={styles.signUpLink}
         onPress={() => navigation.navigate('SignUp' as never)}
-      >
+      >  
         <Text style={styles.signUpText}>회원가입</Text>
       </TouchableOpacity>
     </View>
@@ -107,8 +123,26 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   loginButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  signUpLink: { marginTop: 16, alignItems: 'center' },
+  signUpLink: { marginTop: 10, alignItems: 'center' },
   signUpText: { color: '#f26522', fontWeight: '600' },
+
+  // 👇 소셜 로그인 스타일
+  socialContainer: {marginTop: 10, alignItems: 'center' },
+  kakaoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  kakaoIcon: {
+    width: 50,
+    height: 50,
+    marginRight: 8,
+    resizeMode: 'contain',
+  },
+  kakaoText: {
+    color: '#000000',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
 });
 
 export default LoginScreen;

@@ -2,14 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.disasteraidplatform">
 
-    <!-- ✅ 인터넷 & 권한 -->
+    <!-- ✅ 권한 설정 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/> // 사진 영상 관련
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/> // 사진 영상 관련
-
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".MainApplication"
@@ -20,7 +19,7 @@
         android:theme="@style/AppTheme"
         android:supportsRtl="true">
 
-        <!-- ✅ FCM 메시지 서비스 등록 -->
+        <!-- ✅ FCM 메시지 수신 서비스 -->
         <service
             android:name="io.invertase.firebase.messaging.ReactNativeFirebaseMessagingService"
             android:exported="true"
@@ -30,6 +29,7 @@
             </intent-filter>
         </service>
 
+        <!-- ✅ 메인 액티비티 및 딥링크 처리 -->
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -37,9 +37,19 @@
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
+
+            <!-- 🔹 앱 실행용 -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- ✅ 딥링크 (카카오 리다이렉트: yourapp://oauth) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="yourapp" android:host="oauth" />
             </intent-filter>
         </activity>
     </application>
