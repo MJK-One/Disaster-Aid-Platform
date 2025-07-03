@@ -8,17 +8,14 @@ import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/alerts")
@@ -50,8 +47,8 @@ public class AlertController {
             .responderId(2L)
             .disasterType("FLOOD")
             .description("description")
-            .si("서울")
-            .gu("강남")
+            .province("서울")
+            .city("강남")
             .reportedAt(LocalDateTime.now())
             .build();
 
