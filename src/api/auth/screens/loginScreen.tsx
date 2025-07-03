@@ -56,13 +56,20 @@ const LoginScreen = () => {
     try {
       const response = await userApi.login(form);
       const accessToken = response.data?.payload?.accessToken;
+      const refreshToken = response.data?.payload?.refreshToken;
 
-      if (!accessToken) {
-        throw new Error('accessToken이 존재하지 않습니다.');
+      if (!accessToken || !refreshToken) {
+        throw new Error('토큰이 누락되었습니다.');
       }
-      setJwtToken(accessToken);
-      await AsyncStorage.setItem('accessToken', accessToken);
+
+      // ✅ 토큰을 모두 저장 (동기적으로 완료)
+      await AsyncStorage.multiSet([
+        ['accessToken', accessToken],
+        ['refreshToken', refreshToken],
+      ]);
+
       console.log('🟢 accessToken 저장됨:', accessToken);
+      console.log('🟢 refreshToken 저장됨:', refreshToken);
 
       // ✅ FCM 등록 흐름
       const permissionGranted = await requestPushPermission();
@@ -78,13 +85,15 @@ const LoginScreen = () => {
       // 위치 추적 서비스 시작
       startLocationTrackingService();
 
+      // ✅ 저장 완료 이후에 네비게이션 이동
       Alert.alert('로그인 성공');
       navigation.navigate('MainScreen' as never);
     } catch (error) {
-      console.error(error);
+      console.error('❌ 로그인 실패:', error);
       Alert.alert('로그인 실패', '이메일 또는 비밀번호를 확인해주세요');
     }
   };
+
 
   return (
     <View style={styles.container}>

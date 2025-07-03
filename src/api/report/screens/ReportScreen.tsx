@@ -1,15 +1,31 @@
 // src/screens/ReportScreen.tsx
+// src/api/report/screens/ReportScreen.tsx
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet,
   Alert, TouchableOpacity, ActivityIndicator,
+  PermissionsAndroid, Platform
 } from 'react-native';
+import axios from 'axios';
+import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import { createReport } from '../api/report';
-import { DisasterType, disasterTypeNames, B4_ORANGE, B4_ORANGE_LIGHT } from '../types/disasterTypes';
-import { useCurrentLocation } from '../../location/hooks/useCurrentLocation';
 
-const ReportScreen: React.FC = () => {
-  const [selectedType, setSelectedType] = useState<DisasterType | null>(null);
+const B4_ORANGE = '#FF6B00';
+const B4_ORANGE_LIGHT = '#FFD4B3';
+
+const disasterTypeNames = {
+  EARTHQUAKE: '지진', FLOOD: '홍수', TYPHOON: '태풍',
+  WILDFIRE: '산불', LANDSLIDE: '산사태', POWER_OUTAGE: '정전',
+  TERROR_ATTACK: '테러', BUILDING_COLLAPSE: '건물 붕괴'
+};
+
+const 광역단위 = [
+  '서울특별시', '부산광역시', '대구광역시', '인천광역시',
+  '광주광역시', '대전광역시', '울산광역시', '세종특별자치시'
+];
+
+const ReportScreen = () => {
+  const [selectedType, setSelectedType] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -21,21 +37,34 @@ const ReportScreen: React.FC = () => {
       return;
     }
 
+    const requestPayload = {
+      disasterType: selectedType,
+      description,
+      si,
+      gu: gu || '없음',
+      latitude,
+      longitude,
+      image: image
+          ? {
+            uri: image.uri!,
+            type: image.type!,
+            fileName: image.fileName!,
+          }
+          : undefined,
+      video: video
+          ? {
+            uri: video.uri!,
+            type: video.type!,
+            fileName: video.fileName!,
+          }
+          : undefined,
+    };
+
     setIsSubmitting(true);
     try {
-      const payload = {
-        disasterType: selectedType,
-        description,
-        si,
-        gu: gu || '없음',
-        latitude,
-        longitude,
-      };
-
-      const response = await createReport(payload);
-      Alert.alert('신고 완료', `재난 유형: ${response.disasterType}`);
-      setSelectedType(null);
-      setDescription('');
+      const res = await createReport(requestPayload);
+      Alert.alert('신고 완료', `재난 유형: ${res.disasterType}`);
+      resetForm();
     } catch (err) {
       console.error('❌ 신고 실패:', err);
       Alert.alert('신고 실패', '서버 요청 중 문제가 발생했습니다.');
@@ -54,61 +83,81 @@ const ReportScreen: React.FC = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>재난 신고</Text>
+      <View style={styles.container}>
+        <View style={styles.headerBar}><Text style={styles.headerText}>재난 신고</Text></View>
 
-      <Text style={styles.subheader}>재난 유형 선택</Text>
-      <View style={styles.typeContainer}>
-        {Object.entries(disasterTypeNames).map(([key, label]) => (
-          <TouchableOpacity
-            key={key}
-            onPress={() => setSelectedType(key as DisasterType)}
-            style={[
-              styles.typeButton,
-              selectedType === key && styles.typeButtonSelected
-            ]}
-          >
-            <Text style={{
-              color: selectedType === key ? 'white' : 'black',
-              fontWeight: '600'
-            }}>
-              {label}
-            </Text>
+        <View style={{ marginBottom: 28 }}>
+          <Text style={[styles.subheader, { marginBottom: 16 }]}>재난 유형 선택</Text>
+          <View style={styles.typeContainer}>
+            {Object.entries(disasterTypeNames).map(([key, label]) => (
+                <TouchableOpacity
+                    key={key}
+                    onPress={() => setSelectedType(key)}
+                    style={[styles.typeButton, selectedType === key && styles.typeButtonSelected]}
+                >
+                  <Text style={{ color: selectedType === key ? B4_ORANGE : 'black', fontWeight: '600' }}>{label}</Text>
+                </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <Text style={[styles.subheader, { marginBottom: 16 }]}>미디어 첨부</Text>
+        <View style={styles.mediaBoxWrapper}>
+          <TouchableOpacity onPress={() => pickMedia('photo')} style={styles.mediaBox}>
+            <Text style={styles.mediaIcon}>📷</Text>
+            <Text style={styles.mediaLabel}>사진</Text>
           </TouchableOpacity>
-        ))}
+          <TouchableOpacity onPress={() => pickMedia('video')} style={styles.mediaBox}>
+            <Text style={styles.mediaIcon}>🎥</Text>
+            <Text style={styles.mediaLabel}>영상</Text>
+          </TouchableOpacity>
+        </View>
+
+        {image && <Text style={styles.fileText}>📷 선택된 이미지: {image.fileName}</Text>}
+        {video && <Text style={styles.fileText}>🎞 선택된 영상: {video.fileName}</Text>}
+
+        <Text style={styles.locationLabel}>📍 위치: {si} {gu || ''}</Text>
+        <View style={styles.inputWrapper}>
+          <TextInput
+              style={styles.input}
+              multiline
+              placeholder="상황 설명을 입력하세요 (최대 1000자)"
+              value={description}
+              maxLength={1000}
+              onChangeText={setDescription}
+          />
+        </View>
+
+        <Text style={styles.charCount}>{description.length}/1000</Text>
+
+        <TouchableOpacity
+            style={[styles.submitButton, isSubmitting && styles.buttonDisabled]}
+            onPress={handleReport}
+            disabled={isSubmitting}
+        >
+          <Text style={styles.submitButtonText}>{isSubmitting ? '접수중...' : '신고하기'}</Text>
+        </TouchableOpacity>
       </View>
-
-      <Text style={styles.locationLabel}>📍 위치: {si} {gu || ''}</Text>
-
-      <TextInput
-        style={styles.input}
-        multiline
-        placeholder="상황 설명을 입력하세요 (최대 1000자)"
-        value={description}
-        maxLength={1000}
-        onChangeText={setDescription}
-      />
-      <Text style={styles.charCount}>{description.length}/1000</Text>
-
-      <TouchableOpacity
-        style={[styles.submitButton, isSubmitting && styles.buttonDisabled]}
-        onPress={handleReport}
-        disabled={isSubmitting}
-      >
-        <Text style={styles.submitButtonText}>
-          {isSubmitting ? '신고 접수 중...' : '긴급 신고하기'}
-        </Text>
-      </TouchableOpacity>
-    </View>
   );
 };
 
 export default ReportScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#f9f9f9', justifyContent: 'center' },
-  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  subheader: { fontSize: 16, fontWeight: '600', marginBottom: 10 },
+  container: { flex: 1, padding: 20, backgroundColor: '#f9f9f9' },
+  headerBar: {
+    backgroundColor: B4_ORANGE,
+    paddingVertical: 18,
+    width: '100%',
+    marginBottom: 24,
+  },
+  headerText: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  subheader: { fontSize: 16, fontWeight: '600' },
   typeContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   typeButton: {
     paddingVertical: 8,
@@ -123,41 +172,44 @@ const styles = StyleSheet.create({
     backgroundColor: B4_ORANGE_LIGHT,
     borderColor: B4_ORANGE,
   },
-  locationLabel: {
-    fontSize: 14,
-    marginTop: 10,
-    marginBottom: 5,
-    color: '#555'
+  locationLabel: { fontSize: 13, color: '#777', marginTop: 16, marginLeft: 4 },
+  mediaBoxWrapper: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 16,
   },
+  mediaBox: {
+    flex: 1,
+    height: 80,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f0f0f0',
+  },
+  mediaIcon: { fontSize: 28 },
+  mediaLabel: { marginTop: 6, fontSize: 13, fontWeight: '600' },
+  fileText: { fontSize: 14, marginBottom: 6, color: '#333' },
+  inputWrapper: { marginTop: 8 },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 10,
     minHeight: 100,
-    marginTop: 16,
     backgroundColor: 'white',
   },
-  charCount: {
-    textAlign: 'right',
-    fontSize: 12,
-    color: '#888',
-    marginBottom: 12,
-  },
+  charCount: { textAlign: 'right', fontSize: 12, color: '#888', marginBottom: 12, marginTop: 4 },
   submitButton: {
     backgroundColor: B4_ORANGE,
     borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
     alignItems: 'center',
-    marginTop: 20
+    marginTop: 20,
+    alignSelf: 'center',
   },
-  submitButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16
-  },
-  buttonDisabled: {
-    opacity: 0.6
-  }
+  submitButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  buttonDisabled: { opacity: 0.6 },
 });
