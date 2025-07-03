@@ -38,8 +38,8 @@ public class DisasterReportedEvent { // Kafka 전용 재난 알림 메시지 DTO
             .responderId(report.getResponder().getId())
             .disasterType(report.getDisasterType().getName())
             .description(report.getDescription())
-            .si(report.getSi())
-            .gu(report.getGu())
+            .si(report.getProvince())
+            .gu(report.getCity())
             .reportedAt(report.getCreatedAt())
             .build();
     }

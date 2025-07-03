@@ -28,9 +28,9 @@ public class ReportResponseDto {
 
     private final ReportStatus status;
 
-    private final String si;
+    private final String province;
 
-    private final String gu;
+    private final String city;
 
     private final Double locationLat; // 위도
 
@@ -50,8 +50,8 @@ public class ReportResponseDto {
                 .imageUrl(report.getImageUrl())
                 .videoUrl(report.getVideoUrl())
                 .status(report.getStatus())
-                .si(report.getSi())
-                .gu(report.getGu())
+                .province(report.getProvince())
+                .city(report.getCity())
                 .locationLat(report.getLocation().getY())
                 .locationLng(report.getLocation().getX())
                 .createdAt(report.getCreatedAt())

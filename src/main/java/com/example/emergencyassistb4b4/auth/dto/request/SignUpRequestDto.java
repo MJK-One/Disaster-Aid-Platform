@@ -33,6 +33,8 @@ public class SignUpRequestDto {
     @NotNull(message = "로그인 타입은 필수입니다.")
     private LoginType loginType;
 
-    private String si;
+    private String province;
+
+    private String city;
 
 }

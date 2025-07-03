@@ -36,9 +36,9 @@ public class ReportRequestDto {
     private Double longitude;
 
     @NotBlank(message = "시 정보는 필수입니다.")
-    private String si;
+    private String province;
 
     @Size(max = 50)
-    private String gu;
+    private String city;
 
 }

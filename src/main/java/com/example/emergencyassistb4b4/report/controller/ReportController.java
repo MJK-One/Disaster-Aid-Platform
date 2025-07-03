@@ -68,6 +68,7 @@ public class ReportController {
         }
     }
 
+
     @GetMapping()
     public ResponseEntity<ApiResponse<List<ReportResponseDto>>> getReportList(
             @AuthenticationPrincipal CustomUserDetails userDetails

@@ -4,7 +4,6 @@ import com.example.emergencyassistb4b4.global.S3.S3Uploader;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
-import com.example.emergencyassistb4b4.global.util.RegionUtils;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.dto.ReportDto;
 import com.example.emergencyassistb4b4.report.dto.ReportRequestDto;
@@ -67,15 +66,22 @@ public class ReportService {
 
         double latitude = requestDto.getLatitude();
         double longitude = requestDto.getLongitude();
-        String rawRegion = requestDto.getSi(); // ex. 경기도 광주시, 광주광역시, 서울특별시 등
-        String normalizedRegion = RegionUtils.normalizeSi(rawRegion); // 정규화 적용
+        String province = requestDto.getProvince();
+        String city = requestDto.getCity();
 
         // 위도, 경도 -> point
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Point location = geometryFactory.createPoint(new Coordinate(longitude, latitude));
 
-        User responder = userRepository.findFirstByUserRoleAndSi(UserRole.GOV, normalizedRegion)
-                .orElseThrow(() -> new ApiException(ErrorStatus.GOV_NOT_FOUND));
+        User responder;
+        if (province.equals("세종특별자치시")) {
+            responder = userRepository.findFirstByProvinceAndUserRole(province, UserRole.GOV)
+                    .orElseThrow(() -> new ApiException(ErrorStatus.GOV_NOT_FOUND));
+        } else {
+            responder = userRepository.findFirstByProvinceAndCityAndUserRole(province, city, UserRole.GOV)
+                    .orElseThrow(() -> new ApiException(ErrorStatus.GOV_NOT_FOUND));
+        }
+
 
         // 신고 저장
         Report report = Report.builder()
@@ -85,8 +91,8 @@ public class ReportService {
                 .imageUrl(imageUrl)
                 .videoUrl(videoUrl)
                 .status(ReportStatus.PENDING)
-                .si(normalizedRegion) // 예시: 위치 서비스로 가져온 값
-                .gu(requestDto.getGu())
+                .province(province) // 예시: 위치 서비스로 가져온 값
+                .city(city)
                 .location(location)
                 .responder(responder)
                 .build();
@@ -101,6 +107,7 @@ public class ReportService {
         return ReportResponseDto.from(savedReport);
     }
 
+
     // (공공기관) 신고 내역 조회 기능
     @Transactional(readOnly = true)
     public List<ReportResponseDto> getReportList(User responder) {
@@ -111,6 +118,7 @@ public class ReportService {
                 .map(ReportResponseDto::from)
                 .collect(Collectors.toList());
     }
+
 
     /** 공공기관 단건 상태변경 */
     @PreAuthorize("hasRole('GOV')")
@@ -133,12 +141,14 @@ public class ReportService {
     }
     // 공공기관 상태변경 (다건)
 
+
     // 주변 신고 목록 조회
     @PreAuthorize("hasRole('GOV')")
     @Transactional(readOnly = true)
     public Slice<ReportDto> getNearbyReports(String si, String gu, ReportStatus status, Pageable pageable) {
         return reportRepository.findNearby(si, gu, status, pageable).map(ReportDto::of);
     }
+
 
     //내 신고 목록 조회 (신고한 유저의 목록)
     @Transactional(readOnly = true)
@@ -147,23 +157,5 @@ public class ReportService {
             LocalDateTime end, Pageable pageable){
         return reportRepository.findByReporter(userId, status, start, end, pageable)
                 .map(ReportDto::of);
-    }
-
-    public static String extractSiPrefix(String nickname) {
-
-        // 예: "서울시 소방서" → "서울시"
-        if (nickname == null || nickname.isBlank()) return "";
-
-        String[] parts = nickname.trim().split("\\s+");
-
-        for (String part : parts) {
-
-            if (part.endsWith("시")) {
-
-                return part;
-            }
-        }
-
-        return ""; // 못 찾은 경우
     }
 }
