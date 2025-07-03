@@ -1,14 +1,14 @@
-// src/screens/ReportScreen.tsx
 // src/api/report/screens/ReportScreen.tsx
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet,
   Alert, TouchableOpacity, ActivityIndicator,
-  PermissionsAndroid, Platform
+  PermissionsAndroid, Platform, Image,
+  ScrollView,
 } from 'react-native';
-import axios from 'axios';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import { createReport } from '../api/report';
+import { useCurrentLocation } from '../../location/hooks/useCurrentLocation';
 
 const B4_ORANGE = '#FF6B00';
 const B4_ORANGE_LIGHT = '#FFD4B3';
@@ -19,17 +19,39 @@ const disasterTypeNames = {
   TERROR_ATTACK: '테러', BUILDING_COLLAPSE: '건물 붕괴'
 };
 
-const 광역단위 = [
-  '서울특별시', '부산광역시', '대구광역시', '인천광역시',
-  '광주광역시', '대전광역시', '울산광역시', '세종특별자치시'
-];
-
 const ReportScreen = () => {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [image, setImage] = useState<Asset | null>(null);
+  const [video, setVideo] = useState<Asset | null>(null);
 
   const { latitude, longitude, si, gu, loading } = useCurrentLocation();
+
+  const pickMedia = async (type: 'photo' | 'video') => {
+    try {
+      const result = await launchImageLibrary({ mediaType: type });
+      if (result.assets && result.assets.length > 0) {
+        const selected = result.assets[0];
+        if (type === 'photo') {
+          setImage(selected);
+          setVideo(null);
+        } else {
+          setVideo(selected);
+          setImage(null);
+        }
+      }
+    } catch (e) {
+      console.warn('미디어 선택 실패:', e);
+    }
+  };
+
+  const resetForm = () => {
+    setSelectedType(null);
+    setDescription('');
+    setImage(null);
+    setVideo(null);
+  };
 
   const handleReport = async () => {
     if (!selectedType || !description.trim() || !si || latitude == null || longitude == null) {
@@ -45,19 +67,19 @@ const ReportScreen = () => {
       latitude,
       longitude,
       image: image
-          ? {
+        ? {
             uri: image.uri!,
             type: image.type!,
             fileName: image.fileName!,
           }
-          : undefined,
+        : undefined,
       video: video
-          ? {
+        ? {
             uri: video.uri!,
             type: video.type!,
             fileName: video.fileName!,
           }
-          : undefined,
+        : undefined,
     };
 
     setIsSubmitting(true);
@@ -83,61 +105,63 @@ const ReportScreen = () => {
   }
 
   return (
-      <View style={styles.container}>
-        <View style={styles.headerBar}><Text style={styles.headerText}>재난 신고</Text></View>
+    <ScrollView style={styles.container}>
+      <View style={styles.headerBar}>
+        <Text style={styles.headerText}>재난 신고</Text>
+      </View>
 
-        <View style={{ marginBottom: 28 }}>
-          <Text style={[styles.subheader, { marginBottom: 16 }]}>재난 유형 선택</Text>
-          <View style={styles.typeContainer}>
-            {Object.entries(disasterTypeNames).map(([key, label]) => (
-                <TouchableOpacity
-                    key={key}
-                    onPress={() => setSelectedType(key)}
-                    style={[styles.typeButton, selectedType === key && styles.typeButtonSelected]}
-                >
-                  <Text style={{ color: selectedType === key ? B4_ORANGE : 'black', fontWeight: '600' }}>{label}</Text>
-                </TouchableOpacity>
-            ))}
-          </View>
+      <View style={{ marginBottom: 28 }}>
+        <Text style={[styles.subheader, { marginBottom: 16 }]}>재난 유형 선택</Text>
+        <View style={styles.typeContainer}>
+          {Object.entries(disasterTypeNames).map(([key, label]) => (
+            <TouchableOpacity
+              key={key}
+              onPress={() => setSelectedType(key)}
+              style={[styles.typeButton, selectedType === key && styles.typeButtonSelected]}
+            >
+              <Text style={{ color: selectedType === key ? B4_ORANGE : 'black', fontWeight: '600' }}>{label}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
+      </View>
 
-        <Text style={[styles.subheader, { marginBottom: 16 }]}>미디어 첨부</Text>
-        <View style={styles.mediaBoxWrapper}>
-          <TouchableOpacity onPress={() => pickMedia('photo')} style={styles.mediaBox}>
-            <Text style={styles.mediaIcon}>📷</Text>
-            <Text style={styles.mediaLabel}>사진</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => pickMedia('video')} style={styles.mediaBox}>
-            <Text style={styles.mediaIcon}>🎥</Text>
-            <Text style={styles.mediaLabel}>영상</Text>
-          </TouchableOpacity>
-        </View>
-
-        {image && <Text style={styles.fileText}>📷 선택된 이미지: {image.fileName}</Text>}
-        {video && <Text style={styles.fileText}>🎞 선택된 영상: {video.fileName}</Text>}
-
-        <Text style={styles.locationLabel}>📍 위치: {si} {gu || ''}</Text>
-        <View style={styles.inputWrapper}>
-          <TextInput
-              style={styles.input}
-              multiline
-              placeholder="상황 설명을 입력하세요 (최대 1000자)"
-              value={description}
-              maxLength={1000}
-              onChangeText={setDescription}
-          />
-        </View>
-
-        <Text style={styles.charCount}>{description.length}/1000</Text>
-
-        <TouchableOpacity
-            style={[styles.submitButton, isSubmitting && styles.buttonDisabled]}
-            onPress={handleReport}
-            disabled={isSubmitting}
-        >
-          <Text style={styles.submitButtonText}>{isSubmitting ? '접수중...' : '신고하기'}</Text>
+      <Text style={[styles.subheader, { marginBottom: 16 }]}>미디어 첨부</Text>
+      <View style={styles.mediaBoxWrapper}>
+        <TouchableOpacity onPress={() => pickMedia('photo')} style={styles.mediaBox}>
+          <Text style={styles.mediaIcon}>📷</Text>
+          <Text style={styles.mediaLabel}>사진</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => pickMedia('video')} style={styles.mediaBox}>
+          <Text style={styles.mediaIcon}>🎥</Text>
+          <Text style={styles.mediaLabel}>영상</Text>
         </TouchableOpacity>
       </View>
+
+      {image && <Text style={styles.fileText}>📷 선택된 이미지: {image.fileName}</Text>}
+      {video && <Text style={styles.fileText}>🎞 선택된 영상: {video.fileName}</Text>}
+
+      <Text style={styles.locationLabel}>📍 위치: {si} {gu || ''}</Text>
+      <View style={styles.inputWrapper}>
+        <TextInput
+          style={styles.input}
+          multiline
+          placeholder="상황 설명을 입력하세요 (최대 1000자)"
+          value={description}
+          maxLength={1000}
+          onChangeText={setDescription}
+        />
+      </View>
+
+      <Text style={styles.charCount}>{description.length}/1000</Text>
+
+      <TouchableOpacity
+        style={[styles.submitButton, isSubmitting && styles.buttonDisabled]}
+        onPress={handleReport}
+        disabled={isSubmitting}
+      >
+        <Text style={styles.submitButtonText}>{isSubmitting ? '접수중...' : '신고하기'}</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 };
 

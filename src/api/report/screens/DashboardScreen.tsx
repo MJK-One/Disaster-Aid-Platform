@@ -1,11 +1,15 @@
 // src/api/report/screens/DashboardScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TextInput, StyleSheet,
-  Alert, TouchableOpacity, ActivityIndicator,
+  View, Text, StyleSheet, Alert,
+  TouchableOpacity, ActivityIndicator, FlatList, Image,
+  PermissionsAndroid, Platform,
 } from 'react-native';
-import { useCurrentLocation } from '../../location/hooks/useCurrentLocation'; // 네이티브 위치 추적 훅
-import { createReport } from '../api/report';
+
+import { WebView } from 'react-native-webview';
+import { getReports, updateReportStatus } from '../api/report';
+import { ReportResponse } from '../../../api/report/types/api';
+import { DisasterType } from '../types/disasterTypes';
 
 const disasterTypeToKorean: Record<string, string> = {
   EARTHQUAKE: '지진',
@@ -30,13 +34,13 @@ const statusColor: Record<string, string> = {
   CLOSED: '#6D4C41',
 };
 
-const ReportScreen: React.FC = () => {
-  const [selectedType, setSelectedType] = useState<DisasterType | null>(null);
-  const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const DashboardScreen: React.FC = () => {
+  const [reports, setReports] = useState<ReportResponse[]>([]);
+  const [loadingMap, setLoadingMap] = useState<Record<number, boolean>>({});
 
-  // 네이티브 백그라운드 위치 추적 훅 사용
-  const { latitude, longitude, si, gu, loading: isLocating } = useCurrentLocation();
+  useEffect(() => {
+    fetchReports();
+  }, []);
 
   const fetchReports = async () => {
     try {
@@ -95,7 +99,7 @@ const ReportScreen: React.FC = () => {
               source={{ uri: item.imageUrl }}
               style={{
                 width: '90%',
-                aspectRatio: 1038 / 2048, // 실제 세로 이미지 비율 (0.507)
+                aspectRatio: 1038 / 2048,
                 borderRadius: 8,
               }}
               resizeMode="contain"
@@ -116,7 +120,6 @@ const ReportScreen: React.FC = () => {
           </View>
         )}
 
-
         {item.status !== 'CLOSED' && (
           <View style={styles.statusButtons}>
             {item.status === 'PENDING' && (
@@ -125,7 +128,11 @@ const ReportScreen: React.FC = () => {
                 onPress={() => handleChangeStatus(reportId, 'RECEIVED')}
                 disabled={loadingMap[reportId]}
               >
-                <Text style={styles.buttonText}>접수 완료</Text>
+                {loadingMap[reportId] ? (
+                  <ActivityIndicator size="small" color="#FB8C00" />
+                ) : (
+                  <Text style={styles.buttonText}>접수 완료</Text>
+                )}
               </TouchableOpacity>
             )}
             {item.status === 'RECEIVED' && (
@@ -134,7 +141,11 @@ const ReportScreen: React.FC = () => {
                 onPress={() => handleChangeStatus(reportId, 'CLOSED')}
                 disabled={loadingMap[reportId]}
               >
-                <Text style={styles.buttonText}>상황 종료</Text>
+                {loadingMap[reportId] ? (
+                  <ActivityIndicator size="small" color="#FB8C00" />
+                ) : (
+                  <Text style={styles.buttonText}>상황 종료</Text>
+                )}
               </TouchableOpacity>
             )}
           </View>

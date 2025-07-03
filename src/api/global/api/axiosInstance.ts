@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ✅ 상황별 baseURL 자동 분기
-const localIP = '192.168.25.177';
+const localIP = '192.168.254.137';
 const emulatorURL = 'http://10.0.2.2:8080/api';
 const localURL = `http://${localIP}:8080/api`;
 
