@@ -24,9 +24,9 @@ public class DisasterReportedEvent { // Kafka 전용 재난 알림 메시지 DTO
 
     private String description;
 
-    private String si;
+    private String province;
 
-    private String gu;
+    private String city;
 
     private LocalDateTime reportedAt;
 
@@ -38,8 +38,8 @@ public class DisasterReportedEvent { // Kafka 전용 재난 알림 메시지 DTO
             .responderId(report.getResponder().getId())
             .disasterType(report.getDisasterType().getName())
             .description(report.getDescription())
-            .si(report.getProvince())
-            .gu(report.getCity())
+            .province(report.getProvince())
+            .city(report.getCity())
             .reportedAt(report.getCreatedAt())
             .build();
     }
