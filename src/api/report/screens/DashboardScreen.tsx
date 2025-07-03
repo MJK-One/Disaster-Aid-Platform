@@ -84,7 +84,7 @@ const ReportScreen: React.FC = () => {
         </View>
         <Text>신고자 ID: {item.reporter}</Text>
         <Text>설명: {item.description}</Text>
-        <Text>위치: {item.si} {item.gu}</Text>
+        <Text>위치: {item.province} {item.city}</Text>
         <Text>위도/경도: {item.locationLat}, {item.locationLng}</Text>
         <Text>신고 시각: {new Date(item.createdAt).toLocaleString()}</Text>
         <Text>업데이트 시각: {new Date(item.updatedAt).toLocaleString()}</Text>

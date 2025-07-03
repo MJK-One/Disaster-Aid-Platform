@@ -12,8 +12,8 @@ export const createReport = async (payload: {
   description: string;
   imageUrl?: string; // 사용 안 할 경우 제거 가능
   videoUrl?: string;
-  si: string;
-  gu: string;
+  province: string;
+  city: string;
   latitude: number;
   longitude: number;
   image?: {
@@ -32,8 +32,8 @@ export const createReport = async (payload: {
   const jsonPayload = {
     disasterType: payload.disasterType,
     description: payload.description,
-    si: payload.si,
-    gu: payload.gu,
+    province: payload.province,
+    city: payload.city,
     latitude: payload.latitude,
     longitude: payload.longitude
   };
