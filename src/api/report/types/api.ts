@@ -13,8 +13,8 @@ export type ReportResponse = {
     imageUrl: string;
     videoUrl: string;
     status: string;
-    si: string;
-    gu: string;
+    province: string;
+    city: string;
     locationLat: number;
     locationLng: number;
     createdAt: string; // ISO date string

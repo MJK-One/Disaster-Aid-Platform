@@ -9,6 +9,7 @@ import Geolocation from 'react-native-geolocation-service';
 import axios from 'axios';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import { createReport } from '../api/report';
+import { KAKAO_API_KEY } from '@env';
 
 const B4_ORANGE = '#FF6B00';
 const B4_ORANGE_LIGHT = '#FFD4B3';
@@ -19,18 +20,13 @@ const disasterTypeNames = {
   TERROR_ATTACK: '테러', BUILDING_COLLAPSE: '건물 붕괴'
 };
 
-const 광역단위 = [
-  '서울특별시', '부산광역시', '대구광역시', '인천광역시',
-  '광주광역시', '대전광역시', '울산광역시', '세종특별자치시'
-];
-
 const ReportScreen = () => {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
-  const [si, setSi] = useState('');
-  const [gu, setGu] = useState('');
+  const [province, setProvince] = useState('');
+  const [city, setCity] = useState('');
   const [isLocating, setIsLocating] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [image, setImage] = useState<Asset | null>(null);
@@ -43,8 +39,8 @@ const ReportScreen = () => {
         PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
       ]);
       if (
-          granted['android.permission.ACCESS_FINE_LOCATION'] !== 'granted' &&
-          granted['android.permission.ACCESS_COARSE_LOCATION'] !== 'granted'
+        granted['android.permission.ACCESS_FINE_LOCATION'] !== 'granted' &&
+        granted['android.permission.ACCESS_COARSE_LOCATION'] !== 'granted'
       ) {
         Alert.alert('위치 권한이 거부되었습니다.');
         setIsLocating(false);
@@ -52,38 +48,40 @@ const ReportScreen = () => {
       }
 
       Geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude, longitude } = position.coords;
-            setLatitude(latitude);
-            setLongitude(longitude);
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          setLatitude(latitude);
+          setLongitude(longitude);
 
-            try {
-              const res = await axios.get(
-                  `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${longitude}&y=${latitude}`,
-                  { headers: { Authorization: 'KakaoAK 3177f801ea28d24730bc07c693af3bd6' } }
-              );
-              const region = res.data.documents?.[0];
-              const depth1 = region?.region_1depth_name || '';
-              const depth2 = region?.region_2depth_name || '';
+          try {
+            const res = await axios.get(
+              `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${longitude}&y=${latitude}`,
+              { headers: { Authorization: `KakaoAK ${KAKAO_API_KEY}` }, }
+            );
 
-              if (광역단위.includes(depth1)) {
-                setSi(depth1);
-                setGu('없음');
-              } else {
-                setSi(`${depth1} ${depth2}`);
-                setGu(depth2 || '없음');
-              }
-            } catch (err) {
-              console.error('역지오코딩 오류:', err);
-            } finally {
-              setIsLocating(false);
+
+            const region = res.data.documents?.[0];
+            const depth1 = region?.region_1depth_name || '';
+            const depth2 = region?.region_2depth_name || '';
+
+            setProvince(depth1); // 시/도
+
+            if (depth1 === '세종특별자치시') {
+              setCity('없음'); // 세종시는 구/군 없음
+            } else {
+              setCity(depth2 || '없음');
             }
-          },
-          (err) => {
-            Alert.alert('위치 오류', `현재 위치를 가져올 수 없습니다. [${err.code}] ${err.message}`);
+          } catch (err) {
+            console.error('역지오코딩 오류:', err);
+          } finally {
             setIsLocating(false);
-          },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+          }
+        },
+        (err) => {
+          Alert.alert('위치 오류', `현재 위치를 가져올 수 없습니다. [${err.code}] ${err.message}`);
+          setIsLocating(false);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
       );
     })();
   }, []);
@@ -105,7 +103,7 @@ const ReportScreen = () => {
   };
 
   const handleReport = async () => {
-    if (!selectedType || !description.trim() || !si || latitude == null || longitude == null) {
+    if (!selectedType || !description.trim() || !province || latitude == null || longitude == null) {
       Alert.alert('오류', '재난 유형, 설명, 위치 정보가 모두 필요합니다.');
       return;
     }
@@ -113,8 +111,8 @@ const ReportScreen = () => {
     const requestPayload = {
       disasterType: selectedType,
       description,
-      si,
-      gu: gu || '없음',
+      province,
+      city: city || '없음',
       latitude,
       longitude,
       image: image
@@ -184,7 +182,7 @@ const ReportScreen = () => {
         {image && <Text style={styles.fileText}>📷 선택된 이미지: {image.fileName}</Text>}
         {video && <Text style={styles.fileText}>🎞 선택된 영상: {video.fileName}</Text>}
 
-        <Text style={styles.locationLabel}>📍 위치: {si} {gu}</Text>
+        <Text style={styles.locationLabel}>📍 위치: {province} {city}</Text>
         <View style={styles.inputWrapper}>
           <TextInput
               style={styles.input}
