@@ -2,8 +2,7 @@ package com.example.emergencyassistb4b4.report.service;
 
 import com.example.emergencyassistb4b4.global.S3.S3Uploader;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
-import com.example.emergencyassistb4b4.global.kafka.dto.DisasterAlertMessage;
-import com.example.emergencyassistb4b4.global.kafka.producer.DisasterAlertProducer;
+import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.global.util.RegionUtils;
 import com.example.emergencyassistb4b4.report.domain.Report;
@@ -12,6 +11,7 @@ import com.example.emergencyassistb4b4.report.dto.ReportRequestDto;
 import com.example.emergencyassistb4b4.report.dto.ReportResponseDto;
 import com.example.emergencyassistb4b4.report.dto.ReportStatusResponseDto;
 import com.example.emergencyassistb4b4.report.enums.ReportStatus;
+import com.example.emergencyassistb4b4.report.kafka.producer.DisasterReportedEventProducer;
 import com.example.emergencyassistb4b4.report.repository.ReportRepository;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
@@ -105,7 +105,7 @@ public class ReportService {
     @Transactional(readOnly = true)
     public List<ReportResponseDto> getReportList(User responder) {
 
-        List<Report> reports = reportRepository.findAllByResponderOrderByCreatedAtDesc(responder);
+        List<Report> reports = reportRepository.findAllByResponder(responder);
 
         return reports.stream()
                 .map(ReportResponseDto::from)

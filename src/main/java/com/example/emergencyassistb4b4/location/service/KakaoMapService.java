@@ -2,6 +2,7 @@ package com.example.emergencyassistb4b4.location.service;
 
 import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
+import com.example.emergencyassistb4b4.location.dto.response.DisasterReportMapper;
 import com.example.emergencyassistb4b4.location.dto.response.DisasterReportSimpleDto;
 import com.example.emergencyassistb4b4.location.dto.response.DisasterSummaryDto;
 import com.example.emergencyassistb4b4.location.dto.response.ShelterResponseDto;
@@ -18,12 +19,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +33,7 @@ public class KakaoMapService {
     private final ObjectMapper objectMapper;
     private final ReportRepository reportRepository;
 
-    public List<ShelterResponseDto> searchShelters(double latitude, double longitude, double radiusMeter){
+    public List<ShelterResponseDto> searchShelters(double latitude, double longitude, double radiusMeter) {
         String categoryCode = "PO3"; // 치안기관
         String url = KakaoApiUtils.buildCategorySearchUrl(categoryCode, longitude, latitude, radiusMeter);
 
@@ -65,7 +62,6 @@ public class KakaoMapService {
         } catch (RestClientException e) {
             throw new ApiException(ErrorStatus.KAKAO_API_RESPONSE_STATUS_ERROR);
         }
-
     }
 
     public List<DisasterSummaryDto> getDisasterSummary(
@@ -76,16 +72,17 @@ public class KakaoMapService {
     ) {
         LocalDateTime fromTime = LocalDateTime.now().minusSeconds(secondsAgo);
 
-        // 1. 위치 및 시간 조건으로 report 데이터 조회
-        List<DisasterReportSimpleDto> reports = reportRepository.findNearbyDisasterReports(
-                latitude, longitude, radiusMeter, fromTime
+        List<Object[]> rawReports = reportRepository.findNearbyDisasterReportsRaw(
+                longitude, latitude, radiusMeter, fromTime
         );
 
-        // 2. DisasterType + Status 기준으로 그룹핑
-        Map<String, List<DisasterReportSimpleDto>> grouped = reports.stream()
-                .collect(Collectors.groupingBy(r -> r.getDisasterType() + "_" + r.getStatus()));
+        // ✅ 매핑 책임을 DisasterReportMapper로 위임
+        List<DisasterReportSimpleDto> reports = DisasterReportMapper.map(rawReports);
 
-        // 3. 각 그룹별 중앙값 좌표 계산 → DisasterSummaryDto 생성
+        // disasterType_status 기준으로 그룹핑
+        Map<String, List<DisasterReportSimpleDto>> grouped = reports.stream()
+                .collect(Collectors.groupingBy(r -> r.getDisasterType().name() + "_" + r.getStatus().name()));
+
         return grouped.values().stream()
                 .map(this::calculateMedian)
                 .filter(Objects::nonNull)
@@ -119,10 +116,9 @@ public class KakaoMapService {
         return new DisasterSummaryDto(
                 sample.getDisasterType(),
                 sample.getStatus(),
-                reports.size(),
+                size,
                 medianLat,
                 medianLng
         );
     }
-
 }
