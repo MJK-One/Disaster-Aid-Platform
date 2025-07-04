@@ -30,7 +30,7 @@ public class LocationController {
         //추후 변경 예정
         User currentUser = userDetails.getUser();
 
-        locationService.saveRegion(currentUser.getId(), dto.getSi(), dto.getGu());
+        locationService.saveRegion(currentUser.getId(), dto.getProvince(), dto.getCity());
 
 
         return ApiResponse.onSuccess(LOCATION_SAVE_SUCCESS,null);

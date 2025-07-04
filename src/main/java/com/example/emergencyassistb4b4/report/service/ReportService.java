@@ -32,6 +32,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.example.emergencyassistb4b4.global.status.ErrorStatus.FORBIDDEN;
+import static com.example.emergencyassistb4b4.global.status.ErrorStatus.REPORT_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class ReportService {
@@ -112,7 +115,7 @@ public class ReportService {
     @Transactional(readOnly = true)
     public List<ReportResponseDto> getReportList(User responder) {
 
-        List<Report> reports = reportRepository.findAllByResponderOrderByCreatedAtDesc(responder);
+        List<Report> reports = reportRepository.findAllByResponder(responder);
 
         return reports.stream()
                 .map(ReportResponseDto::from)
@@ -129,11 +132,11 @@ public class ReportService {
             ReportStatus newStatus){
 
         /* 공공기관인지 검증 */
-        User goverment = userRepository.findById(publicId).orElseThrow(); //user error 넣기
+        userRepository.findById(publicId).orElseThrow(() -> new ApiException(FORBIDDEN)); //권한
 
         // Report 조회
         Report r = reportRepository.findById(reportId).orElseThrow(
-                ()->new IllegalStateException("조회된 신고가 없습니다.")); //예외 컨벤션 만들기
+                ()->new ApiException(REPORT_NOT_FOUND));
 
         //상태 변경
         r.updateStatus(newStatus);
@@ -146,6 +149,7 @@ public class ReportService {
     @PreAuthorize("hasRole('GOV')")
     @Transactional(readOnly = true)
     public Slice<ReportDto> getNearbyReports(String si, String gu, ReportStatus status, Pageable pageable) {
+
         return reportRepository.findNearby(si, gu, status, pageable).map(ReportDto::of);
     }
 
@@ -155,6 +159,7 @@ public class ReportService {
     public Slice<ReportDto> getMyReports(
             Long userId, ReportStatus status, LocalDateTime start,
             LocalDateTime end, Pageable pageable){
+
         return reportRepository.findByReporter(userId, status, start, end, pageable)
                 .map(ReportDto::of);
     }

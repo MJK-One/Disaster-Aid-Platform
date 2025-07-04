@@ -9,18 +9,18 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, Long>,ReportRepositoryCustom {
 
-    // responder 기준으로 createdAt 내림차순 정렬
-    List<Report> findAllByResponderOrderByCreatedAtDesc(User responder);
+    List<Report> findAllByResponder(User responder);
 
     @Query(value = """
     SELECT
-        r.disaster_type AS disasterType,
-        r.status AS status,
-        ST_Y(r.location::geometry) AS locationLat,
-        ST_X(r.location::geometry) AS locationLng
+        r.disaster_type,
+        r.status,
+        ST_Y(r.location::geometry),
+        ST_X(r.location::geometry)
     FROM report r
     WHERE ST_DWithin(
         r.location,
@@ -29,10 +29,11 @@ public interface ReportRepository extends JpaRepository<Report, Long>,ReportRepo
     )
     AND r.created_at >= :fromTime
 """, nativeQuery = true)
-    List<DisasterReportSimpleDto> findNearbyDisasterReports(
+    List<Object[]> findNearbyDisasterReportsRaw(
             @Param("latitude") double latitude,
             @Param("longitude") double longitude,
             @Param("radiusMeter") int radiusMeter,
             @Param("fromTime") LocalDateTime fromTime
     );
+
 }
