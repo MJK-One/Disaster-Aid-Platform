@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.alert.kafka.config;
+package com.example.emergencyassistb4b4.alert.kafka.config.dlq;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ public class DisasterReportedDlqConfig {
     public ConcurrentKafkaListenerContainerFactory<String, String> disasterReportedDltListenerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "alert-dlt-generic-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "alert-dlt-disaster-reported-group");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 

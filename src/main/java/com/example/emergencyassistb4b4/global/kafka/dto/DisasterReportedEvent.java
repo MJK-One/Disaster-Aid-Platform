@@ -15,11 +15,11 @@ public class DisasterReportedEvent {
 
     private Long reportId;
     private Long reporterId;
-    private Long responderId;
+    private Long governmentId;
     private String disasterType;
     private String description;
-    private String si;
-    private String gu;
+    private String province;
+    private String city;
     private LocalDateTime reportedAt;
 
     public static DisasterReportedEvent from(Report report) {
@@ -27,11 +27,11 @@ public class DisasterReportedEvent {
         return DisasterReportedEvent.builder()
             .reportId(report.getId())
             .reporterId(report.getReporter().getId())
-            .responderId(report.getResponder().getId())
+            .governmentId(report.getResponder().getId())
             .disasterType(report.getDisasterType().getName())
             .description(report.getDescription())
-            .si(report.getSi())
-            .gu(report.getGu())
+            .province(report.getSi())
+            .city(report.getGu())
             .reportedAt(report.getCreatedAt())
             .build();
     }

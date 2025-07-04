@@ -22,8 +22,8 @@ public class ImmediateAlertEventListener {
         try {
             orchestratorService.process(event);
         } catch (Exception e) {
-            log.error("[즉시 알림 처리 실패] si={}, gu={}, type={}, time={}",
-                event.getSi(), event.getGu(), event.getDisasterType(), event.getReportedAt(), e);
+            log.error("[즉시 알림 처리 실패] province={}, city={}, disaster={}, time={}",
+                event.getProvince(), event.getCity(), event.getDisasterType(), event.getReportedAt(), e);
             throw e;
         }
     }

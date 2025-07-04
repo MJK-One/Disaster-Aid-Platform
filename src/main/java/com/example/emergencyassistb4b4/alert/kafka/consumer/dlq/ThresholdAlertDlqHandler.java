@@ -43,6 +43,5 @@ public class ThresholdAlertDlqHandler {
         }
 
         log.warn("[DLQ:누적알림] 역직렬화 성공 - 원인은 비즈니스 로직 처리 중 예외일 가능성 있음: {}", parsedEvent);
-
     }
 }

@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.alert.kafka.config;
+package com.example.emergencyassistb4b4.alert.kafka.config.base;
 
 import java.util.HashMap;
 import java.util.Map;

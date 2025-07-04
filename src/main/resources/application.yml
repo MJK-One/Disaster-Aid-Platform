@@ -22,8 +22,13 @@ spring:
     show-sql: true
     properties:
       hibernate:
+        jdbc:
+          batch_size: 1000
+        order_inserts: true
+        order_updates: true
         format_sql: true
         dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
+    open-in-view: false
 
   security:
     oauth2:
@@ -84,9 +89,6 @@ cloud:
 kakao:
   api:
     key: ${KAKAO_API_KEY}
-
-fcm:
-  test-token: ${FCM_TOKEN}
 
 jwt:
   issuer: my-app

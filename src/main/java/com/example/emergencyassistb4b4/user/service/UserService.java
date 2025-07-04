@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
 
-
     private final UserRepository userRepository;
     private final ReportRepository reportRepository;
 
@@ -41,12 +40,5 @@ public class UserService {
 
         // 신고자 반환
         return report.getReporter();
-    }
-
-    // 공공기관 조회
-    public User findGovernment(String si) {
-        String keyword = si.replace("특별시", "").replace("광역시", "").replace("자치시", "").replace("도", "");
-        return userRepository.findFirstBySiStartingWithAndUserRole(keyword, UserRole.GOV)
-            .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
     }
 }

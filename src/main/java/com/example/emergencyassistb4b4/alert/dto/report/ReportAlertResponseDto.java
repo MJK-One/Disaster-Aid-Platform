@@ -25,9 +25,9 @@ public class ReportAlertResponseDto implements UserAlert {
 
         return ReportAlertResponseDto.builder()
             .id(userReportAlert.getId())
-            .si(reportAlert.getSi())
-            .gu(reportAlert.getGu())
-            .disasterType(reportAlert.getDisasterType().getName())
+            .si(reportAlert.getProvince())
+            .gu(reportAlert.getCity())
+            .disasterType(reportAlert.getDisasterType())
             .count(reportAlert.getCount())
             .createdAt(reportAlert.getCreatedAt())
             .build();

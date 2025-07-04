@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.report.kafka.config;
+package com.example.emergencyassistb4b4.global.kafka.config;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;

@@ -1,5 +1,6 @@
-package com.example.emergencyassistb4b4.alert.kafka.config;
+package com.example.emergencyassistb4b4.alert.kafka.config.listener;
 
+import com.example.emergencyassistb4b4.alert.kafka.config.base.KafkaBaseConfig;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +13,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 
 @Configuration
 @RequiredArgsConstructor
-public class ThresholdAlertKafkaConfig {
+public class ThresholdAlertListenerConfig {
 
     private final KafkaBaseConfig kafkaBaseConfig;
     private final KafkaTemplate<String, Object> kafkaTemplate;
