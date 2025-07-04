@@ -31,7 +31,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<TokenResponseDto>> signup(@Valid
                                                          @RequestBody SignUpRequestDto requestDto, ServletRequest servletRequest) {
         TokenResponseDto token = authService.signup(requestDto);
-        return ApiResponse.onSuccess(SuccessStatus.SIGNUP_SUCCESS, token);
+        return ApiResponse.onSuccess(SuccessStatus.SIGNUP_SUCCESS, null);
     }
 
     @PostMapping("/login")

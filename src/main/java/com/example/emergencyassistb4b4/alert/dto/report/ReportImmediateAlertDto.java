@@ -15,8 +15,8 @@ public class ReportImmediateAlertDto {
     public static ReportImmediateAlertDto fromEvent(DisasterReportedEvent event) {
 
         return ReportImmediateAlertDto.builder()
-            .si(event.getSi())
-            .gu(event.getGu())
+            .si(event.getProvince())
+            .gu(event.getCity())
             .disasterType(event.getDisasterType())
             .build();
     }

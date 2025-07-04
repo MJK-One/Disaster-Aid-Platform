@@ -3,7 +3,6 @@ package com.example.emergencyassistb4b4.auth.strategy.signup;
 import com.example.emergencyassistb4b4.auth.dto.request.SignUpRequestDto;
 import com.example.emergencyassistb4b4.auth.dto.response.TokenResponseDto;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
-import com.example.emergencyassistb4b4.global.util.RegionUtils;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.domain.UserRole;
@@ -28,16 +27,14 @@ public class GovSignUpStrategy implements SignUpStrategy {
     @Override
     public TokenResponseDto signUp(SignUpRequestDto requestDto) {
 
-        // ✅ 시 정보 정규화
-        String normalizedSi = RegionUtils.normalizeSi(requestDto.getSi());
-
         // 공공 회원가입 로직 구현
         User user = User.builder()
                 .nickname(requestDto.getName())
                 .email(requestDto.getEmail())
                 .password(bCryptPasswordEncoder.encode(requestDto.getPassword()))
                 .phoneNumber(requestDto.getPhoneNumber())
-                .si(normalizedSi) // 정규화된 값 저장
+                .province(requestDto.getProvince())
+                .city(requestDto.getCity())
                 .loginType(LoginType.LOCAL)
                 .userRole(UserRole.GOV)
                 .build();

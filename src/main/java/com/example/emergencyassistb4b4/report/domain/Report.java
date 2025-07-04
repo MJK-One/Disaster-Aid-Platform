@@ -53,13 +53,13 @@ public class Report extends BaseEntity {
     @Column(name = "status", nullable = false)
     private ReportStatus status = ReportStatus.PENDING;  // 생성 시 기본값
 
-    // 행정구역 (시)
-    @Column(name = "si", nullable = false, length = 255)
-    private String si;
+    // 행정구역 (시/도)
+    @Column(name = "province", nullable = false, length = 255)
+    private String province;
 
-    // 행정구역 (구)
-    @Column(name = "gu", nullable = false, length = 255)
-    private String gu;
+    // 행정구역 (구/군)
+    @Column(name = "city", nullable = false, length = 255)
+    private String city;
 
     // 위치 정보 (PostGIS Point 타입)
     @Column(columnDefinition = "geography(Point, 4326)")

@@ -5,8 +5,6 @@ import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 
 @Getter
 @Builder
@@ -39,9 +37,13 @@ public class User extends BaseEntity{
     @Column(name = "provider", length = 255)
     private String provider;
 
-    // 서울시, OO시
-    @Column(name = "si")
-    private String si;
+    // 시,도
+    @Column(name = "province")
+    private String province;
+
+    // 구,군
+    @Column(name = "city")
+    private String city;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role")
@@ -49,13 +51,13 @@ public class User extends BaseEntity{
 
 
 
-
     @Builder
-    public User(String email, String password, String nickname, String Si,LoginType loginType, String provider, UserRole userRole) {
+    public User(String email, String password, String nickname, String province, String city, LoginType loginType, String provider, UserRole userRole) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
-        this.si = Si;
+        this.province = province;
+        this.city = city;
         this.loginType = loginType;
         this.provider = provider;
         this.userRole = userRole;

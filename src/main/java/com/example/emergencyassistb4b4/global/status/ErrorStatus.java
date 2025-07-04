@@ -8,8 +8,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum ErrorStatus implements BaseErrorCode {
+
     //공통
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "서버 오류입니다."),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "서버 오류가 발생했습니다."),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "C002", "잘못된 요청입니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "C003", "권한이 없습니다."),
 
@@ -53,14 +54,12 @@ public enum ErrorStatus implements BaseErrorCode {
     VOLUNTEER_FORBIDDEN(HttpStatus.FORBIDDEN, "VO0003", "VOLUNTEER_FORBIDDEN"),
 
     // 신고
-    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "Do not found."),
-    REPORT_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "RP005", "No permissions on this report."),
-    REPORT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "RP003", "위도 또는 경도가 누락되었습니다."),
-    ALERT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AL010", "Failed to send message."),
-    NOT_FOUND_LOCATION(HttpStatus.NOT_FOUND,"LC004","위치를 찾지 못했습니다"),
-    USER_DEVICE_NOT_FOUND(HttpStatus.NOT_FOUND, "RP004", "유저 디바이스가 존재하지 않습니다."),
-    S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "RP010", "S3 파일 업로드 중 오류가 발생했습니다."),
+    REPORT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "RP004", "위도 또는 경도가 누락되었습니다."),
+    USER_DEVICE_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "유저 디바이스가 존재하지 않습니다."),
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "신고 정보를 찾을 수 없습니다."),
     GOV_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "해당 지역 공공기관을 찾을 수 없습니다."),
+    S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "RP010", "S3 파일 업로드 중 오류가 발생했습니다."),
+    UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "RP000", "지원하지 않는 미디어 타입입니다."),
 
     KAKAO_API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 요청 실패"),
     KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
@@ -74,7 +73,7 @@ public enum ErrorStatus implements BaseErrorCode {
     WEBSOCKET_MESSAGE_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "WebSocket 메시지 전송 실패"),
     ATTENDANCE_LOCATION_OR_POLICY_MISSING(HttpStatus.BAD_REQUEST, "VO004","위치 정보나 출석 정책이 설정되지 않았습니다."),
 
-    // 카카오
+    // 카카오,
     KAKAO_API_FAILED(HttpStatus.BAD_GATEWAY, "KAKAO001", "카카오 API 호출에 실패했습니다."),
     KAKAO_DATA_INVALID(HttpStatus.BAD_REQUEST, "KAKAO002", "카카오 사용자 정보가 올바르지 않습니다.");
 
