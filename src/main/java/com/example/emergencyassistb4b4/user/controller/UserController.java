@@ -66,7 +66,8 @@ public class UserController {
         log.info(" user = {}", userDetails.getUser());
         UserResponseDto response = new UserResponseDto(
                 userDetails.getUser().getId(),
-                userDetails.getUser().getEmail()
+                userDetails.getUser().getEmail(),
+                userDetails.getUser().getUserRole()
         );
 
         return ApiResponse.onSuccess(SuccessStatus.CUSTOM_SUCCESS_STATUS, response);

@@ -6,6 +6,7 @@ import com.example.emergencyassistb4b4.auth.oauth.repository.OAuth2Authorization
 import com.example.emergencyassistb4b4.auth.oauth.service.KakaoService;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.util.CookieUtil;
+import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,7 +60,7 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
             KakaoUserDetailsDto kakaoUserDetails = kakaoService.getKakaoUserInfo(accessToken);
 
             // 사용자 정보를 바탕으로 토큰 발급
-            TokenResponseDto kakaoToken = tokenService.issueToken(new UserResponseDto(kakaoUserDetails.getId(), kakaoUserDetails.getEmail()));
+            TokenResponseDto kakaoToken = tokenService.issueToken(new UserResponseDto(kakaoUserDetails.getId(), kakaoUserDetails.getEmail(), UserRole.IND));
 
             //  리프레시 토큰 쿠키 저장
             addRefreshTokenToCookie(request, response, kakaoToken.refreshToken());
