@@ -108,7 +108,7 @@ public class ReportService {
     @Transactional(readOnly = true)
     public List<ReportResponseDto> getReportList(User responder) {
 
-        List<Report> reports = reportRepository.findAllByResponderOrderByCreatedAtDesc(responder);
+        List<Report> reports = reportRepository.findAllByResponder(responder);
 
         return reports.stream()
                 .map(ReportResponseDto::from)

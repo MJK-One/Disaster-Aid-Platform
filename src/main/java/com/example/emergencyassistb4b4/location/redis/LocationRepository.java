@@ -24,8 +24,8 @@ public class LocationRepository {
     private final RedisTemplate<String, Object> redisTemplate;
 
     // 기기 토큰 변경예정
-    public void saveRegion(Long userId, String si, String gu) {
-        String regionKey = "region:" + si + ":" + gu;
+    public void saveRegion(Long userId, String province , String city) {
+        String regionKey = "region:" + province + ":" + city;
         redisTemplate.opsForSet().add(regionKey, userId.toString());
         redisTemplate.expire(regionKey, Duration.ofMinutes(5));
     }

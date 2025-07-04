@@ -132,6 +132,7 @@ public class WebOAuth2SecurityConfig {
         return new AntPathMatcher();
     }
 
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class).build();

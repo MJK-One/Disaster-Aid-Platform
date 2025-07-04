@@ -15,8 +15,8 @@ public class LocationService {
 
     private final LocationRepository locationRepository;
 
-    public void saveRegion(Long userId, String si, String gu) {
-        locationRepository.saveRegion(userId, si, gu);
+    public void saveRegion(Long userId, String province , String city) {
+        locationRepository.saveRegion(userId, province, city);
     }
 
     public void saveCoordinates(Long userId, double latitude, double longitude) {
