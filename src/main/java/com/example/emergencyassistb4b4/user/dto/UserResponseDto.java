@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.user.dto;
 
 import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.user.domain.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -9,8 +10,9 @@ import lombok.Getter;
 public class UserResponseDto {
     private Long id;
     private String email;
+    private UserRole userRole;
 
     public static UserResponseDto from(User user) {
-        return new UserResponseDto(user.getId(), user.getEmail());
+        return new UserResponseDto(user.getId(), user.getEmail(), user.getUserRole());
     }
 }

@@ -72,6 +72,7 @@ public class JwtUtils {
                 .setExpiration(expiry) // 내용 exp : expiry 멤버 변숫값
                 .setSubject(user.getEmail()) // 내용 sub : 유저의 이메일
                 .claim("id", user.getId()) // 클레임 id : 유저 ID
+                .claim("role", user.getUserRole().name())
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 // 서명 : 비밀값과 함께 해시값을 ~ 방식으로 암호화
                 .compact();
@@ -123,6 +124,9 @@ public class JwtUtils {
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token); // jwt에서 claims(사용자 정보 등)를 추출
         String email = claims.getSubject();
+        String role = claims.get("role", String.class);
+        Set<SimpleGrantedAuthority> authorities =
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role));
 
         // 이메일 기반으로 사용자 조회
         User user = userRepository.findByEmail(email)

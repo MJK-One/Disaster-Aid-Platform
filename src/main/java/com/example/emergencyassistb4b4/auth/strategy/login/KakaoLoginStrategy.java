@@ -46,7 +46,7 @@ public class KakaoLoginStrategy implements LoginStrategy {
 
 
         // 3. JWT 토큰 발급
-        TokenResponseDto tokens = tokenService.issueToken(new UserResponseDto(user.getId(), user.getEmail()));
+        TokenResponseDto tokens = tokenService.issueToken(new UserResponseDto(user.getId(), user.getEmail(), UserRole.IND));
         return tokens;
     }
 }
