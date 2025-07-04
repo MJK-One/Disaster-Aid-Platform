@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
+import { WebView } from 'react-native-webview';
 import axiosInstance from '../../global/api/axiosInstance';
 import { volunteerpostApi } from '../api/VolunteerApi';
 import type { PostDetailResponse } from '../types/Post';
@@ -66,6 +67,40 @@ const VolunteerPostDetailScreen = () => {
 
   if (!postDetail) return <ActivityIndicator style={{ marginTop: 30 }} />;
 
+  const getMapHtml = (lat: number, lng: number, placeName: string) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=31a31381a7d1acbd943f186a483e4194"></script>
+      <style>
+        html, body { margin: 0; padding: 0; height: 100%; }
+        #map { width: 100%; height: 100%; }
+      </style>
+    </head>
+    <body>
+      <div id="map"></div>
+      <script>
+        const map = new kakao.maps.Map(document.getElementById('map'), {
+          center: new kakao.maps.LatLng(${lat}, ${lng}),
+          level: 3
+        });
+
+        const marker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(${lat}, ${lng})
+        });
+        marker.setMap(map);
+
+        const infowindow = new kakao.maps.InfoWindow({
+          content: '<div style="width: 100%; padding:5px; font-size:14px;">📍 ${placeName}</div>'
+        });
+        infowindow.open(map, marker);
+      </script>
+    </body>
+    </html>
+  `;
+
   const renderTeamItem = ({ item }: { item: Team }) => (
     <View style={styles.card}>
       <View style={{ flex: 1 }}>
@@ -88,7 +123,23 @@ const VolunteerPostDetailScreen = () => {
       <Text style={styles.meta}>출석 반경: {postDetail.attendancePolicy.allowedRadiusM}m</Text>
       <Text style={styles.meta}>최소 머무는 시간: {postDetail.attendancePolicy.minStayMinutes}분</Text>
       <Text style={styles.meta}>장소: {postDetail.location.placeName}</Text>
-      <Text style={styles.meta}>위도: {postDetail.location.latitude}, 경도: {postDetail.location.longitude}</Text>
+      <View style={{ height: 240, marginVertical: 12 }}>
+        <WebView
+          originWhitelist={['*']}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          mixedContentMode="always"
+          cacheEnabled={false}
+          source={{
+            html: getMapHtml(
+              postDetail.location.latitude,
+              postDetail.location.longitude,
+              postDetail.location.placeName
+            ),
+          }}
+        />
+      </View>
+
       <Text style={[styles.title, { marginTop: 24 }]}>팀 목록</Text>
     </View>
   );
