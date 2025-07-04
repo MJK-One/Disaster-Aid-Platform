@@ -2,6 +2,7 @@ package com.example.emergencyassistb4b4;
 
 import com.example.emergencyassistb4b4.alert.kafka.consumer.listener.ImmediateAlertEventListener;
 import com.example.emergencyassistb4b4.alert.kafka.repository.KafkaDlqLogRepository;
+import com.example.emergencyassistb4b4.alert.todo.FcmFailureService;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.awaitility.Awaitility;
@@ -54,10 +55,10 @@ public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (
         DisasterReportedEvent event = DisasterReportedEvent.builder()
             .reportId(1L)
             .reporterId(100L)
-            .responderId(999L)
+            .governmentId(999L)
             .disasterType("홍수")
-            .si("서울시")
-            .gu("종로구")
+            .province("서울특별시")
+            .city("종로구")
             .reportedAt(LocalDateTime.now())
             .build();
 
@@ -82,10 +83,10 @@ public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (
         DisasterReportedEvent message = DisasterReportedEvent.builder()
             .reportId(2L)
             .reporterId(200L)
-            .responderId(9999L)
+            .governmentId(9999L)
             .disasterType("지진")
-            .si("서울시")
-            .gu("강남구")
+            .province("서울특별시")
+            .city("강남구")
             .reportedAt(LocalDateTime.now())
             .build();
 
@@ -111,10 +112,10 @@ public class KafkaFcmIntegrationTest { // Kafka to FCM 전체 연동 테스트 (
         DisasterReportedEvent message = DisasterReportedEvent.builder()
             .reportId(3L)
             .reporterId(1L)
-            .responderId(9999L)
+            .governmentId(9999L)
             .disasterType("TSUNAMI")
-            .si("부산")
-            .gu("해운대구")
+            .province("부산광역시")
+            .city("해운대구")
             .reportedAt(LocalDateTime.now())
             .build();
 

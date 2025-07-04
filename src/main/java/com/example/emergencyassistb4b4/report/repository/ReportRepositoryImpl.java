@@ -4,7 +4,6 @@ import com.example.emergencyassistb4b4.report.domain.QReport;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.enums.ReportStatus;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -25,10 +24,10 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
     private final QReport r = report;
 
     @Override
-    public Slice<Report> findNearby(String si, String gu,ReportStatus status, Pageable pageable) {
+    public Slice<Report> findNearby(String province, String city,ReportStatus status, Pageable pageable) {
         BooleanBuilder where = new BooleanBuilder();
-        if (si != null && !si.isEmpty()) {where.and(report.si.eq(si));}
-        if (gu != null && !gu.isEmpty()) {where.and(report.gu.eq(gu));}
+        if (province != null && !province.isEmpty()) {where.and(report.province.eq(province));}
+        if (city != null && !city.isEmpty()) {where.and(report.city.eq(city));}
         if (status != null) {where.and(report.status.eq(status));}
 
         // 쿼리 생성 및 페이징 (최신순)

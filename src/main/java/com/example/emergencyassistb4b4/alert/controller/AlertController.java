@@ -6,15 +6,13 @@ import com.example.emergencyassistb4b4.alert.service.query.AlertQueryService;
 import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/alerts")

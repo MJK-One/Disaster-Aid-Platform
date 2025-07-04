@@ -20,8 +20,8 @@ public class ReportDto {
     private final String imageUrl;
     private final String videoUrl;
     private final ReportStatus status;
-    private final String si;
-    private final String gu;
+    private final String province;
+    private final String city;
     private final Double locationLat;
     private final Double locationLng;
     private final LocalDateTime createdAt;
@@ -36,8 +36,8 @@ public class ReportDto {
                 .imageUrl(r.getImageUrl())
                 .videoUrl(r.getVideoUrl())
                 .status(r.getStatus())
-                .si(r.getSi())
-                .gu(r.getGu())
+                .province(r.getProvince())
+                .city(r.getCity())
                 .locationLat(r.getLocation().getY())
                 .locationLng(r.getLocation().getX())
                 .createdAt(r.getCreatedAt())

@@ -27,6 +27,8 @@ CREATE TABLE users (
                        provider VARCHAR(255),
                        business_number VARCHAR(255),
                        organization_name VARCHAR(255),
+                       province VARCHAR(255),
+                       city VARCHAR(255),
                        user_role VARCHAR(50),
                        last_login_at TIMESTAMP,
                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -47,7 +49,7 @@ CREATE TABLE post (
                       CONSTRAINT fk_post_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- 봉사 위치 (1:1)
+-- 봉사 위치 (1:1 with post)
 CREATE TABLE volunteer_location (
                                     id BIGSERIAL PRIMARY KEY,
                                     place_name VARCHAR(255) NOT NULL,
@@ -59,7 +61,7 @@ CREATE TABLE volunteer_location (
                                     CONSTRAINT fk_location_post FOREIGN KEY (post_id) REFERENCES post(id)
 );
 
--- 팀 (N:1 post)
+-- 봉사 팀 (N:1 post)
 CREATE TABLE volunteer_team (
                                 id BIGSERIAL PRIMARY KEY,
                                 post_id BIGINT NOT NULL,
@@ -68,7 +70,7 @@ CREATE TABLE volunteer_team (
                                 CONSTRAINT fk_team_post FOREIGN KEY (post_id) REFERENCES post(id)
 );
 
--- 참가자
+-- 봉사 참가자
 CREATE TABLE volunteer_participant (
                                        id BIGSERIAL PRIMARY KEY,
                                        user_id BIGINT,
@@ -114,33 +116,37 @@ CREATE TABLE user_report_alert (
                                    CONSTRAINT fk_user_report_alert_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- 재난 신고
+CREATE TABLE report (
+                        id BIGSERIAL PRIMARY KEY,
+                        reporter_id BIGINT NOT NULL,
+                        disaster_type VARCHAR(255) NOT NULL,
+                        description TEXT NOT NULL,
+                        image_url VARCHAR(255),
+                        video_url VARCHAR(255),
+                        status VARCHAR(255) NOT NULL,
+                        province VARCHAR(255) NOT NULL,
+                        city VARCHAR(255),
+                        location GEOGRAPHY(Point, 4326),
+                        responder_id BIGINT,
+                        created_at TIMESTAMP,
+                        updated_at TIMESTAMP,
+                        CONSTRAINT fk_reporter FOREIGN KEY (reporter_id) REFERENCES users(id),
+                        CONSTRAINT fk_responder FOREIGN KEY (responder_id) REFERENCES users(id)
+);
+
 -- 사용자 기기 정보
 CREATE TABLE user_device (
                              id BIGSERIAL PRIMARY KEY,
                              user_id BIGINT NOT NULL,
-                             device_id VARCHAR(255) NOT NULL UNIQUE,
-                             os VARCHAR(50) NOT NULL,
-                             fcm_token TEXT NOT NULL,
-                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                             type VARCHAR(255),           -- enum: DeviceType
+                             os VARCHAR(255),             -- enum: DeviceOs
+                             os_version VARCHAR(255),
+                             model VARCHAR(255),
+                             fcm_token VARCHAR(255) NOT NULL,
+                             created_at TIMESTAMP,         -- BaseEntity 상속 필드
+                             updated_at TIMESTAMP,         -- BaseEntity 상속 필드
                              CONSTRAINT fk_user_device_user FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- 제보
-CREATE TABLE report (
-                        id BIGSERIAL PRIMARY KEY,
-                        reporter_id BIGINT NOT NULL,
-                        disaster_type VARCHAR(50) NOT NULL,
-                        description TEXT NOT NULL,
-                        image_url VARCHAR(255),
-                        video_url VARCHAR(255),
-                        status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
-                        si VARCHAR(255) NOT NULL,
-                        gu VARCHAR(255) NOT NULL,
-                        location geometry(Point, 4326),
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        CONSTRAINT fk_report_user FOREIGN KEY (reporter_id) REFERENCES users(id)
 );
 
 -- 제보 응답
@@ -158,7 +164,7 @@ CREATE TABLE report_response (
 );
 
 -- Kafka DLQ 로그
-CREATE SEQUENCE IF NOT EXISTS kafka_fail_log_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS kafka_fail_log_seq START WITH 1 INCREMENT BY 50;
 
 CREATE TABLE kafka_fail_log (
                                 id BIGSERIAL PRIMARY KEY,

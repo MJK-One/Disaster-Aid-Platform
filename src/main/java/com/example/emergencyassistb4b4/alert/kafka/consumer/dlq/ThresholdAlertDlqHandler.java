@@ -12,11 +12,15 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class ThresholdAlertDlqHandler {
+public class ThresholdAlertDlqHandler { // Kafka DLT로 전송된 실패 메시지를 후처리(log 기록)하기 위한 리스너
 
     private final ObjectMapper objectMapper;
     private final KafkaDlqLogService kafkaDlqLogService;
 
+    /**
+     * 즉시 알림과 마찬가지로 동일한 DLQ 토픽(report-reported-dlt)을 구독하되,
+     * 이 리스너는 임계값 기반 알림 리스너(alert-threshold-group)에서 실패한 메시지를 처리
+     */
     @KafkaListener(
         topics = "report-reported-dlt",
         containerFactory = "disasterReportedDltListenerFactory"

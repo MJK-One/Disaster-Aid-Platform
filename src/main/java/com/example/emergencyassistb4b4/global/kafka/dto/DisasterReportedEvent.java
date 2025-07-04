@@ -30,8 +30,8 @@ public class DisasterReportedEvent {
             .governmentId(report.getResponder().getId())
             .disasterType(report.getDisasterType().getName())
             .description(report.getDescription())
-            .province(report.getSi())
-            .city(report.getGu())
+            .province(report.getProvince())
+            .city(report.getCity())
             .reportedAt(report.getCreatedAt())
             .build();
     }

@@ -5,7 +5,6 @@ import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.repository.ReportRepository;
 import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.dto.UserRequestDto;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;

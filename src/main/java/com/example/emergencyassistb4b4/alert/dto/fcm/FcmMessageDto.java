@@ -37,6 +37,7 @@ public class FcmMessageDto {
             "[재난 신고 접수] %s %s %s 신고",
             alert.getProvince(), alert.getCity(), alert.getDisasterType()
         );
+
         String body = String.format(
             """
                 재난 유형 : %s
@@ -61,6 +62,7 @@ public class FcmMessageDto {
         String title = String.format(
             "[봉사 알림] %s 변경 공지", alert.getTitle()
         );
+
         String body = String.format(
             """
                 게시글명 : %s

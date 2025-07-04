@@ -73,7 +73,7 @@ public class RedisThresholdCounter {
             return redisTemplate.execute(
                 LUA_SCRIPT,
                 keys,
-                (Object) args.toArray(new String[0])
+                args.toArray()
             );
         } catch (Exception e) {
             log.error("Redis Lua 실행 중 예외 발생 - counterKey={}, prefix={}", counterKey, notifyKeyPrefix, e);

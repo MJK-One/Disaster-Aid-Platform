@@ -52,6 +52,11 @@ public class ReportController {
         try {
             ReportRequestDto requestDto = objectMapper.readValue(rawJson, ReportRequestDto.class); // text로 받은 것 객체화
 
+            // 🔻 필수값 수동 검증 추가 (NPE 방지)
+            if (requestDto.getLatitude() == null || requestDto.getLongitude() == null) {
+                throw new ApiException(ErrorStatus.REPORT_BAD_REQUEST);
+            }
+
             ReportResponseDto responseDto = reportService.disasterReport(requestDto, currentUser, image, video);
 
             return ApiResponse.onSuccess(SuccessStatus.REPORT_CREATE_SUCCESS, responseDto);
@@ -62,6 +67,7 @@ public class ReportController {
             throw new ApiException(ErrorStatus.S3_UPLOAD_ERROR);
         }
     }
+
 
     @GetMapping()
     public ResponseEntity<ApiResponse<List<ReportResponseDto>>> getReportList(

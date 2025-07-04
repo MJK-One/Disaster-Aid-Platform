@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RegionRequestDto {
 
-    private String si;
-    private String gu;
+    private String province;
+    private String city;
 }

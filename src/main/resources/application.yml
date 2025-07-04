@@ -10,6 +10,11 @@ spring:
   application:
     name: disaster-alert-service
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
   datasource:
     url: ${POSTGRE_URL}
     username: ${POSTGRE_USERNAME}
@@ -77,7 +82,7 @@ spring:
 cloud:
   aws:
     s3:
-      bucket: your-bucket-name
+      bucket: b4b4-static-files
     credentials:
       access-key: ${AWS_ACCESS_KEY}
       secret-key: ${AWS_SECRET_KEY}

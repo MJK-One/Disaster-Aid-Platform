@@ -26,16 +26,19 @@ public class GovSignUpStrategy implements SignUpStrategy {
 
     @Override
     public TokenResponseDto signUp(SignUpRequestDto requestDto) {
-// 공공 회원가입 로직 구현
+
+        // 공공 회원가입 로직 구현
         User user = User.builder()
                 .nickname(requestDto.getName())
                 .email(requestDto.getEmail())
                 .password(bCryptPasswordEncoder.encode(requestDto.getPassword()))
                 .phoneNumber(requestDto.getPhoneNumber())
-                .si(requestDto.getSi())
+                .province(requestDto.getProvince())
+                .city(requestDto.getCity())
                 .loginType(LoginType.LOCAL)
                 .userRole(UserRole.GOV)
                 .build();
+
         userRepository.save(user);
         return loginAfterSignUp(user);
     }
