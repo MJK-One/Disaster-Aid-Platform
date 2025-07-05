@@ -14,8 +14,8 @@ import lombok.Getter;
 public class ReportAlertResponseDto implements UserAlert {
 
     private Long id;
-    private String si;
-    private String gu;
+    private String province;
+    private String city;
     private String disasterType;
     private Long count;
     private LocalDateTime createdAt;
@@ -25,9 +25,9 @@ public class ReportAlertResponseDto implements UserAlert {
 
         return ReportAlertResponseDto.builder()
             .id(userReportAlert.getId())
-            .si(reportAlert.getSi())
-            .gu(reportAlert.getGu())
-            .disasterType(reportAlert.getDisasterType().getName())
+            .province(reportAlert.getProvince())
+            .city(reportAlert.getCity())
+            .disasterType(reportAlert.getDisasterType())
             .count(reportAlert.getCount())
             .createdAt(reportAlert.getCreatedAt())
             .build();

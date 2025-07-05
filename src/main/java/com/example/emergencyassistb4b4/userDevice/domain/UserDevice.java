@@ -36,17 +36,13 @@ public class UserDevice extends BaseEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
-//    @Column(nullable = false)
     private DeviceType type;
 
     @Enumerated(EnumType.STRING)
-//    @Column(nullable = false)
     private DeviceOs os;
 
-//    @Column(nullable = false)
     private String osVersion;
 
-//    @Column(nullable = false)
     private String model;
 
     @Column(nullable = false)

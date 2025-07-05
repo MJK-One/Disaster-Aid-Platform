@@ -59,7 +59,6 @@ public class VolunteerParticipantService {
         return participant;
     }
 
-
     // 참가 인원 조회
     public List<Long> findParticipants(Long postId) {
         return participantRepository.findUserIdsByPostId(postId);

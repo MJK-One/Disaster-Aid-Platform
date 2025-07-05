@@ -1,5 +1,6 @@
-package com.example.emergencyassistb4b4.alert.kafka.config;
+package com.example.emergencyassistb4b4.alert.kafka.config.listener;
 
+import com.example.emergencyassistb4b4.alert.kafka.config.base.KafkaBaseConfig;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +13,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 
 @Configuration
 @RequiredArgsConstructor
-public class ThresholdAlertKafkaConfig { // 임계값 초과 이벤트(누적 발생 수 기준) 처리용 Kafka 리스너 설정
+public class ThresholdAlertListenerConfig { // 임계값 초과 이벤트(누적 발생 수 기준) 처리용 Kafka 리스너 설정
 
     private final KafkaBaseConfig kafkaBaseConfig;
     private final KafkaTemplate<String, Object> kafkaTemplate;
@@ -22,7 +23,8 @@ public class ThresholdAlertKafkaConfig { // 임계값 초과 이벤트(누적 �
     public ConsumerFactory<String, DisasterReportedEvent> thresholdConsumerFactory() {
 
         return new DefaultKafkaConsumerFactory<>(
-            kafkaBaseConfig.baseConsumerProps("alert-threshold-group", DisasterReportedEvent.class.getName())
+            kafkaBaseConfig.baseConsumerProps("alert-threshold-group",
+                DisasterReportedEvent.class.getName())
         );
     }
 
@@ -33,11 +35,11 @@ public class ThresholdAlertKafkaConfig { // 임계값 초과 이벤트(누적 �
         var factory = new ConcurrentKafkaListenerContainerFactory<String, DisasterReportedEvent>();
         factory.setConsumerFactory(thresholdConsumerFactory());
         factory.setConcurrency(3); // 병렬 처리용 Consumer 개서
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD); // 레코드 단위로 커밋
-        factory.setCommonErrorHandler(kafkaBaseConfig.defaultErrorHandler(kafkaTemplate)); // DLT 전송 핸들러
+        factory.getContainerProperties()
+            .setAckMode(ContainerProperties.AckMode.RECORD); // 레코드 단위로 커밋
+        factory.setCommonErrorHandler(
+            kafkaBaseConfig.defaultErrorHandler(kafkaTemplate)); // DLT 전송 핸들러
 
         return factory;
     }
 }
-
-

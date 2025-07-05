@@ -1,12 +1,11 @@
 package com.example.emergencyassistb4b4.alert.kafka.domain;
 
+import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Builder

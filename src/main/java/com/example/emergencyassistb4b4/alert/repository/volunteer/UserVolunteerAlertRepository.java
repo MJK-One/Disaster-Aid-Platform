@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserVolunteerAlertRepository extends JpaRepository<UserVolunteerAlert, Long> {
 
-    List<UserVolunteerAlert> findByUser_IdOrderByIdDesc(Long userId);
+    List<UserVolunteerAlert> findByUserIdOrderByIdDesc(Long userId);
 
 }

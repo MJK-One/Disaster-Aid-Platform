@@ -26,6 +26,6 @@ public class UserDeviceController {
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         userDeviceService.saveDevice(userDetails.getUser(), dto);
-        return ApiResponse.onSuccess(SuccessStatus.CUSTOM_SUCCESS_STATUS, null);
+        return ApiResponse.onSuccess(SuccessStatus.DEVICE_CREATE_SUCCESS, null);
     }
 }

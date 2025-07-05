@@ -42,8 +42,7 @@ public enum ErrorStatus implements BaseErrorCode {
     CUSTOM_ERROR_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "Custom Error"),
 
     // Redis
-    REDIS_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R001", "Redis 에 토큰 저장 실패"),
-    REDIS_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R002", "Redis 에서 토큰 삭제 실패"),
+    REDIS_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "RE010", "Redis 서버 오류 발생"),
     INVALID_TTL(HttpStatus.BAD_REQUEST, "AU024", "TTL 값은 0보다 커야 합니다."),
 
     // 자원봉사
@@ -54,28 +53,34 @@ public enum ErrorStatus implements BaseErrorCode {
     VOLUNTEER_FORBIDDEN(HttpStatus.FORBIDDEN, "VO0003", "VOLUNTEER_FORBIDDEN"),
 
     // 신고
-    REPORT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "RP004", "위도 또는 경도가 누락되었습니다."),
-    USER_DEVICE_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "유저 디바이스가 존재하지 않습니다."),
+    REPORT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "RP004", "유효하지 않은 값입니다"),
     REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "신고 정보를 찾을 수 없습니다."),
     GOV_NOT_FOUND(HttpStatus.NOT_FOUND, "RP007", "해당 지역 공공기관을 찾을 수 없습니다."),
     S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "RP010", "S3 파일 업로드 중 오류가 발생했습니다."),
-    UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "RP000", "지원하지 않는 미디어 타입입니다."),
+    UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "RP011", "지원하지 않는 미디어 타입입니다."),
 
-    KAKAO_API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 요청 실패"),
-    KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
-    KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답"),
+    // Alert
+    ALERT_BAD_REQUEST(HttpStatus.BAD_REQUEST, "AL004", "유효하지 않은 값입니다"),
+    ALERT_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AL010", "알림 전송 실패"),
+
+    // UserDevice
+    USER_DEVICE_NOT_FOUND(HttpStatus.NOT_FOUND, "UD007", "유저 디바이스가 존재하지 않습니다."),
 
     // 자원봉사
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "VO004", "존재하지 않는 게시글입니다."),
-
     ATTENDANCE_RECORD_PARSE_FAILED(HttpStatus.BAD_REQUEST, "VO004", "출석 기록 파싱 실패"),
     WEBSOCKET_MESSAGE_SERIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "WebSocket 메시지 직렬화 실패"),
     WEBSOCKET_MESSAGE_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "VO010", "WebSocket 메시지 전송 실패"),
     ATTENDANCE_LOCATION_OR_POLICY_MISSING(HttpStatus.BAD_REQUEST, "VO004","위치 정보나 출석 정책이 설정되지 않았습니다."),
 
-    // 카카오,
+    // 카카오
     KAKAO_API_FAILED(HttpStatus.BAD_GATEWAY, "KAKAO001", "카카오 API 호출에 실패했습니다."),
-    KAKAO_DATA_INVALID(HttpStatus.BAD_REQUEST, "KAKAO002", "카카오 사용자 정보가 올바르지 않습니다.");
+    KAKAO_DATA_INVALID(HttpStatus.BAD_REQUEST, "KAKAO002", "카카오 사용자 정보가 올바르지 않습니다."),
+    KAKAO_API_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 요청 실패"),
+    KAKAO_API_RESPONSE_PARSE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 응답 파싱 실패"),
+    KAKAO_API_RESPONSE_STATUS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "LC010", "카카오 API 비정상 응답"),
+
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;

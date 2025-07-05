@@ -1,4 +1,4 @@
-package com.example.emergencyassistb4b4.alert.kafka.config;
+package com.example.emergencyassistb4b4.alert.kafka.config.base;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

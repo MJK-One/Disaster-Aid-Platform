@@ -1,12 +1,13 @@
 package com.example.emergencyassistb4b4.alert.orchestrator;
 
+import com.example.emergencyassistb4b4.alert.client.location.LocationClient;
+import com.example.emergencyassistb4b4.alert.client.userDevice.UserDeviceClient;
 import com.example.emergencyassistb4b4.alert.dto.fcm.FcmMessageDto;
 import com.example.emergencyassistb4b4.alert.dto.report.ReportThresholdAlertDto;
 import com.example.emergencyassistb4b4.alert.fcm.sender.FcmSender;
 import com.example.emergencyassistb4b4.alert.service.command.AlertCommandService;
-import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.userDevice.domain.UserDevice;
-import com.example.emergencyassistb4b4.userDevice.service.UserDeviceService;
+import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,29 +21,42 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReportThresholdAlertOrchestratorService {
 
     private final AlertCommandService alertCommandService;
-    private final UserDeviceService userDeviceService;
+    private final LocationClient locationClient;
+    private final UserDeviceClient userDeviceClient;
     private final FcmSender fcmSender;
 
     public void process(String notifyKey) {
 
+        // 1. notifyKey -> ReportThresholdAlertDto
         ReportThresholdAlertDto info = ReportThresholdAlertDto.fromKey(notifyKey);
+
+        // 2. FCM 메시지 내용 작성
         FcmMessageDto message = FcmMessageDto.fromReportThresholdAlert(info);
 
-        List<UserDevice> devices = userDeviceService.findByRegion(info.getSi(), info.getGu());
-        List<String> tokens = devices.stream().map(UserDevice::getFcmToken).toList();
-        List<User> users = devices.stream().map(UserDevice::getUser).distinct().toList();
+        // 3. FCM 발송 대상 선정 - 사용자 현 위치를 기준으로 (민간단체는 FCM Topic 구독을 통해 처리)
+        List<Long> userIds = locationClient.findUsersByRegion(info.getProvince(), info.getCity());
+        if (userIds == null || userIds.isEmpty()) {
+            // 재난 신고는 사용자 현 위치 기준 -> 지역 내 사용자 없을 경우 시스템 오류로 간주
+            throw new ApiException(ErrorStatus.ALERT_SERVER_ERROR);
+        }
 
-        log.info("누적 알림 발송 대상 {}명 - region={}, notifyKey={}",
-            tokens.size(), info.getSi() + " " + info.getGu(), notifyKey);
+        // 4. FCM Token 조회
+        List<String> tokens = userDeviceClient.findFcmTokensByUserIds(userIds);
 
+        // 5. FCM 발송
         try {
-            fcmSender.sendAlert(message, tokens);
-            alertCommandService.saveReportAlert(info, users);
-            log.info("누적 알림 DB 저장 완료 - notifyKey={}", notifyKey);
+            fcmSender.sendReportThresholdAlert(message, tokens);
         } catch (Exception e) {
-            log.error("누적 알림 발송 또는 저장 실패 - notifyKey={}", notifyKey, e);
+            log.error("누적 알림 발송 실패 - notifyKey={}", notifyKey, e);
+            // fcm 전송 실패하더라도 DB에 알림 이력은 저장되도록 함.
+        }
+
+        // 6. 알림 저장
+        try {
+            alertCommandService.saveReportThresholdAlert(info, userIds);
+        } catch (Exception e) {
+            log.error("알림 이력 저장 실패 - notifyKey={}", notifyKey, e);
             throw e;
         }
     }
 }
-

@@ -1,8 +1,7 @@
 package com.example.emergencyassistb4b4.report.enums;
 
-import static com.example.emergencyassistb4b4.global.status.ErrorStatus.CUSTOM_ERROR_STATUS;
-
 import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -27,6 +26,6 @@ public enum DisasterType {
                 return type;
             }
         }
-        throw new ApiException(CUSTOM_ERROR_STATUS); // TODO : 에러 코드 수정
+        throw new ApiException(ErrorStatus.REPORT_BAD_REQUEST);
     }
 }

@@ -1,14 +1,12 @@
 package com.example.emergencyassistb4b4.alert.orchestrator;
 
+import com.example.emergencyassistb4b4.alert.client.userDevice.UserDeviceClient;
 import com.example.emergencyassistb4b4.alert.dto.report.ReportImmediateAlertDto;
 import com.example.emergencyassistb4b4.alert.dto.fcm.FcmMessageDto;
 import com.example.emergencyassistb4b4.alert.fcm.sender.FcmSender;
+import com.example.emergencyassistb4b4.global.exception.ApiException;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
-import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.service.UserService;
-import com.example.emergencyassistb4b4.userDevice.domain.UserDevice;
-import com.example.emergencyassistb4b4.userDevice.service.UserDeviceService;
-import java.util.List;
+import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,25 +19,28 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReportImmediateAlertOrchestratorService {
 
     private final FcmSender fcmSender;
-    private final UserService userService;
-    private final UserDeviceService userDeviceService;
+    private final UserDeviceClient userDeviceClient;
 
     public void process(DisasterReportedEvent event) {
+
+        // 1. KafkaEvent -> ReportImmediateAlertDto
         ReportImmediateAlertDto info = ReportImmediateAlertDto.fromEvent(event);
+
+        // 2. FCM 메시지 내용 작성
         FcmMessageDto message = FcmMessageDto.fromReportImmediateAlert(info);
 
-        User gov = userService.findGovernment(info.getSi());
-        UserDevice device = userDeviceService.findByUserId(gov.getId());
+        // 3. FCM Token 조회
+        String token = userDeviceClient.findFcmTokenByUserId(info.getGovernmentId());
 
-        String token = device.getFcmToken();
-
-        log.info("즉시 알림 발송 대상 - userId={}, token={}", gov.getId(), token);
+        if (token == null || token.isBlank()) {
+            // 즉시 알림은 발송 대상(관할 공공기관)이 반드시 있어야 함.
+            throw new ApiException(ErrorStatus.ALERT_SERVER_ERROR);
+        }
 
         try {
-            log.info("here");
-            fcmSender.sendAlert(message, List.of(token));
+            fcmSender.sendReportImmediateAlert(message, token);
         } catch (Exception e) {
-            log.error("즉시 알림 발송 실패 - userId={}, token={}", gov.getId(), token, e);
+            log.error("즉시 알림 발송 실패 - governmentId()={}, token={}", info.getGovernmentId(), token, e);
             throw e;
         }
     }

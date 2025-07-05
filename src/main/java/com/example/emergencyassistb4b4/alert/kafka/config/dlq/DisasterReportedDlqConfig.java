@@ -1,4 +1,7 @@
-package com.example.emergencyassistb4b4.alert.kafka.config;
+package com.example.emergencyassistb4b4.alert.kafka.config.dlq;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -7,9 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 
 @Configuration
@@ -42,5 +42,3 @@ public class DisasterReportedDlqConfig { // DLT(Dead Letter Topic) 전용 리스
         return factory;
     }
 }
-
-

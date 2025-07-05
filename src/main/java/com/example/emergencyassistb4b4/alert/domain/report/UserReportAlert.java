@@ -1,6 +1,6 @@
 package com.example.emergencyassistb4b4.alert.domain.report;
 
-import com.example.emergencyassistb4b4.user.domain.User;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -37,18 +37,17 @@ public class UserReportAlert {
     )
     private Long id;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "alert_id", nullable = false)
     private ReportAlert reportAlert;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    public static List<UserReportAlert> fromUsers(ReportAlert alert, List<User> users) {
-        return users.stream()
-            .map(user -> UserReportAlert.builder()
-                .user(user)
+    public static List<UserReportAlert> fromUsers(ReportAlert alert, List<Long> userIds) {
+        return userIds.stream()
+            .map(userId -> UserReportAlert.builder()
+                .userId(userId)
                 .reportAlert(alert)
                 .build())
             .toList();

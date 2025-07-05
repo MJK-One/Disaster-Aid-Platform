@@ -35,7 +35,7 @@ public class AlertQueryService {
     private List<UserAlert> listDisasterAlerts(Long userId) {
 
         return userReportAlertRepository
-            .findByUser_IdOrderByIdDesc(userId)
+            .findByUserIdOrderByIdDesc(userId)
             .stream()
             .map(alert -> (UserAlert) ReportAlertResponseDto.fromUserReportAlert(alert))
             .toList();
@@ -45,7 +45,7 @@ public class AlertQueryService {
     private List<UserAlert> listVolunteerAlerts(Long userId) {
 
         return userVolunteerAlertRepository
-            .findByUser_IdOrderByIdDesc(userId)
+            .findByUserIdOrderByIdDesc(userId)
             .stream()
             .map(alert -> (UserAlert) VolunteerAlertResponseDto.fromUserVolunteerAlert(alert))
             .toList();
