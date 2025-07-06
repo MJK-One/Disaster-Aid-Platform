@@ -137,18 +137,22 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: 'center',
     marginTop: 10,
+    height : 53
   },
   loginButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   signUpLink: { marginTop: 10, alignItems: 'center' },
   signUpText: { color: '#f26522', fontWeight: '600' },
-  socialContainer: { marginTop: 10, alignItems: 'center' },
+
+  // 👇 소셜 로그인 스타일
+  socialContainer: {marginTop: 10, alignItems: 'center' },
   kakaoButton: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   kakaoIcon: {
-    width: 50,
-    height: 50,
+    marginLeft: '2%',
+    width: '100%',
+    height : 70,
     marginRight: 8,
     resizeMode: 'contain',
   },
