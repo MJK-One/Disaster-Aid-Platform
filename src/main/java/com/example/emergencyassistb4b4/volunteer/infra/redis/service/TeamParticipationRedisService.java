@@ -8,6 +8,8 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -17,12 +19,13 @@ public class TeamParticipationRedisService {
     private final RedisTemplate<String, String> redisTemplate;
     private final DefaultRedisScript<Long> joinTeamScript;
     private final DefaultRedisScript<Long> cancelJoinScript;
+    private final TTLRedisService ttlRedisService;
 
     private static final String COUNT_KEY_FORMAT = "team:%d:count";
     private static final String USERS_KEY_FORMAT = "team:%d:users";
 
     // 참가 : 현재 인원 +
-    public void tryJoinTeam(Long teamId, Long userId, int maxCapacity) {
+    public void tryJoinTeam(Long teamId, Long userId, int maxCapacity, LocalDateTime checkinEnd) {
         String countKey = String.format(COUNT_KEY_FORMAT, teamId);
         String usersKey = String.format(USERS_KEY_FORMAT, teamId);
 
@@ -39,7 +42,10 @@ public class TeamParticipationRedisService {
         }
 
         switch (result.intValue()) {
-            case 1 -> {} // 성공
+            case 1 -> {
+                Duration ttl = Duration.between(LocalDateTime.now(), checkinEnd.plusHours(1));
+                ttlRedisService.setTeamKeyTTL(teamId, ttl);
+            }
             case 0, -1 -> throw new ApiException(ErrorStatus.VOLUNTEER_CONFLICT);
             default -> throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);
         }
