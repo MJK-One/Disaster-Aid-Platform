@@ -30,6 +30,7 @@ export type RootStackParamList = {
   ReportScreen: undefined;
   Dashboard: undefined;
   Alert: undefined;
+  MainScreen: undefined;
   UserParticipation: undefined;
 };
 

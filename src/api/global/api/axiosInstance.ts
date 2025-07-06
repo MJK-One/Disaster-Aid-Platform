@@ -10,8 +10,6 @@ const localIP = '192.168.25.177';
 const emulatorURL = 'http://10.0.2.2:8080/api';
 
 // ✅ 실제 기기에서 테스트할 경우, PC의 로컬 IP 주소를 명시
-const localIP = '192.168.0.101'; // 예: 본인 PC IP로 교체
-const localURL = `http://${localIP}:8080/api`;
 
 // ✅ baseURL 설정 (에뮬레이터 or 실제 기기 분기)
 const baseURL =
