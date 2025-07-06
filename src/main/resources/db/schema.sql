@@ -94,7 +94,7 @@ CREATE TABLE attendance_policy (
                                    CONSTRAINT fk_attendance_post FOREIGN KEY (post_id) REFERENCES post(id)
 );
 
--- 재난 알림 (정적 알림)
+-- 재난 알림
 CREATE TABLE report_alert (
                               id BIGSERIAL PRIMARY KEY,
                               si VARCHAR(255) NOT NULL,
@@ -105,13 +105,14 @@ CREATE TABLE report_alert (
                               updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 사용자 재난 알림 수신 여부
+-- 사용자 재난 알림
 CREATE TABLE user_report_alert (
                                    id BIGSERIAL PRIMARY KEY,
                                    alert_id BIGINT NOT NULL,
                                    user_id BIGINT NOT NULL,
                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                   CONSTRAINT uk_user_report_alert UNIQUE (user_id, alert_id),
                                    CONSTRAINT fk_user_report_alert_alert FOREIGN KEY (alert_id) REFERENCES report_alert(id),
                                    CONSTRAINT fk_user_report_alert_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
@@ -139,13 +140,13 @@ CREATE TABLE report (
 CREATE TABLE user_device (
                              id BIGSERIAL PRIMARY KEY,
                              user_id BIGINT NOT NULL,
-                             type VARCHAR(255),           -- enum: DeviceType
-                             os VARCHAR(255),             -- enum: DeviceOs
+                             type VARCHAR(255),
+                             os VARCHAR(255),
                              os_version VARCHAR(255),
                              model VARCHAR(255),
                              fcm_token VARCHAR(255) NOT NULL,
-                             created_at TIMESTAMP,         -- BaseEntity 상속 필드
-                             updated_at TIMESTAMP,         -- BaseEntity 상속 필드
+                             created_at TIMESTAMP,
+                             updated_at TIMESTAMP,
                              CONSTRAINT fk_user_device_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
@@ -177,7 +178,7 @@ CREATE TABLE kafka_fail_log (
                                 failed_at TIMESTAMP
 );
 
--- 자원봉사 알림 (실시간)
+-- 자원봉사 알림
 CREATE TABLE volunteer_alert (
                                  id BIGSERIAL PRIMARY KEY,
                                  title VARCHAR(255) NOT NULL,
@@ -187,11 +188,12 @@ CREATE TABLE volunteer_alert (
                                  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 사용자 봉사 알림 수신 여부
+-- 사용자 봉사 알림
 CREATE TABLE user_volunteer_alert (
                                       id BIGSERIAL PRIMARY KEY,
                                       alert_id BIGINT NOT NULL,
                                       user_id BIGINT NOT NULL,
+                                      CONSTRAINT uk_user_report_alert UNIQUE (user_id, alert_id),
                                       CONSTRAINT fk_volunteer_alert FOREIGN KEY (alert_id) REFERENCES volunteer_alert(id),
                                       CONSTRAINT fk_user_volunteer FOREIGN KEY (user_id) REFERENCES users(id)
 );
