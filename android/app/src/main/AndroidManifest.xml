@@ -19,6 +19,16 @@
         android:theme="@style/AppTheme"
         android:supportsRtl="true">
 
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/b4b4" 
+        />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent"
+            tools:replace="android:resource" />
+
         <!-- ✅ FCM 메시지 수신 서비스 -->
         <service
             android:name="io.invertase.firebase.messaging.ReactNativeFirebaseMessagingService"

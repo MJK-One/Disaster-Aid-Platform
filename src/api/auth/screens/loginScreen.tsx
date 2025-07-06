@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: 'center',
     marginTop: 10,
+    height : 53
   },
   loginButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   signUpLink: { marginTop: 10, alignItems: 'center' },
@@ -133,8 +134,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   kakaoIcon: {
-    width: 50,
-    height: 50,
+    marginLeft: '2%',
+    width: '100%',
+    height : 70,
     marginRight: 8,
     resizeMode: 'contain',
   },

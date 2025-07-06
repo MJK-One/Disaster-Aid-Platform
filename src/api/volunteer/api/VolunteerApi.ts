@@ -1,4 +1,6 @@
 import axiosInstance from '../../global/api/axiosInstance';
+import type { VolunteerParticipationResponse } from '../types/Participation';
+
 import type {
   CreatePostRequest,
   PostDetailResponse,
@@ -30,5 +32,18 @@ export const volunteerpostApi = {
 
   applyToTeam: async (postId: number, teamNumber: number): Promise<void> => {
     await axiosInstance.post(`/posts/${postId}/teams/${teamNumber}/apply`);
+  },
+};
+
+export const volunteerparticipantApi = {
+  getMyParticipations: async (): Promise<VolunteerParticipationResponse[]> => {
+    const res = await axiosInstance.get('/volunteer-participants/my');
+    return res.data.payload;
+  },
+
+  cancelParticipation: async (participantId: number): Promise<void> => {
+    await axiosInstance.patch(`/volunteer-participants/${participantId}`, {
+      status: 'CANCELLED',
+    });
   },
 };

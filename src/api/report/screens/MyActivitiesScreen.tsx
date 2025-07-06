@@ -24,7 +24,7 @@ export default function MyActivitiesScreen() {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => {/* 참가자 화면으로 네비게이트 */}}
+        onPress={() => navigation.navigate('UserParticipation' as never)}
       >
         <Text style={styles.buttonText}>참가자</Text>
       </TouchableOpacity>
