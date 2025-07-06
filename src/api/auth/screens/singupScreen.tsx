@@ -18,11 +18,11 @@ const SignUpScreen = () => {
   const [form, setForm] = useState<SignUpRequestDto>({
     email: '',
     password: '',
-    nickname: '',
+    name: '',
     phoneNumber: '',
-    si: '',
+    province: '',
     userRole: 'IND',
-    loginType: 'LOCAL',
+    loginType: 'LOCAL', // 기본값
   });
 
   const handleSubmit = async () => {
@@ -39,6 +39,7 @@ const SignUpScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>회원가입</Text>
+
       <TextInput
         placeholder="이메일"
         style={styles.input}
@@ -53,10 +54,10 @@ const SignUpScreen = () => {
         onChangeText={(text) => setForm({ ...form, password: text })}
       />
       <TextInput
-        placeholder="닉네임"
+        placeholder="이름"
         style={styles.input}
-        value={form.nickname}
-        onChangeText={(text) => setForm({ ...form, nickname: text })}
+        value={form.name}
+        onChangeText={(text) => setForm({ ...form, name: text })}
       />
       <TextInput
         placeholder="전화번호"
@@ -65,22 +66,6 @@ const SignUpScreen = () => {
         value={form.phoneNumber}
         onChangeText={(text) => setForm({ ...form, phoneNumber: text })}
       />
-      <TextInput
-        placeholder="지역 (예: 서울)"
-        style={styles.input}
-        value={form.si}
-        onChangeText={(text) => setForm({ ...form, si: text })}
-      />
-      <Picker
-        selectedValue={form.userRole}
-        onValueChange={(itemValue: UserRole) => setForm({ ...form, userRole: itemValue })}
-        style={styles.input}
-      >
-        <Picker.Item label="개인 (IND)" value="IND" />
-        <Picker.Item label="민간단체 (NGO)" value="NGO" />
-        <Picker.Item label="공공기관 (GOV)" value="GOV" />
-      </Picker>
-
       <Button title="회원가입" onPress={handleSubmit} />
     </View>
   );
