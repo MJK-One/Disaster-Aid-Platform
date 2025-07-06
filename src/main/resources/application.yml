@@ -21,6 +21,12 @@ spring:
     password: ${POSTGRE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+  hikari:
+    maximum-pool-size: 30     # 최대 커넥션 수
+    minimum-idle: 10          # 최소 커넥션 수
+    idle-timeout: 30000       # 비활성 커넥션 유지 시간 (ms)
+    connection-timeout: 20000 # 커넥션을 얻기 위한 최대 대기 시간 (ms)
+
   jpa:
     hibernate:
       ddl-auto: create
