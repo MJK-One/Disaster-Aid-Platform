@@ -25,6 +25,16 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="28">
 
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/b4b4" 
+        />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent"
+            tools:replace="android:resource" />
+
         <!-- WebView 관련 보안 설정 (Android 9 이상용) -->
         <uses-library
             android:name="org.apache.http.legacy"

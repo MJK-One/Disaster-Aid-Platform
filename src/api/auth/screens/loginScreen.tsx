@@ -17,6 +17,15 @@ import { setJwtToken } from '../../../nativeModules/JwtModule';
 import { requestPushPermission } from '../../alert/fcm/fcmPermissions';
 import { getFcmToken } from '../../alert/fcm/fcmTokenManager';
 import { sendDeviceInfoToServer } from '../../alert/fcm/sendDeviceInfo';
+import { jwtDecode } from 'jwt-decode';
+
+interface DecodedToken {
+  id: number;
+  sub: string;
+  role: 'IND' | 'GOV' | 'NGO';
+  exp: number;
+  iat: number;
+}
 import { startLocationTrackingService } from '../../location/hooks/startLocationService'; // 추가
 
 const LoginScreen = () => {
@@ -53,7 +62,7 @@ const LoginScreen = () => {
     tryAutoLogin();
   }, []);
 
-   const handleLogin = async () => {
+  const handleLogin = async () => {
     try {
       const response = await userApi.login(form);
       const accessToken = response.data?.payload?.accessToken;
@@ -63,7 +72,6 @@ const LoginScreen = () => {
         throw new Error('토큰이 누락되었습니다.');
       }
 
-      // ✅ 토큰을 모두 저장 (동기적으로 완료)
       await AsyncStorage.multiSet([
         ['accessToken', accessToken],
         ['refreshToken', refreshToken],
@@ -72,7 +80,9 @@ const LoginScreen = () => {
       console.log('🟢 accessToken 저장됨:', accessToken);
       console.log('🟢 refreshToken 저장됨:', refreshToken);
 
-      // ✅ FCM 등록 흐름
+      const decoded: DecodedToken = jwtDecode(accessToken);
+      const role = decoded.role;
+
       const permissionGranted = await requestPushPermission();
       if (permissionGranted) {
         const token = await getFcmToken();
@@ -86,9 +96,16 @@ const LoginScreen = () => {
       // 위치 추적 서비스 시작
       startLocationTrackingService();
 
-      // ✅ 저장 완료 이후에 네비게이션 이동
       Alert.alert('로그인 성공');
-      navigation.navigate('MainScreen' as never);
+
+      // ✅ 권한별 화면 이동
+      if (role === 'IND') {
+        navigation.navigate('ReportScreen' as never);
+      } else if (role === 'GOV') {
+        navigation.navigate('Dashboard' as never);
+      } else {
+        navigation.navigate('MainScreen' as never);
+      }
     } catch (error) {
       console.error('❌ 로그인 실패:', error);
       Alert.alert('로그인 실패', '이메일 또는 비밀번호를 확인해주세요');
@@ -97,7 +114,6 @@ const LoginScreen = () => {
 
   const handleKakaoLogin = () => {
     Linking.openURL('http://10.0.2.2:8080/api/oauth2/authorization/kakao');
-    // ↳ 실제 배포 시엔 your-domain.com 으로 교체
   };
 
   return (
@@ -120,7 +136,6 @@ const LoginScreen = () => {
         <Text style={styles.loginButtonText}>로그인</Text>
       </TouchableOpacity>
 
-      {/* ✅ 소셜 로그인 영역 */}
       <View style={styles.socialContainer}>
         <TouchableOpacity style={styles.kakaoButton} onPress={handleKakaoLogin}>
           <Image
@@ -150,6 +165,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: 'center',
     marginTop: 10,
+    height : 53
   },
   loginButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   signUpLink: { marginTop: 10, alignItems: 'center' },
@@ -162,8 +178,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   kakaoIcon: {
-    width: 50,
-    height: 50,
+    marginLeft: '2%',
+    width: '100%',
+    height : 70,
     marginRight: 8,
     resizeMode: 'contain',
   },
