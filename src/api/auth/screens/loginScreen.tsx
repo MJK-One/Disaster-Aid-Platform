@@ -161,15 +161,6 @@ const LoginScreen = () => {
         <Text style={styles.loginButtonText}>로그인</Text>
       </TouchableOpacity>
 
-      <View style={styles.socialContainer}>
-        <TouchableOpacity style={styles.kakaoButton} onPress={handleKakaoLogin}>
-          <Image
-            source={require('../../../img/kakao_icon.png')}
-            style={styles.kakaoIcon}
-          />
-        </TouchableOpacity>
-      </View>
-
       <TouchableOpacity
         style={styles.signUpLink}
         onPress={() => navigation.navigate('SignUp' as never)}
