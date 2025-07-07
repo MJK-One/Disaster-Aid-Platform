@@ -30,8 +30,8 @@ export function useCurrentLocation() {
           setLongitude(longitude);
 
           const region = await fetchRegionCode(latitude, longitude);
-          setSi(region.si);
-          setGu(region.gu);
+          setSi(region.province);
+          setGu(region.city);
 
           setLoading(false);
 
@@ -55,8 +55,8 @@ export function useCurrentLocation() {
               setLongitude(cached.longitude);
 
               const region = await fetchRegionCode(cached.latitude, cached.longitude);
-              setSi(region.si);
-              setGu(region.gu);
+              setSi(region.province);
+              setGu(region.city);
 
               setLoading(false);
 

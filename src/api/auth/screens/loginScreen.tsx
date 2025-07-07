@@ -1,3 +1,4 @@
+// src/screens/LoginScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -26,7 +27,7 @@ interface DecodedToken {
   exp: number;
   iat: number;
 }
-import { startLocationTrackingService } from '../../location/hooks/startLocationService'; // 추가
+import { startLocationSenderService } from '../../location/hooks/startLocationService'; // 확장된 함수 임포트
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -36,17 +37,17 @@ const LoginScreen = () => {
     loginType: 'LOCAL',
   });
 
-  // 자동 로그인 시도 (앱 시작 시 토큰 체크)
+  // 자동 로그인 시도
   useEffect(() => {
     const tryAutoLogin = async () => {
       try {
         const savedToken = await AsyncStorage.getItem('accessToken');
         if (savedToken) {
           setJwtToken(savedToken);
-          // 위치 추적 서비스 시작
-          startLocationTrackingService();
 
-          // FCM 토큰 갱신 및 서버 전송
+          // 위치 전송 서비스 시작 (ForegroundService + TrackingService + LocationSenderService)
+          startLocationSenderService();
+
           const permissionGranted = await requestPushPermission();
           if (permissionGranted) {
             const token = await getFcmToken();
@@ -77,8 +78,7 @@ const LoginScreen = () => {
         ['refreshToken', refreshToken],
       ]);
 
-      console.log('🟢 accessToken 저장됨:', accessToken);
-      console.log('🟢 refreshToken 저장됨:', refreshToken);
+      setJwtToken(accessToken);
 
       const decoded: DecodedToken = jwtDecode(accessToken);
       const role = decoded.role;
@@ -86,15 +86,13 @@ const LoginScreen = () => {
       const permissionGranted = await requestPushPermission();
       if (permissionGranted) {
         const token = await getFcmToken();
-        console.log('🟢 FCM 토큰:', token);
         if (token) {
           const success = await sendDeviceInfoToServer(token);
           if (!success) console.warn('[FCM] 서버 전송 실패');
         }
       }
-
-      // 위치 추적 서비스 시작
-      startLocationTrackingService();
+      // 위치 전송 서비스 시작 (ForegroundService + TrackingService + LocationSenderService)
+      startLocationSenderService();
 
       Alert.alert('로그인 성공');
 
@@ -148,7 +146,7 @@ const LoginScreen = () => {
       <TouchableOpacity
         style={styles.signUpLink}
         onPress={() => navigation.navigate('SignUp' as never)}
-      >  
+      >
         <Text style={styles.signUpText}>회원가입</Text>
       </TouchableOpacity>
     </View>
@@ -158,7 +156,13 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, justifyContent: 'center' },
   logo: { width: 120, height: 120, resizeMode: 'contain', alignSelf: 'center' },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 10, marginBottom: 12 },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 6,
+    padding: 10,
+    marginBottom: 12,
+  },
   loginButton: {
     backgroundColor: '#f26522',
     paddingVertical: 12,
@@ -170,9 +174,7 @@ const styles = StyleSheet.create({
   loginButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   signUpLink: { marginTop: 10, alignItems: 'center' },
   signUpText: { color: '#f26522', fontWeight: '600' },
-
-  // 👇 소셜 로그인 스타일
-  socialContainer: {marginTop: 10, alignItems: 'center' },
+  socialContainer: { marginTop: 10, alignItems: 'center' },
   kakaoButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -183,11 +185,6 @@ const styles = StyleSheet.create({
     height : 70,
     marginRight: 8,
     resizeMode: 'contain',
-  },
-  kakaoText: {
-    color: '#000000',
-    fontWeight: 'bold',
-    fontSize: 14,
   },
 });
 
