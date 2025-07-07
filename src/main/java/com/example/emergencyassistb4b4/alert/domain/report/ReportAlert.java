@@ -1,11 +1,8 @@
 package com.example.emergencyassistb4b4.alert.domain.report;
 
-import com.example.emergencyassistb4b4.report.enums.DisasterType;
 import com.example.emergencyassistb4b4.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,16 +35,14 @@ public class ReportAlert extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String si;
+    private String province;
 
-    private String gu;
+    private String city;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private DisasterType disasterType;
+    private String disasterType;
 
     @Column(nullable = false)
     private Long count;
-
 }
 

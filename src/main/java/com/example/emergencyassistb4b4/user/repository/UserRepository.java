@@ -12,6 +12,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
+    Optional<User> findById(Long id);
+
     Optional<User> findFirstByProvinceStartingWithAndUserRole(String province, UserRole role);
 
     // 예: city 와 role 기준 조회

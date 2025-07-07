@@ -5,7 +5,6 @@ import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.repository.ReportRepository;
 import com.example.emergencyassistb4b4.user.domain.User;
-import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.dto.UserRequestDto;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
 
     private final UserRepository userRepository;
     private final ReportRepository reportRepository;
@@ -41,12 +39,5 @@ public class UserService {
 
         // 신고자 반환
         return report.getReporter();
-    }
-
-    // 공공기관 조회
-    public User findGovernment(String si) {
-        String keyword = si.replace("특별시", "").replace("광역시", "").replace("자치시", "").replace("도", "");
-        return userRepository.findFirstByProvinceStartingWithAndUserRole(keyword, UserRole.GOV)
-            .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
     }
 }

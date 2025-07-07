@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserReportAlertRepository extends JpaRepository<UserReportAlert, Long> {
 
-    List<UserReportAlert> findByUser_IdOrderByIdDesc(Long userId);
+    List<UserReportAlert> findByUserIdOrderByIdDesc(Long userId);
 
 }

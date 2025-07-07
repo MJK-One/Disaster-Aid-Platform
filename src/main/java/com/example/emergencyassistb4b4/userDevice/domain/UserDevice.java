@@ -14,21 +14,34 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+
+
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "user_device")
+@SequenceGenerator(
+    name = "user_device_seq_gen",
+    sequenceName = "user_device_seq",
+    allocationSize = 50
+)
 public class UserDevice extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "user_device_seq_gen"
+    )
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,17 +49,13 @@ public class UserDevice extends BaseEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
-//    @Column(nullable = false)
     private DeviceType type;
 
     @Enumerated(EnumType.STRING)
-//    @Column(nullable = false)
     private DeviceOs os;
 
-//    @Column(nullable = false)
     private String osVersion;
 
-//    @Column(nullable = false)
     private String model;
 
     @Column(nullable = false)

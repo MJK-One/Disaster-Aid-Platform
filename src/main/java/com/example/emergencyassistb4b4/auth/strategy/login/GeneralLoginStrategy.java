@@ -1,14 +1,11 @@
 package com.example.emergencyassistb4b4.auth.strategy.login;
 
-import static com.example.emergencyassistb4b4.user.domain.UserRole.IND;
-
 import com.example.emergencyassistb4b4.auth.dto.request.LoginRequestDto;
 import com.example.emergencyassistb4b4.auth.dto.response.TokenResponseDto;
 import com.example.emergencyassistb4b4.auth.token.TokenService;
 import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
 import com.example.emergencyassistb4b4.user.domain.LoginType;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
-import com.example.emergencyassistb4b4.userDevice.service.UserDeviceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +17,6 @@ import org.springframework.stereotype.Component;
 public class GeneralLoginStrategy implements LoginStrategy {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-    private final UserDeviceService userDeviceService;
 
     @Override
     public boolean supports(LoginType loginType) {
@@ -38,12 +34,7 @@ public class GeneralLoginStrategy implements LoginStrategy {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         UserResponseDto userDto = UserResponseDto.from(userDetails.getUser()); // 이미 DTO 타입이면 바로 사용
 
-        // 3. GOV, NGO -> 본인 PC FCM 토큰 저장
-//        if (userDetails.getUser().getUserRole() != IND) {
-            userDeviceService.testSaveDevice(userDetails.getUser());
-//        }
-
-        // 4. 토큰 발급은 TokenService가 함
+        // 3. 토큰 발급은 TokenService가 함
         return tokenService.issueToken(userDto);
     }
 }

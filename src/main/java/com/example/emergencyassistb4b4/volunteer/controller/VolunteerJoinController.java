@@ -4,6 +4,7 @@ import com.example.emergencyassistb4b4.global.response.ApiResponse;
 import com.example.emergencyassistb4b4.global.security.CustomUserDetails;
 import com.example.emergencyassistb4b4.global.status.SuccessStatus;
 import com.example.emergencyassistb4b4.volunteer.dto.Join.CheckinStatusRequest;
+import com.example.emergencyassistb4b4.volunteer.dto.Join.VolunteerParticipationResponse;
 import com.example.emergencyassistb4b4.volunteer.service.VolunteerJoinService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,6 +42,15 @@ public class VolunteerJoinController {
     ) {
         volunteerJoinService.cancelJoin(participantId, request, userDetails.getUser().getId());
         return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, null);
+    }
+
+    @PreAuthorize("hasRole('IND')")
+    @GetMapping("/volunteer-participants/my")
+    public ResponseEntity<ApiResponse<List<VolunteerParticipationResponse>>> getMyParticipationList(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        List<VolunteerParticipationResponse> list = volunteerJoinService.getMyParticipation(userDetails.getUser().getId());
+        return ApiResponse.onSuccess(SuccessStatus.VOLUNTEER_SUCCESS, list);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.example.emergencyassistb4b4.volunteer.service;
 
-import com.example.emergencyassistb4b4.alert.orchestrator.VolunteerUpdateAlertOrchestratorService;
 import com.example.emergencyassistb4b4.global.exception.ApiException;
+import com.example.emergencyassistb4b4.global.kafka.dto.VolunteerUpdatedEvent;
 import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.user.domain.User;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
@@ -12,6 +12,7 @@ import com.example.emergencyassistb4b4.volunteer.dto.Post.*;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostAttendancePolicyDto;
 import com.example.emergencyassistb4b4.volunteer.dto.Post.common.PostLocationDto;
 import com.example.emergencyassistb4b4.volunteer.infra.redis.service.TeamParticipationRedisService;
+import com.example.emergencyassistb4b4.volunteer.kafka.producer.VolunteerUpdatedEventProducer;
 import com.example.emergencyassistb4b4.volunteer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,7 @@ public class VolunteerPostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final TeamParticipationRedisService teamParticipationRedisService;
-    private final VolunteerUpdateAlertOrchestratorService volunteerUpdateAlertOrchestratorService;
+    private final VolunteerUpdatedEventProducer producer;
 
     // 모집 게시글 생성
     @Transactional
@@ -72,9 +73,11 @@ public class VolunteerPostService {
                 policy.getMinStayMinutes()
         );
 
-        // 게시글 수정 알림 발송
-        volunteerUpdateAlertOrchestratorService.process(post);
+        // kafka 메세지 발행
+        VolunteerUpdatedEvent event = VolunteerUpdatedEvent.from(post);
+        producer.sendVolunteerUpdatedEvent(event);
     }
+
     // 모집 게시글 다건 조회
     @Transactional(readOnly = true)
     public Slice<PostsResponse> getPostList(Pageable pageable) {

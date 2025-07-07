@@ -85,7 +85,6 @@ public class ReportService {
                     .orElseThrow(() -> new ApiException(ErrorStatus.GOV_NOT_FOUND));
         }
 
-
         // 신고 저장
         Report report = Report.builder()
                 .reporter(reporter)
@@ -142,8 +141,6 @@ public class ReportService {
         r.updateStatus(newStatus);
         return new ReportStatusResponseDto(reportId,newStatus);
     }
-    // 공공기관 상태변경 (다건)
-
 
     // 주변 신고 목록 조회
     @PreAuthorize("hasRole('GOV')")
@@ -152,7 +149,6 @@ public class ReportService {
 
         return reportRepository.findNearby(si, gu, status, pageable).map(ReportDto::of);
     }
-
 
     //내 신고 목록 조회 (신고한 유저의 목록)
     @Transactional(readOnly = true)

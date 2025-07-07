@@ -21,14 +21,25 @@ spring:
     password: ${POSTGRE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+  hikari:
+    maximum-pool-size: 30     # 최대 커넥션 수
+    minimum-idle: 10          # 최소 커넥션 수
+    idle-timeout: 30000       # 비활성 커넥션 유지 시간 (ms)
+    connection-timeout: 20000 # 커넥션을 얻기 위한 최대 대기 시간 (ms)
+
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
+        jdbc:
+          batch_size: 1000
+        order_inserts: true
+        order_updates: true
         format_sql: true
         dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
+    open-in-view: false
 
   security:
     oauth2:
@@ -89,9 +100,6 @@ cloud:
 kakao:
   api:
     key: ${KAKAO_API_KEY}
-
-fcm:
-  test-token: ${FCM_TOKEN}
 
 jwt:
   issuer: my-app
