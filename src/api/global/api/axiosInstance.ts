@@ -3,22 +3,18 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// ✅ 환경별 baseURL 분기
-// Android 에뮬레이터 → 로컬 서버 접근 시 반드시 10.0.2.2 사용
-// ✅ 상황별 baseURL 자동 분기
-const localIP = '192.168.25.177';
-const emulatorURL = 'http://10.0.2.2:8080/api';
+// 📡 실제 로컬 서버 IP 주소 (기기에서 테스트 시 필요)
+const localIP = '192.168.45.70'; // ← 필요시 본인 PC의 IP로 수정
 
-// ✅ 실제 기기에서 테스트할 경우, PC의 로컬 IP 주소를 명시
-
-// ✅ baseURL 설정 (에뮬레이터 or 실제 기기 분기)
+// ✅ baseURL 설정: 에뮬레이터 / 실제 기기 / iOS
 const baseURL =
   Platform.OS === 'android'
-    ? emulatorURL // 항상 에뮬레이터면 10.0.2.2
-    : 'http://localhost:8080/api'; // iOS 시뮬레이터 등
+    ? 'http://10.0.2.2:8080/api' // Android 에뮬레이터 전용
+    : `http://${localIP}:8080/api`; // iOS 시뮬레이터 또는 실제 디바이스용
 
-console.log('🌐 Axios BaseURL:', baseURL);
+console.log('🌐 [Axios] BaseURL:', baseURL);
 
+// ✅ Axios 인스턴스 생성
 const axiosInstance = axios.create({
   baseURL,
   withCredentials: true,
@@ -27,22 +23,25 @@ const axiosInstance = axios.create({
   },
 });
 
-// ✅ 요청 인터셉터 - accessToken 자동 삽입
+// ✅ 요청 인터셉터: accessToken 자동 삽입
 axiosInstance.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem('accessToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  try {
+    const token = await AsyncStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (e) {
+    console.warn('⚠️ [Axios] accessToken 불러오기 실패:', e);
   }
   return config;
 });
 
-// ✅ 응답 인터셉터 - 401 발생 시 refreshToken으로 accessToken 재발급 시도
+// ✅ 응답 인터셉터: accessToken 만료 시 재발급
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // accessToken 만료 → 재발급 로직
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -57,11 +56,12 @@ axiosInstance.interceptors.response.use(
         await AsyncStorage.setItem('accessToken', newAccessToken);
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
+        console.log('🔄 accessToken 재발급 성공');
         return axiosInstance(originalRequest); // 원래 요청 재시도
       } catch (reissueError) {
-        console.error('🔴 Token 재발급 실패:', reissueError);
+        console.error('🔴 [Axios] 토큰 재발급 실패:', reissueError);
         await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
-        // 필요 시: 로그인 화면으로 이동 처리
+        // TODO: 로그인 화면으로 이동 처리 필요 시 여기에 작성
       }
     }
 

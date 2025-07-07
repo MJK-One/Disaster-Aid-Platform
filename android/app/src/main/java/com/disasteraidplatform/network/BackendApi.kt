@@ -23,7 +23,7 @@ object BackendApi {
                 .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
             val request = Request.Builder()
-                .url("http://192.168.25.177:8080/api/location/region")// 환경에 맞게 변경
+                .url("http://192.168.45.70:8080/api/location/region")// 환경에 맞게 변경
                 .addHeader("Authorization", "Bearer $jwtToken")
                 .post(requestBody)
                 .build()
