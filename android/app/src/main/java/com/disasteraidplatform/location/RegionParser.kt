@@ -1,24 +1,17 @@
 // android/app/src/main/java/com/disasteraidplatform/location/RegionParser.kt
 package com.disasteraidplatform.location
+import com.disasteraidplatform.location.Region
 
 object RegionParser {
     fun parse(region1: String, region2: String): Region {
-        var si = ""
-        var gu: String? = null
+        var province = region1
+        var city: String? = region2
 
-        // region2에서 "○○시", "○○군" 추출
-        val siMatch = Regex("([가-힣]+[시군])").find(region2)
-        if (siMatch != null) {
-            si = siMatch.groupValues[1]
-        } else {
-            // fallback: 특별시/광역시 처리
-            si = region1.replace("특별시", "시").replace("광역시", "시")
+        // 세종시는 시/군/구가 없는 경우 있음 → null 처리
+        if (region1.contains("세종")) {
+            return Region(province, null)
         }
 
-        // 구 단위 추출
-        val guMatch = Regex("([가-힣]+구)$").find(region2)
-        gu = guMatch?.groupValues?.get(1)
-
-        return Region(si, gu)
+        return Region(province, city)
     }
 }

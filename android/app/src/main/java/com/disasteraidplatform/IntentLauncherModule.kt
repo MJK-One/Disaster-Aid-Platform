@@ -1,8 +1,9 @@
 package com.disasteraidplatform
 
-import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.util.Log
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
@@ -10,46 +11,43 @@ import com.facebook.react.bridge.ReactMethod
 class IntentLauncherModule(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
 
+    private val TAG = "IntentLauncherModule"
+
     override fun getName(): String = "IntentLauncher"
 
     @ReactMethod
     fun startService(serviceClassName: String, action: String) {
+        Log.d(TAG, "startService 호출 - serviceClassName=$serviceClassName, action=$action")
+
         try {
             val clazz = Class.forName(serviceClassName)
             val intent = Intent(reactContext, clazz)
             intent.action = action
 
-            if (action == "START") {
-                if (isServiceRunning(serviceClassName)) {
-                    // 이미 실행 중이면 무시
-                    return
-                }
+            // Android O 이상이라면 무조건 startForegroundService 호출
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Log.d(TAG, "startForegroundService 호출: $serviceClassName")
+                reactContext.startForegroundService(intent)
+            } else {
+                Log.d(TAG, "startService 호출: $serviceClassName")
+                reactContext.startService(intent)
             }
 
-            reactContext.startService(intent)
+            Log.d(TAG, "서비스 시작 요청 성공: $serviceClassName")
+        } catch (e: ClassNotFoundException) {
+            Log.e(TAG, "서비스 클래스 못 찾음: $serviceClassName", e)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "startService 호출 중 오류 발생", e)
         }
     }
 
-    // ✅ NativeEventEmitter 사용 시 반드시 필요
     @ReactMethod
     fun addListener(eventName: String?) {
-        // JS 쪽에서 addListener('eventName', ...) 호출 시 필요
+        // 이벤트 리스너 빈 구현
     }
 
     @ReactMethod
     fun removeListeners(count: Int?) {
-        // JS 쪽에서 removeAllListeners 호출 시 필요
-    }
-
-    private fun isServiceRunning(serviceClassName: String): Boolean {
-        val activityManager = reactContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        for (service in activityManager.getRunningServices(Int.MAX_VALUE)) {
-            if (service.service.className == serviceClassName) {
-                return true
-            }
-        }
-        return false
+        // 이벤트 리스너 빈 구현
     }
 }

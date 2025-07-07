@@ -26,7 +26,8 @@ const ReportScreen = () => {
   const [image, setImage] = useState<Asset | null>(null);
   const [video, setVideo] = useState<Asset | null>(null);
 
-  const { latitude, longitude, si, gu, loading } = useCurrentLocation();
+  // 변경된 변수명 반영
+  const { latitude, longitude, province, city, loading } = useCurrentLocation();
 
   const pickMedia = async (type: 'photo' | 'video') => {
     try {
@@ -54,7 +55,7 @@ const ReportScreen = () => {
   };
 
   const handleReport = async () => {
-    if (!selectedType || !description.trim() || !si || latitude == null || longitude == null) {
+    if (!selectedType || !description.trim() || !province || latitude == null || longitude == null) {
       Alert.alert('오류', '재난 유형, 설명, 위치 정보가 모두 필요합니다.');
       return;
     }
@@ -62,8 +63,8 @@ const ReportScreen = () => {
     const requestPayload = {
       disasterType: selectedType,
       description,
-      province: si,
-      city: gu || '없음',
+      province,
+      city: city || '없음',
       latitude,
       longitude,
       image: image
@@ -140,7 +141,7 @@ const ReportScreen = () => {
       {image && <Text style={styles.fileText}>📷 선택된 이미지: {image.fileName}</Text>}
       {video && <Text style={styles.fileText}>🎞 선택된 영상: {video.fileName}</Text>}
 
-      <Text style={styles.locationLabel}>📍 위치: {si} {gu || ''}</Text>
+      <Text style={styles.locationLabel}>📍 위치: {province} {city || ''}</Text>
       <View style={styles.inputWrapper}>
         <TextInput
           style={styles.input}
