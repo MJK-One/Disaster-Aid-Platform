@@ -28,13 +28,32 @@ public interface VolunteerParticipantRepository extends JpaRepository<VolunteerP
     Optional<Long> findPostIdByParticipantId(@Param("participantId") Long participantId);
 
     @Query("""
-    SELECT vp
-    FROM VolunteerParticipant vp
-    JOIN FETCH vp.volunteerTeam t
-    JOIN FETCH t.post p
-    JOIN FETCH p.location l
-    JOIN FETCH p.attendancePolicy ap
-    WHERE vp.id = :volunteerId
-""")
+        SELECT vp
+        FROM VolunteerParticipant vp
+        JOIN FETCH vp.volunteerTeam t
+        JOIN FETCH t.post p
+        JOIN FETCH p.location l
+        JOIN FETCH p.attendancePolicy ap
+        WHERE vp.id = :volunteerId
+    """)
     Optional<VolunteerParticipant> findWithTeamAndPolicyById(@Param("volunteerId") Long volunteerId);
+
+    @Query("""
+        SELECT COUNT(vp) > 0
+        FROM VolunteerParticipant vp
+        WHERE vp.user.id = :userId
+          AND vp.checkinStatus = 'PARTICIPATED'
+    """)
+    boolean existsActiveParticipation(@Param("userId") Long userId);
+
+    @Query("""
+        SELECT vp FROM VolunteerParticipant vp
+        JOIN FETCH vp.volunteerTeam t
+        JOIN FETCH t.post p
+        JOIN FETCH p.attendancePolicy ap
+        JOIN FETCH p.location l
+        WHERE vp.user.id = :userId
+    """)
+    List<VolunteerParticipant> findAllByUserIdWithPostAndTeam(@Param("userId") Long userId);
+
 }
