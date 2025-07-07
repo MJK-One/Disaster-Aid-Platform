@@ -1,13 +1,14 @@
 package com.example.emergencyassistb4b4.alert.service.trigger;
 
-import com.example.emergencyassistb4b4.alert.redis.RedisThresholdCounter;
 import com.example.emergencyassistb4b4.alert.orchestrator.ReportThresholdAlertOrchestratorService;
+import com.example.emergencyassistb4b4.alert.redis.RedisThresholdCounter;
 import com.example.emergencyassistb4b4.global.kafka.dto.DisasterReportedEvent;
-import java.time.Duration;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -22,7 +23,7 @@ public class ReportThresholdAlertTriggerService {
     public void checkReportThreshold(DisasterReportedEvent event) {
         String counterKey = generateReportCounterKey(event);
         String notifyKeyPrefix = "alert:" + counterKey;
-        List<Long> thresholds = List.of(3L, 5L, 7L, 10L);
+        List<Long> thresholds = List.of(1L, 3L, 5L, 7L, 10L);
 
         Long matchedThreshold = redisThresholdCounter.incrementAndCheckThreshold(counterKey,
             notifyKeyPrefix, KEY_TTL, thresholds);

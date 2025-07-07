@@ -58,7 +58,7 @@ public class Report extends BaseEntity {
     private String province;
 
     // 행정구역 (구/군)
-    @Column(name = "city", nullable = false, length = 255)
+    @Column(name = "city", length = 255)
     private String city;
 
     // 위치 정보 (PostGIS Point 타입)
