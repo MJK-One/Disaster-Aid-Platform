@@ -62,8 +62,8 @@ const ReportScreen = () => {
     const requestPayload = {
       disasterType: selectedType,
       description,
-      si,
-      gu: gu || '없음',
+      province: si,
+      city: gu || '없음',
       latitude,
       longitude,
       image: image
