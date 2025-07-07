@@ -11,14 +11,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserReportAlertBulkService {
 
-    @PersistenceContext
     private final EntityManager entityManager;
 
     public void saveAllInBatches(List<UserReportAlert> alerts, int batchSize) {
         for (int i = 0; i < alerts.size(); i++) {
             entityManager.persist(alerts.get(i));
 
-            if (i > 0 && i % batchSize == 0) {
+            if ((i + 1) % batchSize == 0) {
                 flushAndClear(); // 캐시 비우기 + DB에 쌓인 insert 전송
             }
         }
