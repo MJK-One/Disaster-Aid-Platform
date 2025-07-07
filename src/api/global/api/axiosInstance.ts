@@ -3,22 +3,18 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// ✅ 환경별 baseURL 분기
-// Android 에뮬레이터 → 로컬 서버 접근 시 반드시 10.0.2.2 사용
-// ✅ 상황별 baseURL 자동 분기
-const localIP = '192.168.25.177';
-const emulatorURL = 'http://10.0.2.2:8080/api';
+// ✅ 환경별 baseURL 정의
+const emulatorURL = 'http://10.0.2.2:8080/api'; // Android 에뮬레이터용
+const localIP = '192.168.0.22';                // PC 로컬 IP
+const localURL = `http://${localIP}:8080/api`;
+const productionURL = 'http://54.180.32.246:8080/api'; // ✅ EC2 서버
 
-// ✅ 실제 기기에서 테스트할 경우, PC의 로컬 IP 주소를 명시
-
-// ✅ baseURL 설정 (에뮬레이터 or 실제 기기 분기)
-const baseURL =
-  Platform.OS === 'android'
-    ? emulatorURL // 항상 에뮬레이터면 10.0.2.2
-    : 'http://localhost:8080/api'; // iOS 시뮬레이터 등
+// ✅ 현재는 무조건 EC2 서버에 요청 (에러 회피용)
+const baseURL = localURL;
 
 console.log('🌐 Axios BaseURL:', baseURL);
 
+// ✅ Axios 인스턴스 생성
 const axiosInstance = axios.create({
   baseURL,
   withCredentials: true,
@@ -26,6 +22,7 @@ const axiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
 
 // ✅ 요청 인터셉터 - accessToken 자동 삽입
 axiosInstance.interceptors.request.use(async (config) => {
