@@ -193,7 +193,7 @@ CREATE TABLE user_volunteer_alert (
                                       id BIGSERIAL PRIMARY KEY,
                                       alert_id BIGINT NOT NULL,
                                       user_id BIGINT NOT NULL,
-                                      CONSTRAINT uk_user_report_alert UNIQUE (user_id, alert_id),
+                                      CONSTRAINT uk_user_volunteer_alert UNIQUE (user_id, alert_id),
                                       CONSTRAINT fk_volunteer_alert FOREIGN KEY (alert_id) REFERENCES volunteer_alert(id),
                                       CONSTRAINT fk_user_volunteer FOREIGN KEY (user_id) REFERENCES users(id)
 );
