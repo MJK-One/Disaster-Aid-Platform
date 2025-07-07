@@ -111,7 +111,7 @@ const LoginScreen = () => {
   };
 
   const handleKakaoLogin = () => {
-    Linking.openURL('http://10.0.2.2:8080/api/oauth2/authorization/kakao');
+    Linking.openURL('http://192.168.0.22:8080/api/oauth2/authorization/kakao');
   };
 
   return (

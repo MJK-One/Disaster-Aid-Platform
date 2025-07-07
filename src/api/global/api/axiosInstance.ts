@@ -12,7 +12,7 @@ const productionURL = 'http://54.180.32.246:8080/api'; // ✅ EC2 서버
 // ✅ 현재는 무조건 EC2 서버에 요청 (에러 회피용)
 const baseURL = localURL;
 
-console.log('🌐 Axios BaseURL:', baseURL);
+console.log('🌐 [Axios] BaseURL:', baseURL);
 
 // ✅ Axios 인스턴스 생성
 const axiosInstance = axios.create({
@@ -23,23 +23,25 @@ const axiosInstance = axios.create({
   },
 });
 
-
-// ✅ 요청 인터셉터 - accessToken 자동 삽입
+// ✅ 요청 인터셉터: accessToken 자동 삽입
 axiosInstance.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem('accessToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  try {
+    const token = await AsyncStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (e) {
+    console.warn('⚠️ [Axios] accessToken 불러오기 실패:', e);
   }
   return config;
 });
 
-// ✅ 응답 인터셉터 - 401 발생 시 refreshToken으로 accessToken 재발급 시도
+// ✅ 응답 인터셉터: accessToken 만료 시 재발급
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // accessToken 만료 → 재발급 로직
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -54,11 +56,12 @@ axiosInstance.interceptors.response.use(
         await AsyncStorage.setItem('accessToken', newAccessToken);
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
+        console.log('🔄 accessToken 재발급 성공');
         return axiosInstance(originalRequest); // 원래 요청 재시도
       } catch (reissueError) {
-        console.error('🔴 Token 재발급 실패:', reissueError);
+        console.error('🔴 [Axios] 토큰 재발급 실패:', reissueError);
         await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
-        // 필요 시: 로그인 화면으로 이동 처리
+        // TODO: 로그인 화면으로 이동 처리 필요 시 여기에 작성
       }
     }
 
