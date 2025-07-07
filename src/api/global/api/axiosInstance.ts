@@ -14,7 +14,7 @@ const baseURL = localURL;
 
 console.log('🌐 [Axios] BaseURL:', baseURL);
 
-// ✅ Axios 인스턴스 생성
+// Axios 인스턴스 생성
 const axiosInstance = axios.create({
   baseURL,
   withCredentials: true,
@@ -23,7 +23,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// ✅ 요청 인터셉터: accessToken 자동 삽입
+// 요청 인터셉터: accessToken 자동 삽입
 axiosInstance.interceptors.request.use(async (config) => {
   try {
     const token = await AsyncStorage.getItem('accessToken');
@@ -36,7 +36,7 @@ axiosInstance.interceptors.request.use(async (config) => {
   return config;
 });
 
-// ✅ 응답 인터셉터: accessToken 만료 시 재발급
+// 응답 인터셉터: accessToken 만료 시 refreshToken으로 재발급 시도
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -56,7 +56,7 @@ axiosInstance.interceptors.response.use(
         await AsyncStorage.setItem('accessToken', newAccessToken);
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-        console.log('🔄 accessToken 재발급 성공');
+        console.log('🔄 [Axios] accessToken 재발급 성공');
         return axiosInstance(originalRequest); // 원래 요청 재시도
       } catch (reissueError) {
         console.error('🔴 [Axios] 토큰 재발급 실패:', reissueError);

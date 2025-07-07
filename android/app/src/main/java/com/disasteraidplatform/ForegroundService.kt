@@ -7,23 +7,34 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.disasteraidplatform.auth.JwtManager
+import com.disasteraidplatform.LocationSenderService
+import com.disasteraidplatform.TrackingService
 
 class ForegroundService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createNotificationChannel()
-
         startForeground(1, createNotification())
 
-        // 항상 TrackingService 실행 (위치 추적)
-        startService(Intent(this, TrackingService::class.java))
+        // 위치 추적 서비스 시작 (액션 명시)
+        val trackingIntent = Intent(this, TrackingService::class.java)
+        trackingIntent.action = "START_TRACKING"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(trackingIntent)
+        } else {
+            startService(trackingIntent)
+        }
 
-        // 로그인 상태에 따라 LocationSenderService 실행/중지
+        // 로그인 상태 확인 후 위치 전송 서비스 시작
         val jwt = JwtManager.getToken()
         if (jwt != null) {
-            startService(Intent(this, LocationSenderService::class.java))
-        } else {
-            stopService(Intent(this, LocationSenderService::class.java))
+            val senderIntent = Intent(this, LocationSenderService::class.java)
+            senderIntent.action = "START_SENDER"
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(senderIntent)
+            } else {
+                startService(senderIntent)
+            }
         }
 
         return START_STICKY

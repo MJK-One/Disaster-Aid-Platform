@@ -18,11 +18,11 @@ object LocationHandler {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val region = KakaoRegionApi.fetchRegion(location.longitude, location.latitude)
-                Log.d(TAG, "시: ${region.si}, 구: ${region.gu}")
+                Log.d(TAG, "시/도: ${region.province}, 시/군/구: ${region.city ?: "없음"}")
 
                 val jwt = JwtManager.getToken()
                 if (jwt != null) {
-                    BackendApi.sendRegion(jwt, region.si, region.gu)
+                    BackendApi.sendRegion(jwt, region.province, region.city)
                 } else {
                     Log.w(TAG, "JWT 토큰 없음, 서버 전송 생략")
                 }
