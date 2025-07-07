@@ -3,14 +3,14 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// 📡 실제 로컬 서버 IP 주소 (기기에서 테스트 시 필요)
-const localIP = '192.168.45.70'; // ← 필요시 본인 PC의 IP로 수정
+// ✅ 실제 로컬 서버 IP 주소 (Android 실기기에서 테스트할 경우 PC의 IP)
+const localIP = '192.168.45.70'; // ← 여기에 본인의 PC IP를 설정하세요
 
-// ✅ baseURL 설정: 에뮬레이터 / 실제 기기 / iOS
+// ✅ baseURL 설정: Android 실기기/에뮬레이터, iOS 등 분기
 const baseURL =
   Platform.OS === 'android'
-    ? 'http://10.0.2.2:8080/api' // Android 에뮬레이터 전용
-    : `http://${localIP}:8080/api`; // iOS 시뮬레이터 또는 실제 디바이스용
+    ? `http://${localIP}:8080/api` // Android (실기기 포함)
+    : 'http://localhost:8080/api'; // iOS 시뮬레이터 등
 
 console.log('🌐 [Axios] BaseURL:', baseURL);
 
@@ -36,12 +36,13 @@ axiosInstance.interceptors.request.use(async (config) => {
   return config;
 });
 
-// ✅ 응답 인터셉터: accessToken 만료 시 재발급
+// ✅ 응답 인터셉터: accessToken 만료 시 refreshToken으로 재발급 시도
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
+    // accessToken 만료 → refreshToken으로 재발급
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -56,7 +57,7 @@ axiosInstance.interceptors.response.use(
         await AsyncStorage.setItem('accessToken', newAccessToken);
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-        console.log('🔄 accessToken 재발급 성공');
+        console.log('🔄 [Axios] accessToken 재발급 성공');
         return axiosInstance(originalRequest); // 원래 요청 재시도
       } catch (reissueError) {
         console.error('🔴 [Axios] 토큰 재발급 실패:', reissueError);

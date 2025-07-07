@@ -1,4 +1,3 @@
-// android/app/src/main/java/com/disasteraidplatform/location/KakaoRegionApi.kt
 package com.disasteraidplatform.location
 
 import android.util.Log
@@ -9,7 +8,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 
-data class Region(val si: String, val gu: String?)
+// Region 클래스는 Region.kt에서 import
+import com.disasteraidplatform.location.Region
 
 object KakaoRegionApi {
     private const val TAG = "📍KakaoRegionApi"
@@ -43,10 +43,10 @@ object KakaoRegionApi {
                 }
 
                 val region = documents.getJSONObject(0)
-                val siRaw = region.optString("region_1depth_name", "")
-                val guRaw = region.optString("region_2depth_name", "")
+                val region1 = region.optString("region_1depth_name", "")
+                val region2 = region.optString("region_2depth_name", "")
 
-                return@withContext RegionParser.parse(siRaw, guRaw)
+                return@withContext RegionParser.parse(region1, region2)
             }
         } catch (e: Exception) {
             Log.e(TAG, "fetchRegion 실패", e)

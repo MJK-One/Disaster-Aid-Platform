@@ -2,11 +2,15 @@ import { NativeModules, Platform } from 'react-native';
 
 const { IntentLauncher } = NativeModules;
 
-const SERVICE_CLASS_NAME = 'com.disasteraidplatform.RecordingService';
+type ServiceAction =
+  | 'START_TRACKING'
+  | 'STOP_TRACKING'
+  | 'START_SENDER'
+  | 'STOP_SENDER'
+  | 'START_FOREGROUND'
+  | 'STOP_FOREGROUND';
 
-type ServiceAction = 'START_TRACKING' | 'STOP_TRACKING' | 'START_SENDER' | 'STOP_SENDER' | 'START_FOREGROUND' | 'STOP_FOREGROUND';
-
-function invokeService(action: ServiceAction) {
+function invokeService(className: string, action: ServiceAction) {
   if (Platform.OS !== 'android') {
     console.warn(`invokeService(${action}) only supported on Android`);
     return;
@@ -16,32 +20,38 @@ function invokeService(action: ServiceAction) {
     return;
   }
   try {
-    IntentLauncher.startService(SERVICE_CLASS_NAME, action);
+    IntentLauncher.startService(className, action);
   } catch (e) {
-    console.error(`[invokeService] error during ${action}:`, e);
+    console.error(`[invokeService] error during ${action} → ${className}:`, e);
   }
 }
 
+// ✅ 서비스별 실제 클래스 이름
+const TRACKING_SERVICE = 'com.disasteraidplatform.TrackingService';
+const SENDER_SERVICE = 'com.disasteraidplatform.LocationSenderService';
+const FOREGROUND_SERVICE = 'com.disasteraidplatform.ForegroundService';
+
+// 🎯 외부에서 호출하는 함수들
 export function startTrackingService() {
-  invokeService('START_TRACKING');
+  invokeService(TRACKING_SERVICE, 'START_TRACKING');
 }
 
 export function stopTrackingService() {
-  invokeService('STOP_TRACKING');
+  invokeService(TRACKING_SERVICE, 'STOP_TRACKING');
 }
 
 export function startLocationSenderService() {
-  invokeService('START_SENDER');
+  invokeService(SENDER_SERVICE, 'START_SENDER');
 }
 
 export function stopLocationSenderService() {
-  invokeService('STOP_SENDER');
+  invokeService(SENDER_SERVICE, 'STOP_SENDER');
 }
 
 export function startForegroundService() {
-  invokeService('START_FOREGROUND');
+  invokeService(FOREGROUND_SERVICE, 'START_FOREGROUND');
 }
 
 export function stopForegroundService() {
-  invokeService('STOP_FOREGROUND');
+  invokeService(FOREGROUND_SERVICE, 'STOP_FOREGROUND');
 }

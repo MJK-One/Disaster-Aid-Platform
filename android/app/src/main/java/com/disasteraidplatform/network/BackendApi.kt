@@ -12,18 +12,18 @@ object BackendApi {
     private const val TAG = "📡BackendApi"
     private val client = OkHttpClient()
 
-    fun sendRegion(jwtToken: String, si: String, gu: String?): Boolean {
+    fun sendRegion(jwtToken: String, province: String, city: String?): Boolean {
         return try {
             val json = JSONObject().apply {
-                put("si", si)
-                put("gu", gu ?: JSONObject.NULL)
+                put("province", province)
+                put("city", city ?: JSONObject.NULL)
             }
 
             val requestBody = json.toString()
                 .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
             val request = Request.Builder()
-                .url("http://192.168.45.70:8080/api/location/region")// 환경에 맞게 변경
+                .url("http://192.168.45.70:8080/api/location/region") // 환경에 맞게 변경
                 .addHeader("Authorization", "Bearer $jwtToken")
                 .post(requestBody)
                 .build()

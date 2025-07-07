@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 import fetchRegionCode from '../utils/fetchRegionCode';
 
-const { IntentLauncher, LocationCache } = NativeModules;  // LocationCache는 캐시 위치용 네이티브 모듈 가정
+const { IntentLauncher, LocationCache } = NativeModules;
 
 export function useCurrentLocation() {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
-  const [si, setSi] = useState('');
-  const [gu, setGu] = useState<string | null>(null);
+  const [province, setProvince] = useState('');
+  const [city, setCity] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,30 +19,27 @@ export function useCurrentLocation() {
       if (Platform.OS === 'android') {
         const eventEmitter = new NativeEventEmitter(IntentLauncher);
 
-        // 위치 업데이트 이벤트 수신
-        const subscription = eventEmitter.addListener('onLocationUpdate', async (event) => {
+        const subscription = eventEmitter.addListener('tracking', async (event) => {
           if (!isMounted) return;
 
           const { latitude, longitude } = event;
-          console.log('[Location Update] latitude:', latitude, 'longitude:', longitude);
+          console.log('[tracking 이벤트 수신] latitude:', latitude, 'longitude:', longitude);
 
           setLatitude(latitude);
           setLongitude(longitude);
 
           const region = await fetchRegionCode(latitude, longitude);
-          setSi(region.province);
-          setGu(region.city);
+          setProvince(region.province);
+          setCity(region.city);
 
           setLoading(false);
 
-          // 위치 받았으니 타임아웃 취소
           if (timeoutId) {
             clearTimeout(timeoutId);
             timeoutId = null;
           }
         });
 
-        // 1) 위치 캐시에서 초기 위치 읽기 시도
         async function fetchCachedLocation() {
           try {
             const cached = await LocationCache.getLastLocation();
@@ -55,12 +52,11 @@ export function useCurrentLocation() {
               setLongitude(cached.longitude);
 
               const region = await fetchRegionCode(cached.latitude, cached.longitude);
-              setSi(region.province);
-              setGu(region.city);
+              setProvince(region.province);
+              setCity(region.city);
 
               setLoading(false);
 
-              // 캐시 위치가 있으면 타임아웃 취소
               if (timeoutId) {
                 clearTimeout(timeoutId);
                 timeoutId = null;
@@ -71,7 +67,6 @@ export function useCurrentLocation() {
           }
         }
 
-        // 2) 타임아웃: 10초 후에도 위치 못 받으면 강제로 loading 종료
         timeoutId = setTimeout(() => {
           if (isMounted && loading) {
             console.warn('위치 수신 타임아웃으로 loading 종료');
@@ -81,13 +76,13 @@ export function useCurrentLocation() {
 
         fetchCachedLocation();
 
-        // 서비스 시작 (한번만 호출)
-        IntentLauncher.startService('com.disasteraidplatform.RecordingService', 'START');
+        IntentLauncher.startService('com.disasteraidplatform.TrackingService', 'START_TRACKING');
 
         return () => {
           isMounted = false;
           subscription.remove();
-          IntentLauncher.startService('com.disasteraidplatform.RecordingService', 'STOP');
+
+          IntentLauncher.startService('com.disasteraidplatform.TrackingService', 'STOP_TRACKING');
 
           if (timeoutId) {
             clearTimeout(timeoutId);
@@ -95,7 +90,7 @@ export function useCurrentLocation() {
           }
         };
       } else {
-        setLoading(false); // Android 아닌 경우 바로 종료
+        setLoading(false);
       }
     }
     init();
@@ -105,5 +100,5 @@ export function useCurrentLocation() {
     };
   }, []);
 
-  return { latitude, longitude, si, gu, loading };
+  return { latitude, longitude, province, city, loading };
 }
