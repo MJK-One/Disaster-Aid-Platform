@@ -4,6 +4,7 @@ import android.app.Service
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Build
@@ -11,7 +12,6 @@ import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-
 import com.disasteraidplatform.auth.JwtManager
 import com.disasteraidplatform.location.LocationHandler
 
@@ -19,15 +19,14 @@ class LocationSenderService : Service() {
 
     private val TAG = "📍LocationSenderService"
     private val handler = Handler()
-    private val intervalMillis = 30_000L // 30초
+    private val intervalMillis = 30_000L
     private val notificationId = 1001
     private val channelId = "location_service_channel"
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createNotificationChannelIfNeeded()
         val notification = buildNotification()
-        startForeground(notificationId, notification)  // 필수!
-
+        startForeground(notificationId, notification)
         handler.post(sendLocationRunnable)
         return START_STICKY
     }
@@ -48,7 +47,7 @@ class LocationSenderService : Service() {
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle("위치 추적 중")
             .setContentText("앱이 백그라운드에서 위치를 전송 중입니다.")
-            .setSmallIcon(android.R.drawable.ic_menu_mylocation)  // 기본 아이콘 사용
+            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }
@@ -70,9 +69,14 @@ class LocationSenderService : Service() {
             return
         }
 
-        val jwt = JwtManager.getToken()
-        if (jwt == null) {
+        val jwt = JwtManager.getToken() ?: run {
             Log.w(TAG, "JWT 토큰 없음, 서버 전송 중단")
+            return
+        }
+
+        val volunteerPrefs = getSharedPreferences("tracking_info", MODE_PRIVATE)
+        val volunteerId = volunteerPrefs.getString("volunteerId", null) ?: run {
+            Log.w(TAG, "volunteerId 없음")
             return
         }
 
@@ -81,9 +85,9 @@ class LocationSenderService : Service() {
             longitude = lng.toDouble()
         }
 
-        LocationHandler.handleLocationUpdate(applicationContext, location)
-
-        Log.d(TAG, "캐시 위치 서버 전송 완료")
+        LocationHandler.sendLocationViaWebSocket(location, jwt, volunteerId)
+        LocationHandler.sendLocationViaApi(location, jwt, volunteerId)
+        Log.d(TAG, "📡 WebSocket + API 위치 전송 완료")
     }
 
     override fun onDestroy() {

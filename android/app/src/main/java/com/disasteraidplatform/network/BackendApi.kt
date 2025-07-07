@@ -24,7 +24,7 @@ object BackendApi {
 
             val request = Request.Builder()
 
-                .url("http://192.168.45.70:8080/api/location/region") // 환경에 맞게 변경
+                .url("http://192.168.0.22:8080/api/location/region") // 환경에 맞게 변경
 
                 .addHeader("Authorization", "Bearer $jwtToken")
                 .post(requestBody)
