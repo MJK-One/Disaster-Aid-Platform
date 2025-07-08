@@ -34,7 +34,7 @@ const MainScreen = () => {
       return;
     }
     try {
-      const data = await shelterApi.getNearbyShelters(latitude, longitude, 3000);
+      const data = await shelterApi.getNearbyShelters(latitude, longitude, 1000);
       console.log('대피소 데이터:', data);
       setShelters(data);
       setDisasters([]);
@@ -49,7 +49,7 @@ const MainScreen = () => {
       return;
     }
     try {
-      const data = await reportApi.getNearbyDisasters(latitude, longitude, 3000);
+      const data = await reportApi.getNearbyDisasters(latitude, longitude, 1000);
       console.log('재난 정보 데이터:', data);
       setDisasters(data);
       setShelters([]);

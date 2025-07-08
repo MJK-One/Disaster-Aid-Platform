@@ -4,7 +4,6 @@ import android.app.Service
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Build
@@ -63,20 +62,17 @@ class LocationSenderService : Service() {
         val prefs = getSharedPreferences("location_cache", MODE_PRIVATE)
         val lat = prefs.getFloat("lat", Float.NaN)
         val lng = prefs.getFloat("lng", Float.NaN)
+        val province = prefs.getString("province", null)
+        val city = prefs.getString("city", null)
 
-        if (lat.isNaN() || lng.isNaN()) {
-            Log.w(TAG, "전송할 위치 정보가 없습니다.")
+        if (lat.isNaN() || lng.isNaN() || province.isNullOrEmpty() || city.isNullOrEmpty()) {
+            Log.w(TAG, "❌ 전송할 위치 정보가 부족합니다.")
             return
         }
 
-        val jwt = JwtManager.getToken() ?: run {
-            Log.w(TAG, "JWT 토큰 없음, 서버 전송 중단")
-            return
-        }
-
-        val volunteerPrefs = getSharedPreferences("tracking_info", MODE_PRIVATE)
-        val volunteerId = volunteerPrefs.getString("volunteerId", null) ?: run {
-            Log.w(TAG, "volunteerId 없음")
+        val jwt = JwtManager.getToken()
+        if (jwt == null) {
+            Log.w(TAG, "❌ JWT 토큰 없음")
             return
         }
 
@@ -85,9 +81,17 @@ class LocationSenderService : Service() {
             longitude = lng.toDouble()
         }
 
-        LocationHandler.sendLocationViaWebSocket(location, jwt, volunteerId)
-        LocationHandler.sendLocationViaApi(location, jwt, volunteerId)
-        Log.d(TAG, "📡 WebSocket + API 위치 전송 완료")
+        // 🔹 출석 WebSocket용
+        val volunteerPrefs = getSharedPreferences("tracking_info", MODE_PRIVATE)
+        val volunteerId = volunteerPrefs.getString("volunteerId", null)
+        if (!volunteerId.isNullOrEmpty()) {
+            LocationHandler.sendAttendanceViaWebSocket(location, jwt, volunteerId)
+            Log.d(TAG, "📡 출석 WebSocket 전송")
+        }
+
+        // 🔹 주기적 기록 API용
+        LocationHandler.sendLocationRecordViaApi(jwt, province, city)
+        Log.d(TAG, "📡 위치 기록 API 전송 완료")
     }
 
     override fun onDestroy() {

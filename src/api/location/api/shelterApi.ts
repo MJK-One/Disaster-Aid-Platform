@@ -7,7 +7,6 @@ export const shelterApi = {
     longitude: number,
     radiusMeter: number = 3000
   ): Promise<ShelterDto[]> {
-
     const res = await axiosInstance.get('/shelters', {
       params: { latitude, longitude, radiusMeter },
     });

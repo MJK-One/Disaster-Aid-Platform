@@ -13,8 +13,11 @@ object BackendApi {
     private val client = OkHttpClient()
 
     fun sendRegion(jwtToken: String, province: String, city: String?): Boolean {
+    fun sendRegion(jwtToken: String, province: String, city: String?): Boolean {
         return try {
             val json = JSONObject().apply {
+                put("province", province)
+                put("city", city ?: JSONObject.NULL)
                 put("province", province)
                 put("city", city ?: JSONObject.NULL)
             }
@@ -23,13 +26,7 @@ object BackendApi {
                 .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
             val request = Request.Builder()
-<<<<<<< HEAD
-                .url("http://192.168.45.70:8080/api/location/region") // 환경에 맞게 변경
-=======
-
-                .url("http://192.168.0.22:8080/api/location/region") // 환경에 맞게 변경
-
->>>>>>> 3357f86c194dd2c7779580b575adf652db27a920
+                .url("http://192.168.254.137:8080/api/location/region") // 환경에 맞게 변경
                 .addHeader("Authorization", "Bearer $jwtToken")
                 .post(requestBody)
                 .build()
