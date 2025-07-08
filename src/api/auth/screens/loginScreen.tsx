@@ -1,4 +1,3 @@
-// src/screens/LoginScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -8,7 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Linking,
+  Modal,
 } from 'react-native';
 import { userApi } from '../api/userApi';
 import type { LoginRequestDto } from '../types/User';
@@ -19,6 +18,8 @@ import { requestPushPermission } from '../../alert/fcm/fcmPermissions';
 import { getFcmToken } from '../../alert/fcm/fcmTokenManager';
 import { sendDeviceInfoToServer } from '../../alert/fcm/sendDeviceInfo';
 import { jwtDecode } from 'jwt-decode';
+import { WebView } from 'react-native-webview';
+import { startLocationSenderService } from '../../location/hooks/startLocationService';
 
 interface DecodedToken {
   id: number;
@@ -27,7 +28,6 @@ interface DecodedToken {
   exp: number;
   iat: number;
 }
-import { startLocationSenderService } from '../../location/hooks/startLocationService'; // 확장된 함수 임포트
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -37,23 +37,20 @@ const LoginScreen = () => {
     loginType: 'LOCAL',
   });
 
-  // 자동 로그인 시도
+  const [showWebView, setShowWebView] = useState(false);
+
   useEffect(() => {
     const tryAutoLogin = async () => {
       try {
         const savedToken = await AsyncStorage.getItem('accessToken');
         if (savedToken) {
           setJwtToken(savedToken);
-
-          // 위치 전송 서비스 시작 (ForegroundService + TrackingService + LocationSenderService)
           startLocationSenderService();
-
           const permissionGranted = await requestPushPermission();
           if (permissionGranted) {
             const token = await getFcmToken();
             if (token) await sendDeviceInfoToServer(token);
           }
-
           navigation.navigate('MainScreen' as never);
         }
       } catch (e) {
@@ -79,7 +76,6 @@ const LoginScreen = () => {
       ]);
 
       setJwtToken(accessToken);
-
       const decoded: DecodedToken = jwtDecode(accessToken);
       const role = decoded.role;
 
@@ -91,27 +87,58 @@ const LoginScreen = () => {
           if (!success) console.warn('[FCM] 서버 전송 실패');
         }
       }
-      // 위치 전송 서비스 시작 (ForegroundService + TrackingService + LocationSenderService)
-      startLocationSenderService();
 
+      startLocationSenderService();
       Alert.alert('로그인 성공');
 
-      // ✅ 권한별 화면 이동
-      if (role === 'IND') {
-        navigation.navigate('ReportScreen' as never);
-      } else if (role === 'GOV') {
-        navigation.navigate('Dashboard' as never);
-      } else {
-        navigation.navigate('MainScreen' as never);
-      }
+      if (role === 'IND') navigation.navigate('ReportScreen' as never);
+      else if (role === 'GOV') navigation.navigate('Dashboard' as never);
+      else navigation.navigate('MainScreen' as never);
     } catch (error) {
       console.error('❌ 로그인 실패:', error);
       Alert.alert('로그인 실패', '이메일 또는 비밀번호를 확인해주세요');
     }
   };
 
+  // ✅ WebView 열기
   const handleKakaoLogin = () => {
-    Linking.openURL('http://10.0.2.2:8080/api/oauth2/authorization/kakao');
+    setShowWebView(true);
+  };
+
+  // ✅ WebView 내 URL 변경 감지하여 토큰 추출
+  const handleWebViewNavigation = async (navState: any) => {
+    const { url } = navState;
+
+    if (url.startsWith('http://10.0.2.2:8080/oauth2/success')) {
+      const parsed = new URL(url);
+      const accessToken = parsed.searchParams.get('accessToken');
+      const refreshToken = parsed.searchParams.get('refreshToken');
+
+      if (accessToken && refreshToken) {
+        await AsyncStorage.multiSet([
+          ['accessToken', accessToken],
+          ['refreshToken', refreshToken],
+        ]);
+        setJwtToken(accessToken);
+
+        const decoded: DecodedToken = jwtDecode(accessToken);
+        const role = decoded.role;
+
+        const permissionGranted = await requestPushPermission();
+        if (permissionGranted) {
+          const token = await getFcmToken();
+          if (token) await sendDeviceInfoToServer(token);
+        }
+
+        startLocationSenderService();
+        setShowWebView(false);
+        Alert.alert('카카오 로그인 성공');
+
+        if (role === 'IND') navigation.navigate('ReportScreen' as never);
+        else if (role === 'GOV') navigation.navigate('Dashboard' as never);
+        else navigation.navigate('MainScreen' as never);
+      }
+    }
   };
 
   return (
@@ -134,21 +161,22 @@ const LoginScreen = () => {
         <Text style={styles.loginButtonText}>로그인</Text>
       </TouchableOpacity>
 
-      <View style={styles.socialContainer}>
-        <TouchableOpacity style={styles.kakaoButton} onPress={handleKakaoLogin}>
-          <Image
-            source={require('../../../img/kakao_icon.png')}
-            style={styles.kakaoIcon}
-          />
-        </TouchableOpacity>
-      </View>
-
       <TouchableOpacity
         style={styles.signUpLink}
         onPress={() => navigation.navigate('SignUp' as never)}
       >
         <Text style={styles.signUpText}>회원가입</Text>
       </TouchableOpacity>
+
+      {/* ✅ WebView 모달 */}
+      <Modal visible={showWebView} animationType="slide">
+        <WebView
+          source={{ uri: 'http://10.0.2.2:8080/api/auth/kakao' }}
+          onNavigationStateChange={handleWebViewNavigation}
+          javaScriptEnabled
+          domStorageEnabled
+        />
+      </Modal>
     </View>
   );
 };
@@ -169,7 +197,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: 'center',
     marginTop: 10,
-    height : 53
+    height: 53,
   },
   loginButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   signUpLink: { marginTop: 10, alignItems: 'center' },
@@ -182,7 +210,7 @@ const styles = StyleSheet.create({
   kakaoIcon: {
     marginLeft: '2%',
     width: '100%',
-    height : 70,
+    height: 70,
     marginRight: 8,
     resizeMode: 'contain',
   },

@@ -3,18 +3,19 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// ✅ 실제 로컬 서버 IP 주소 (Android 실기기에서 테스트할 경우 PC의 IP)
-const localIP = '192.168.45.70'; // ← 여기에 본인의 PC IP를 설정하세요
+// ✅ 환경별 baseURL 정의
+const emulatorURL = 'http://10.0.2.2:8080/api'; // Android 에뮬레이터용
+const localIP = '192.168.0.22';                // PC 로컬 IP
+const localURL = `http://${localIP}:8080/api`;
+const productionURL = 'http://54.180.32.246:8080/api'; // ✅ EC2 서버
 
-// ✅ baseURL 설정: Android 실기기/에뮬레이터, iOS 등 분기
-const baseURL =
-  Platform.OS === 'android'
-    ? `http://${localIP}:8080/api` // Android (실기기 포함)
-    : 'http://localhost:8080/api'; // iOS 시뮬레이터 등
+// ✅ 현재는 무조건 EC2 서버에 요청 (에러 회피용)
+const baseURL = localURL;
 
-console.log('🌐 [Axios] BaseURL:', baseURL);
+console.log('🌐 [[Axios]] BaseURL:', baseURL);
 
 // ✅ Axios 인스턴스 생성
+// Axios 인스턴스 생성
 const axiosInstance = axios.create({
   baseURL,
   withCredentials: true,
@@ -23,12 +24,17 @@ const axiosInstance = axios.create({
   },
 });
 
+// 요청 인터셉터: accessToken 자동 삽입
 // ✅ 요청 인터셉터: accessToken 자동 삽입
 axiosInstance.interceptors.request.use(async (config) => {
   try {
+    try {
     const token = await AsyncStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (e) {
+    console.warn('⚠️ [Axios] accessToken 불러오기 실패:', e);
     }
   } catch (e) {
     console.warn('⚠️ [Axios] accessToken 불러오기 실패:', e);
@@ -36,13 +42,12 @@ axiosInstance.interceptors.request.use(async (config) => {
   return config;
 });
 
-// ✅ 응답 인터셉터: accessToken 만료 시 refreshToken으로 재발급 시도
+// 응답 인터셉터: accessToken 만료 시 refreshToken으로 재발급 시도
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // accessToken 만료 → refreshToken으로 재발급
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 

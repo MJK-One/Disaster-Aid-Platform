@@ -32,10 +32,6 @@ export default function MyActivitiesScreen() {
         <Text style={styles.buttonText}>내 신고 목록</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>출석</Text>
-      </TouchableOpacity>
-
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate('UserParticipation' as never)}

@@ -76,7 +76,7 @@ const KakaoMapView: React.FC<Props> = ({
                 const mapContainer = document.getElementById('map');
                 const mapOption = {
                   center: new kakao.maps.LatLng(${latitude}, ${longitude}),
-                  level: 4
+                  level: 6
                 };
                 const map = new kakao.maps.Map(mapContainer, mapOption);
 
