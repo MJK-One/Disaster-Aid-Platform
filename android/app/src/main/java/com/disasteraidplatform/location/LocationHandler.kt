@@ -12,7 +12,7 @@ object LocationHandler {
     private const val TAG = "📡LocationHandler"
     private var webSocket: WebSocket? = null
     private var isConnected = false
-    private const val WS_URL = "ws://10.0.2.2:8080/api/location-tracking"
+    private const val WS_URL = "ws://192.168.0.22:8080/api/location-tracking"
 
     fun sendLocationViaWebSocket(location: Location, jwt: String, volunteerId: String) {
         if (!isConnected) {
@@ -80,7 +80,7 @@ object LocationHandler {
         val body = RequestBody.create("application/json".toMediaTypeOrNull(), json.toString())
 
         val request = Request.Builder()
-            .url("http://10.0.2.2:8080/api/location")
+            .url("http://192.168.0.22:8080/api/location")
             .addHeader("Authorization", "Bearer $jwt")
             .post(body)
             .build()

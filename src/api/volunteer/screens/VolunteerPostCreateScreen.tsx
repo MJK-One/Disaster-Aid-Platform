@@ -161,9 +161,9 @@ const VolunteerPostCreateScreen = () => {
         />
       </View>
 
-      <TextInput placeholder="장소명" style={styles.input} value={form.location.placeName} editable={false} />
-      <TextInput placeholder="위도" style={styles.input} value={form.location.latitude} editable={false} />
-      <TextInput placeholder="경도" style={styles.input} value={form.location.longitude} editable={false} />
+      <TextInput placeholder="장소명" style={styles.input} value={form.location.placeName} editable={true} />
+      <TextInput placeholder="위도" style={styles.input} value={form.location.latitude} editable={true} />
+      <TextInput placeholder="경도" style={styles.input} value={form.location.longitude} editable={true} />
 
       <Button title="등록하기" onPress={handleSubmit} />
     </ScrollView>
