@@ -30,7 +30,7 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
     public static final String REFRESH_TOKEN = "refresh_token";
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofHours(1);
-    public static final String REDIRECT_URI = "http://localhost:3000/oauth2/redirect";
+    public static final String REDIRECT_URI = "http://10.0.2.2:8080/oauth2/success";
 
     private final TokenService tokenService;
     private final KakaoService kakaoService;
@@ -43,7 +43,7 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
      */
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException {
+        Authentication authentication) throws IOException {
 
 
         OAuth2User oAuth2User  = (OAuth2User) authentication.getPrincipal();   // 인증 성공 객체에서 OAuth2UserPrincipal을 가져옴
@@ -69,7 +69,7 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
             clearAuthenticationAttributes(request, response);
 
             // 리다이렉트 처리
-            String targetUrl = getTargetUrl();
+            String targetUrl = getTargetUrl(kakaoToken);
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
 
 
@@ -88,13 +88,18 @@ public class OAuth2SuccessHandler  extends SimpleUrlAuthenticationSuccessHandler
     }
 
     private void clearAuthenticationAttributes(HttpServletRequest request,
-                                               HttpServletResponse response) {
+        HttpServletResponse response) {
         super.clearAuthenticationAttributes(request);
         oauth2AuthorizationRequestBasedOnCookieRepository.removeAuthorizationRequest(request, response);
     }
-    private String getTargetUrl() {
+    /**
+     * 토큰 정보를 쿼리 파라미터로 포함시킨 리디렉션 URI 생성
+     */
+    private String getTargetUrl(TokenResponseDto kakaoToken) {
         return UriComponentsBuilder.fromUriString(REDIRECT_URI)
-                .build().toUriString();
-
+            .queryParam("accessToken", kakaoToken.accessToken())
+            .queryParam("refreshToken", kakaoToken.refreshToken())
+            .build()
+            .toUriString();
     }
 }

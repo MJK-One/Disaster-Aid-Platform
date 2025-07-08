@@ -49,8 +49,6 @@ public class User extends BaseEntity{
     @Column(name = "user_role")
     private UserRole userRole;
 
-
-
     @Builder
     public User(String email, String password, String nickname, String province, String city, LoginType loginType, String provider, UserRole userRole) {
         this.email = email;

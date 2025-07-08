@@ -5,9 +5,11 @@ import com.example.emergencyassistb4b4.global.status.ErrorStatus;
 import com.example.emergencyassistb4b4.report.domain.Report;
 import com.example.emergencyassistb4b4.report.repository.ReportRepository;
 import com.example.emergencyassistb4b4.user.domain.User;
+import com.example.emergencyassistb4b4.user.domain.UserRole;
 import com.example.emergencyassistb4b4.user.dto.UserRequestDto;
 import com.example.emergencyassistb4b4.user.dto.UserResponseDto;
 import com.example.emergencyassistb4b4.user.repository.UserRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,5 +41,9 @@ public class UserService {
 
         // 신고자 반환
         return report.getReporter();
+    }
+
+    public List<Long> findUsersByRegion(String province, String city) {
+        return userRepository.findUsersByRegion(province, city, UserRole.IND);
     }
 }

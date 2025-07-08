@@ -1,6 +1,7 @@
 package com.example.emergencyassistb4b4.alert.orchestrator;
 
 import com.example.emergencyassistb4b4.alert.client.location.LocationClient;
+import com.example.emergencyassistb4b4.alert.client.user.UserClient;
 import com.example.emergencyassistb4b4.alert.client.userDevice.UserDeviceClient;
 import com.example.emergencyassistb4b4.alert.dto.fcm.FcmMessageDto;
 import com.example.emergencyassistb4b4.alert.dto.report.ReportThresholdAlertDto;
@@ -22,6 +23,7 @@ public class ReportThresholdAlertOrchestratorService {
 
     private final AlertCommandService alertCommandService;
     private final LocationClient locationClient;
+    private final UserClient userClient;
     private final UserDeviceClient userDeviceClient;
     private final FcmSender fcmSender;
 
@@ -34,14 +36,19 @@ public class ReportThresholdAlertOrchestratorService {
         FcmMessageDto message = FcmMessageDto.fromReportThresholdAlert(info);
 
         // 3. FCM 발송 대상 선정 - 사용자 현 위치를 기준으로 (민간단체는 FCM Topic 구독을 통해 처리)
-        List<Long> userIds = locationClient.findUsersByRegion(info.getProvince(), info.getCity());
-        if (userIds == null || userIds.isEmpty()) {
-            // 재난 신고는 사용자 현 위치 기준 -> 지역 내 사용자 없을 경우 시스템 오류로 간주
-            throw new ApiException(ErrorStatus.ALERT_SERVER_ERROR);
-        }
+//        List<Long> userIds = locationClient.findUsersByRegion(info.getProvince(), info.getCity());
+        // 3-1. 사용자 관심 지역 기준 조회
+        List<Long> userIds = userClient.findUsersByRegion(info.getProvince(), info.getCity());
+//        if (userIds == null || userIds.isEmpty()) {
+//            // 재난 신고는 사용자 현 위치 기준 -> 지역 내 사용자 없을 경우 시스템 오류로 간주
+//            throw new ApiException(ErrorStatus.ALERT_SERVER_ERROR);
+//        }
 
         // 4. FCM Token 조회
         List<String> tokens = userDeviceClient.findFcmTokensByUserIds(userIds);
+        if (tokens == null || tokens.isEmpty()) {
+           return;
+        }
 
         // 5. FCM 발송
         try {
