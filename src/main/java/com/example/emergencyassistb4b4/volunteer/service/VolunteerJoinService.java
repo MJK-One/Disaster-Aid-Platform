@@ -62,7 +62,12 @@ public class VolunteerJoinService {
         teamParticipationRedisService.tryJoinTeam(team.getId(), userId, team.getMaxCapacity(), period.checkinEnd());
 
         // 팀원 DB 저장
-        participantService.joinSave(userId, team.getId());
+        try {
+            participantService.joinSave(userId, team.getId());
+        } catch (RuntimeException e) {
+            teamParticipationRedisService.cancelJoin(team.getId(), userId);
+            throw e;
+        }
     }
 
     // 팀 참가 취소
@@ -81,14 +86,6 @@ public class VolunteerJoinService {
         // 출석 시간 < 취소 X < 출석 마감 시간
         CheckinPeriodDto period = postRepository.findCheckinPeriodByPostId(postId)
                 .orElseThrow(() -> new ApiException(ErrorStatus.VOLUNTEER_NOT_FOUND));
-        log.debug("현재 시간 now          : {}", now);
-        log.debug("출석 시작 checkinStart : {}", period.checkinStart());
-        log.debug("출석 종료 checkinEnd   : {}", period.checkinEnd());
-        log.debug("조건 평가 결과         : isAfterStart={}, isBeforeEnd={}, 전체조건={}",
-                now.isAfter(period.checkinStart()),
-                now.isBefore(period.checkinEnd()),
-                now.isAfter(period.checkinStart()) && now.isBefore(period.checkinEnd())
-        );
 
         if(now.isAfter(period.checkinStart()) && now.isBefore(period.checkinEnd())) {
             throw new ApiException(ErrorStatus.VOLUNTEER_BAD_REQUEST);

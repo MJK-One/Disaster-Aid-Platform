@@ -51,7 +51,7 @@ public class TeamParticipationRedisService {
         }
     }
 
-    // 취소 : 현재 인원 -
+    // 취소 : 현재 인원 - OR 롤백 : DB 저장 실패 후
     public void cancelJoin(Long teamId, Long userId) {
         String usersKey = String.format(USERS_KEY_FORMAT, teamId);
         String countKey = String.format(COUNT_KEY_FORMAT, teamId);
